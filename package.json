@@ -2,13 +2,39 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "build:chrome": "next build && bash ./scripts/build.sh",
     "dev": "next dev",
     "start": "next start"
   },
   "dependencies": {
+    "@metamask/browser-passworder": "^4.3.0",
+    "@nextui-org/react": "^2.2.10",
+    "axios": "^1.6.7",
+    "ethereum-blockies-base64": "^1.0.2",
+    "framer-motion": "^11.0.8",
+    "i": "^0.3.7",
+    "i18n-js": "^4.4.3",
+    "javascript-time-ago": "^2.5.9",
+    "lodash": "^4.17.21",
     "next": "latest",
+    "npm": "^10.4.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-redux": "^9.1.0",
+    "react-router-dom": "^6.22.1",
+    "react-toastify": "^10.0.4",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0",
+    "sass": "^1.71.0",
+    "symbol-crypto-wasm-web": "^0.1.1",
+    "symbol-hd-wallets": "^0.14.2",
+    "symbol-sdk": "^3.1.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "webpack": "^5.90.3"
   },
   "engines": {
     "node": ">=18"

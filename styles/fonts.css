@@ -1,0 +1,29 @@
+@font-face {
+    font-weight: 700;
+    font-family: JetBrainsMono;
+    font-style: normal;
+    src: url("/fonts/JetBrainsMono-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-weight: 400;
+    font-family: Protipo;
+    font-style: normal;
+    src: url("/fonts/Protipo-Regular.otf") format("opentype");
+}
+
+@font-face {
+    font-weight: 700;
+    font-family: Protipo;
+    font-style: normal;
+    src: url("/fonts/Protipo-Bold.otf") format("opentype");
+}
+
+
+@font-face {
+    font-family: SofiaSansCondensed;
+    src: url('/fonts/SofiaSansCondensed-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}

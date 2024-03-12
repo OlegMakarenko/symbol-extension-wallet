@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #__next, #_next, main {
+    font-size: 11px;
+    background-color: theme(colors.background);
+    width: 350px;
+    height: 600px;
+    overflow: hidden;
+}
+
+body {
+    font-family: theme(fontFamily.body);
+}
+
+h1 {
+    @apply text-5xl font-bold uppercase;
+    font-family: theme(fontFamily.accent);
+}
+
+h2 {
+    @apply text-3xl font-bold uppercase;
+    font-family: theme(fontFamily.accent);
+}
+
+h3 {
+    font-family: theme(fontFamily.body);
+    @apply text-xl font-bold;
+}
+
+h5 {
+    @apply opacity-80 font-mono uppercase;
+}
+
+p {
+
+}
+
+a {
+
+}
+
+a:hover {
+
+}
+
+button {
+    font-family: theme(fontFamily.accent);
+    text-transform: uppercase;
+}
+
+.s-text-label {
+    @apply font-mono uppercase;
+}
+
+.s-text-title {
+    @apply font-accent uppercase text-3xl;
+}
+
+.s-text-amount {
+    @apply text-3xl;
+}
+
+.toast-container, .toast-container > div{
+    @apply border-solid border-primary border-b-1.5;
+    background-color: theme(colors.toast);
+}
+
+.toast-body {
+    color: theme(colors.primary);
+    background-color: theme(colors.toast);
+    padding: 0;
+}
+
+.account-card-gradient {
+    background: linear-gradient(25deg, theme(colors.secondary) 50%, rgba(0,0,0,0) 100%);
+}
+
+.animation-fade-in {
+    animation: 250ms linear fade-in;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+/* .flex-1 {
+    flex: 1 1 0;
+} */

@@ -1,0 +1,102 @@
+// Colors
+$color-primary: #26c3f2;
+$color-secondary: #605C6B;
+
+$color-bg-statusbar: #000000;
+$color-bg-navbar: #1A1A1A;
+$color-bg-tabs-navigator: #1b0a29;
+$color-bg-tabs-navigator-active: #1e2f52;
+$color-bg-footer: #0b0118;
+$color-bg-body: #221c31;
+$color-bg-main: #1b0a29;
+$color-bg-account-card: #1b0a29;
+$color-bg-account-card-selected: #2f0b40;
+$color-bg-card: #413c4f;
+$color-bg-card-transparent: rgba(241, 243, 244, 0.15);
+$color-bg-form: #000000;
+$color-bg-active: #112844;
+$color-form-neutral: #6C6C6C;
+$color-accent-form-opacity: #38094f;
+$color-accent-form: #7413a4;
+$color-accent-light-form: #b429fa;
+$color-text-form: #ffffff;
+
+$color-text-body: #ffffff;
+$color-text-title: #b429fa;
+$color-text-link: #26c3f2;
+$color-text-subtitle: #ffffff;
+$color-text-footer: #ffffff;
+
+$color-data-color1: #b429fa;
+$color-data-color2: #5874ff;
+$color-data-color3: #0099ff;
+$color-data-color4: #00b3ff;
+$color-data-color5: #26c3f2;
+$color-danger: #ff9999;
+$color-warning: #f7c06e;
+$color-success: #b3e6b3;
+$color-neutral: #c7ced1;
+$color-info: #9ed1fa;
+$color-bg-danger: #cc0000;
+$color-bg-warning: #ff9900;
+$color-bg-success: #287326;
+$color-bg-neutral: #5c6970;
+$color-bg-info: #4086bf;
+
+$color-control-button-stroke: #26c3f2;
+$color-control-button-bg: #0b0118;
+$color-control-button-text: #26c3f2;
+$color-control-button-pressed-stroke: #26c3f2;
+$color-control-button-pressed-bg: #112844;
+$color-control-button-pressed-text: #26c3f2;
+$color-control-button-disabled-stroke: #26c3f244;
+$color-control-button-disabled-bg: #26c3f2;
+$color-control-button-disabled-text: #26c3f255;
+
+$color-control-base-stroke: #b429fa;
+$color-control-base-bg: #000000;
+$color-control-base-text: #ffffff;
+$color-control-base-text-alt: rgba(255, 255, 255, 0.7);
+$color-control-basePlaceholder: #858585;
+
+$color-control-base-focussed-stroke: #7413a4;
+$color-control-base-pressed-stroke: #7413a4;
+
+
+// Borders
+$border-radius-card: 1rem;
+
+// Typography
+$font-body: 400 1rem / 133.33% 'Protipo';//, sans-serif;
+$font-body-bold: 700 1rem / 133.33% 'Protipo';//, sans-serif;
+$font-body-monospace: 700 1rem / 133.33% 'JetBrainsMono';//, monospace;
+$font-h1: 800 5rem/ 4.66rem 'SofiaSansCondensed';//, sans-serif;
+$font-h2: 800 3.25rem / 4rem 'SofiaSansCondensed';//, sans-serif;
+$font-h3: 800 2.66rem / 3.33rem 'SofiaSansCondensed';//, sans-serif;
+$font-h4: 800 1.5rem / 1.7rem 'SofiaSansCondensed';//, sans-serif;
+$font-button: 800 1rem / 133.33% 'SofiaSansCondensed';//, sans-serif;
+$text-transform-button: uppercase;
+
+// Sizes
+$size-viewport-width: 350px;
+$size-viewport-height: 600px;
+
+// Spacings General
+$spacing-base: calc(1rem / 3 * 2);
+$spacing-padding: $spacing-base * 3;
+
+// Spacings Desktop
+$spacing-content-container-width-desktop: $spacing-base * 152;
+$spacing-content-container-margin-desktop: $spacing-base * 3;
+$multiplier-font-desktop: 14px;
+
+// Spacings Mobile
+$spacing-content-container-width-mobile: 100%;
+$spacing-content-container-margin-mobile: $spacing-base * 2;
+$multiplier-font-mobile: 14px;
+
+// Breakpoints
+$screen-large: "(min-width: 2000px)";
+$screen-desktop: "(max-width: 1999.8px) and (min-width: 1440px)";
+$screen-laptop: "(max-width: 1439.8px) and (min-width: 768px)";
+$screen-mobile: "(max-width: 767.8px)";

@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/api/*": ["api/*"],
+            "@/components/*": ["components/*"],
+            "@/config": ["config/index.js"],
+            "@/constants": ["constants/index.js"],
+            "@/localization": ["localization/index.js"],
+            "@/pages/*": ["pages/*"],
+            "@/public/*": ["public/*"],
+            "@/screens/*": ["screens/*"],
+            "@/services": ["services/index.js"],
+            "@/styles/*": ["styles/*"],
+            "@/storage": ["storage/index.js"],
+            "@/store": ["store/index.js"],
+            "@/utils/*": ["utils/*"],
+        }
+    },
+    "exclude": [
+        "**/node_modules/*",
+        "**/build/*",
+        "**/scripts/*"
+    ]
+}
