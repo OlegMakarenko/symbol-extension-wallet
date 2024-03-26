@@ -1,6 +1,6 @@
 import { knownAccounts } from '@/config';
 import { KNOWN_ACCOUNT_IMAGES } from '@/constants';
-import makeBlockie from 'ethereum-blockies-base64';
+import { getImageFromHash } from '@/utils/helper';
 import { useEffect, useState } from 'react';
 
 export const AccountAvatar = ({ address = '', size, className }) => {
@@ -26,7 +26,7 @@ export const AccountAvatar = ({ address = '', size, className }) => {
             setLogo(KNOWN_ACCOUNT_IMAGES[knownAccounts[address]]);
         }
         else {
-            setBgBlockie(makeBlockie(address));
+            setBgBlockie(getImageFromHash(address));
         }
 	}, [address]);
 
