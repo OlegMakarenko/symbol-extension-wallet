@@ -2,12 +2,14 @@ import { TransactionType } from '@/constants';
 import { getMosaicRelativeAmount } from './mosaic';
 import { toFixedNumber } from './helper';
 import symbolSdk from 'symbol-sdk';
+import { transactionToSymbol } from './transaction-to-symbol';
+import MessageEncoder from 'symbol-sdk/src/symbol/MessageEncoder';
 
 export const isAggregateTransaction = (transaction) => {
     return transaction.type === TransactionType.AGGREGATE_BONDED || transaction.type === TransactionType.AGGREGATE_COMPLETE ||  transaction.type.value === TransactionType.AGGREGATE_BONDED || transaction.type.value === TransactionType.AGGREGATE_COMPLETE;
 };
 
-export const getTransactionFees = (transaction, networkProperties, transactionSize) => {
+export const getTransactionFees = (transaction, networkProperties) => {
     const {
         transactionFees,
         networkCurrency: { divisibility },
@@ -20,7 +22,7 @@ export const getTransactionFees = (transaction, networkProperties, transactionSi
     const stubCurrentAccount = {
         privateKey: '0000000000000000000000000000000000000000000000000000000000000000',
     };
-    const size = transactionSize || transactionToDTO(stubTransaction, networkProperties, stubCurrentAccount).size;
+    const size = transactionToSymbol(stubTransaction, networkProperties, stubCurrentAccount).size;
 
     const fast = (transactionFees.minFeeMultiplier + transactionFees.averageFeeMultiplier) * size;
     const medium = (transactionFees.minFeeMultiplier + transactionFees.averageFeeMultiplier * 0.65) * size;
@@ -39,9 +41,7 @@ export const transactionFromPayload = (payload) => {
     return symbolSdk.symbol.TransactionFactory.deserialize(transactionHex);
 };
 
-export const transactionToDTO = () => ({ size: 100 });
-
-export const getUnresolvedIdsFromTransactionDTOs = (transactions) => {
+export const getUnresolvedIdsFromSymbolTransaction = (transactions) => {
     const mosaicIds = [];
     const namespaceIds = [];
     const addresses = [];
@@ -105,7 +105,7 @@ export const getUnresolvedIdsFromTransactionDTOs = (transactions) => {
         const transactionFieldsToResolve = transactionsUnresolvedFieldsMap[transaction.type.value];
 
         if (isAggregateTransaction(transaction)) {
-            const unresolved = getUnresolvedIdsFromTransactionDTOs(transaction.transactions);
+            const unresolved = getUnresolvedIdsFromSymbolTransaction(transaction.transactions);
             mosaicIds.push(...unresolved.mosaicIds);
             namespaceIds.push(...unresolved.namespaceIds);
             addresses.push(...unresolved.addresses);
@@ -136,11 +136,19 @@ export const getUnresolvedIdsFromTransactionDTOs = (transactions) => {
                             })
                         );
                 } else if (mode === 'mosaic') {
-                    mosaicIds.push(value.mosaicId.toString().replace('0x', ''));
+                    if (value.mosaicId) {
+                        mosaicIds.push(value.mosaicId.toString().replace('0x', ''));
+                    }
+                    else if (value.id) {
+                        mosaicIds.push(value.id.toString().replace('0x', ''));
+                    }
+                    else {
+                        mosaicIds.push(value.toString().replace('0x', ''));
+                    }
                 } else if (mode === 'mosaicArray' && Array.isArray(value)) {
                     value.forEach((mosaic) => mosaicIds.push(mosaic.mosaicId.toString().replace('0x', '')));
                 } else if (mode === 'namespace') {
-                    namespaceIds.push(value.toHex());
+                    namespaceIds.push(value.value.toString(16));
                 }
             });
         });
@@ -157,10 +165,24 @@ export const isOutgoingTransaction = (transaction, currentAccount) => transactio
 
 export const isIncomingTransaction = (transaction, currentAccount) => transaction.recipientAddress === currentAccount.address;
 
-export const decryptMessage = (encryptedMessage, recipientPrivateKey, senderPublicKey) => {
-    const hex = Crypto.decode(recipientPrivateKey, senderPublicKey, encryptedMessage);
+export const encryptMessage = (messageText, recipientPublicKey, privateKey) => {
+    const _privateKey = new symbolSdk.PrivateKey(privateKey);
+    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(_privateKey);
+    const messageEncoder = new MessageEncoder(keyPair);
+    const messageBytes = Buffer.from(messageText, 'utf-8');
+    const encodedBytes = messageEncoder.encode(recipientPublicKey, messageBytes);
 
-    return Buffer.from(hex, 'hex').toString();
+    return Buffer.from(encodedBytes).toString('hex');
+}
+
+export const decryptMessage = (encryptedMessageHex, recipientPublicKey, privateKey) => {
+    const _privateKey = new symbolSdk.PrivateKey(privateKey);
+    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(_privateKey);
+    const messageEncoder = new MessageEncoder(keyPair);
+    const messageBytes = Buffer.from(encryptedMessageHex, 'hex');
+    const { message } = messageEncoder.tryDecode(recipientPublicKey, messageBytes);
+
+    return Buffer.from(message).toString('utf-8');
 };
 
 /**
