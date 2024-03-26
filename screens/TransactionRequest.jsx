@@ -1,14 +1,13 @@
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import store, { connect } from '@/store';
-import { TransactionType } from '@/constants';
 import { useDataManager, useInit, usePasscode, useToggle } from '@/utils/hooks';
 import { MosaicService, NamespaceService, TransactionService } from '@/services';
 import { $t } from '@/localization';
 import { Screen } from '@/components/Screen';
 import { FormItem } from '@/components/FormItem';
 import { TableView } from '@/components/TableView';
-import { Button } from '@nextui-org/react';
+import { Button, Divider, Spacer } from '@nextui-org/react';
 import { Alert } from '@/components/Alert';
 import { DialogBox } from '@/components/DialogBox';
 import { getUserCurrencyAmountText, handleError } from '@/utils/helper';
@@ -16,29 +15,10 @@ import { TitleBar } from '@/components/TitleBar';
 import { useLocation } from 'react-router-dom';
 import { FeeSelector } from '@/components/FeeSelector';
 import { useRouter } from '@/components/Router';
-import { getTransactionFees, getUnresolvedIdsFromTransactionDTOs, isAggregateTransaction, transactionFromPayload } from '@/utils/transaction';
-import { Card } from '@/components/Card';
-import { transactionFromDTO } from '@/utils/dto';
-import { signTransactionPayload } from '@/utils/secure';
-
-const SUPPORTED_TRANSACTION_TYPES = [
-    TransactionType.AGGREGATE_BONDED,
-    TransactionType.AGGREGATE_COMPLETE,
-    TransactionType.TRANSFER,
-    TransactionType.ADDRESS_ALIAS,
-    TransactionType.MOSAIC_ALIAS,
-    TransactionType.NAMESPACE_REGISTRATION,
-    TransactionType.MOSAIC_DEFINITION,
-    TransactionType.MOSAIC_SUPPLY_CHANGE,
-    TransactionType.MOSAIC_SUPPLY_REVOCATION,
-    TransactionType.VRF_KEY_LINK,
-    TransactionType.ACCOUNT_KEY_LINK,
-    TransactionType.NODE_KEY_LINK,
-    TransactionType.VOTING_KEY_LINK,
-    TransactionType.ACCOUNT_METADATA,
-    TransactionType.NAMESPACE_METADATA,
-    TransactionType.MOSAIC_METADATA,
-];
+import { getTransactionFees, transactionFromPayload } from '@/utils/transaction';
+import { signTransaction } from '@/utils/secure';
+import { TransactionGraphic } from '@/components/TransactionGraphic';
+import { transactionFromSymbol } from '@/utils/transaction-from-symbol';
 
 export const TransactionRequest = connect((state) => ({
     currentAccount: state.account.current,
@@ -55,12 +35,10 @@ export const TransactionRequest = connect((state) => ({
     const router = useRouter();
     const { state } = useLocation();
     const [transaction, setTransaction] = useState(null);
-    const [transactionSize, setTransactionSize] = useState(null);
     const [payload, setPayload] = useState('');
     const [styleAmount, setStyleAmount] = useState(null);
     const [userCurrencyAmountText, setUserCurrencyAmountText] = useState('');
     const [speed, setSpeed] = useState('medium');
-    const [isTypeSupported, setIsTypeSupported] = useState(false);
     const [isNetworkSupported, setIsNetworkSupported] = useState(false);
     const [isConfirmVisible, toggleConfirm] = useToggle(false);
     const [isSuccessAlertVisible, toggleSuccessAlert] = useToggle(false);
@@ -70,7 +48,7 @@ export const TransactionRequest = connect((state) => ({
     const isAggregate = !!transaction?.innerTransactions;
 
     const transactionFees = useMemo(
-        () => (payload ? getTransactionFees(transaction, networkProperties, transactionSize || 0) : {}),
+        () => (payload ? getTransactionFees(transaction, networkProperties) : {}),
         [payload]
     );
 
@@ -82,12 +60,13 @@ export const TransactionRequest = connect((state) => ({
             'signerPublicKey',
             'deadline',
             'cosignaturePublicKeys',
+            'aggregateHash',
             isEmbedded ? 'fee' : null,
         ]);
     const [loadTransaction, isTransactionLoading] = useDataManager(
         async (payload, generationHash) => {
-            const transactionDTO = transactionFromPayload(payload);
-            const { addresses, mosaicIds, namespaceIds } = getUnresolvedIdsFromTransactionDTOs([transactionDTO]);
+            const symbolTransaction = transactionFromPayload(payload);
+            const { addresses, mosaicIds, namespaceIds } = getUnresolvedIdsFromTransactionDTOs([symbolTransaction]);
             const mosaicInfos = await MosaicService.fetchMosaicInfos(networkProperties, mosaicIds);
             const namespaceNames = await NamespaceService.fetchNamespaceNames(networkProperties, namespaceIds);
             const resolvedAddresses = await NamespaceService.resolveAddresses(networkProperties, addresses);
@@ -99,23 +78,13 @@ export const TransactionRequest = connect((state) => ({
                 resolvedAddresses,
                 fillSignerPublickey: currentAccount.publicKey,
             };
-            const transaction = transactionFromDTO(transactionDTO, transactionOptions, currentAccount.address);
+            const transaction = transactionFromSymbol(symbolTransaction, transactionOptions, currentAccount.address);
 
             let styleAmount;
             if (transaction.amount < 0) {
                 styleAmount = 'text-danger';
             } else if (transaction.amount > 0) {
                 styleAmount = 'text-success';
-            }
-
-            let isTypeSupported = false;
-
-            if (isAggregateTransaction(transaction)) {
-                isTypeSupported = transaction.innerTransactions.every((transaction) =>
-                    SUPPORTED_TRANSACTION_TYPES.some((item) => item === transaction.type)
-                );
-            } else {
-                isTypeSupported = SUPPORTED_TRANSACTION_TYPES.some((item) => item === transaction.type);
             }
 
             const userCurrencyAmountText = getUserCurrencyAmountText(
@@ -125,9 +94,7 @@ export const TransactionRequest = connect((state) => ({
             );
 
             setPayload(payload);
-            setTransactionSize(transactionDTO.size);
             setTransaction(transaction);
-            setIsTypeSupported(isTypeSupported);
             setIsNetworkSupported(generationHash === networkProperties.generationHash);
             setStyleAmount(styleAmount);
             setUserCurrencyAmountText(userCurrencyAmountText);
@@ -140,7 +107,7 @@ export const TransactionRequest = connect((state) => ({
     );
     const [send, isSending] = useDataManager(
         async (password) => {
-            const signedPayload = await signTransactionPayload(password, networkProperties.networkIdentifier, payload, currentAccount)
+            const signedPayload = await signTransaction(password, networkProperties, transaction, currentAccount)
             await TransactionService.announce(signedPayload, networkProperties);
             toggleSuccessAlert();
         },
@@ -173,7 +140,7 @@ export const TransactionRequest = connect((state) => ({
     );
     useInit(loadState, isWalletReady, [currentAccount]);
 
-    const isButtonDisabled = !isTransactionLoaded || !isTypeSupported || !isNetworkSupported || isMultisigAccount;
+    const isButtonDisabled = !isTransactionLoaded || !isNetworkSupported || isMultisigAccount;
     const isLoading = !isAccountReady || isTransactionLoading || isSending || isStateLoading;
 
     return (
@@ -227,32 +194,9 @@ export const TransactionRequest = connect((state) => ({
                     />
                 </FormItem>
             )}
-            {!isTypeSupported && (
-                <>
-                    <FormItem>
-                        <Alert
-                            type="warning"
-                            title={$t('warning_transactionRequest_transactionType_title')}
-                            body={$t('warning_transactionRequest_transactionType_body')}
-                        />
-                    </FormItem>
-                    <FormItem>
-                        <Card>
-                            <FormItem>
-                                <h3>{$t('s_transactionRequest_supportedTypes_title')}</h3>
-                                {SUPPORTED_TRANSACTION_TYPES.map((type, index) => (
-                                    <p key={index}>
-                                        {$t(`transactionDescriptor_${type}`)}
-                                    </p>
-                                ))}
-                            </FormItem>
-                        </Card>
-                    </FormItem>
-                </>
-            )}
             <FormItem>
-                <p className="s-text-label">{$t('s_transactionDetails_amount')}</p>
-                <div style={styles.amountRow}>
+                <h5>{$t('s_transactionDetails_amount')}</h5>
+                <div className="flex flex-row items-baseline">
                     <p className={`s-text-amount ${styleAmount}`}>
                         {transaction ? transaction.amount : '-'} {ticker} {''}
                     </p>
@@ -261,28 +205,32 @@ export const TransactionRequest = connect((state) => ({
                     )}
                 </div>
             </FormItem>
-            {/* <FormItem>
-                {isTransactionLoaded && !isAggregate && <TransactionGraphic transaction={transaction} isExpanded={isTypeSupported} />}
+            <Spacer y={4}/>
+            <FormItem>
+                {isTransactionLoaded && !isAggregate && <TransactionGraphic transaction={transaction} />}
                 {isTransactionLoaded &&
                     isAggregate &&
                     transaction.innerTransactions.map((item, index) => (
                         <FormItem type="list" key={'tx' + index}>
-                            <TransactionGraphic transaction={item} isExpanded={isTypeSupported} />
+                            <TransactionGraphic transaction={item} />
                         </FormItem>
                     ))}
-            </FormItem> */}
+            </FormItem>
             <DialogBox
                 type="confirm"
                 title={$t('transaction_confirm_title')}
                 body={
                     <div>
-                        <FormItem clear="horizontal">
+                        <FormItem>
                             <TableView data={getTransactionPreviewTable(transaction)} />
                         </FormItem>
                         {transaction?.innerTransactions?.map((innerTransaction, index) => (
-                            <FormItem key={'inner' + index} clear="horizontal">
-                                <TableView data={getTransactionPreviewTable(innerTransaction, true)} />
-                            </FormItem>
+                            <div key={'inner' + index}>
+                                <Divider className="my-4" />
+                                <FormItem>
+                                    <TableView data={getTransactionPreviewTable(innerTransaction, true)} />
+                                </FormItem>
+                            </div>
                         ))}
                     </div>
                 }
@@ -308,23 +256,3 @@ export const TransactionRequest = connect((state) => ({
         </Screen>
     );
 });
-
-const styles = {
-    textAmount: {
-        // ...fonts.amount,
-        // color: colors.textBody,
-    },
-    outgoing: {
-        // color: colors.danger,
-    },
-    incoming: {
-        // color: colors.success,
-    },
-    amountRow: {
-        flexDirection: 'row',
-        alignItems: 'baseline',
-    },
-    userCurrencyText: {
-        // ...fonts.body,
-    },
-};
