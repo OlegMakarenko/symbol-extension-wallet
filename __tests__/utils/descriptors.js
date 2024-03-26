@@ -1,7 +1,6 @@
 import symbolSdk from 'symbol-sdk';
 
 const { symbol } = symbolSdk;
-const facade = new symbolSdk.facade.SymbolFacade('testnet');
 
 const alias = () => {
 	const sampleAddress = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y';
@@ -24,6 +23,7 @@ const alias = () => {
 		}
 	];
 };
+
 const keyLink = () => {
 	const samplePublicKey = 'BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F';
 
@@ -88,6 +88,7 @@ const lock = () => {
 		}
 	];
 };
+
 const metadata = () => {
 	const sampleAddress = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y';
 	const sampleNamespaceId = 0xC01DFEE7FEEDDEADn;
@@ -269,7 +270,7 @@ const transfer = () => {
 	];
 };
 
-const txs = {
+export const txs = {
     alias,
     keyLink,
     lock,
@@ -279,20 +280,4 @@ const txs = {
     restrictionAccount,
     restrictionMosaic,
     transfer
-}
-
-
-export const testTx = () => {
-    Object.keys(txs).map(txKey => {
-        console.log('-----------------------------')
-        console.log('>> ' + txKey);
-        const descriptors = txs[txKey]();
-
-        descriptors.map(desc => {
-            const tx = facade.transactionFactory.create(desc);
-            console.log(tx);
-        });
-        console.log('-----------------------------')
-    })
-
 }
