@@ -1,15 +1,17 @@
 {
   "private": true,
   "scripts": {
-    "build": "next build",
-    "build:chrome": "next build && bash ./scripts/build.sh",
+    "build": "cross-env MODE=production && next build",
+    "build:chrome": "npm run build && bash ./scripts/build.sh",
     "dev": "next dev",
     "start": "next start"
   },
   "dependencies": {
+    "@js-joda/core": "^5.6.2",
     "@metamask/browser-passworder": "^4.3.0",
     "@nextui-org/react": "^2.2.10",
     "axios": "^1.6.7",
+    "cross-env": "^7.0.3",
     "ethereum-blockies-base64": "^1.0.2",
     "framer-motion": "^11.0.8",
     "i": "^0.3.7",
