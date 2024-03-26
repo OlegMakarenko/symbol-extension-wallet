@@ -1,12 +1,11 @@
+import { MosaicFlags } from '@/constants';
 import { bytesToInt } from 'symbol-sdk/src/utils/converter';
 
 export const getNativeMosaicAmount = (mosaicList, nativeMosaicId) => {
-    console.log(mosaicList, nativeMosaicId)
     if (!mosaicList || !nativeMosaicId) {
         return null;
     }
     const nativeMosaic = mosaicList.find((mosaic) => mosaic.id === nativeMosaicId);
-    console.log(nativeMosaic)
 
     return nativeMosaic ? nativeMosaic.amount : 0;
 };
@@ -81,3 +80,8 @@ export const generateNonce = () => {
 // export const generateMosaicId = (nonce, ownerAddress) => {
 //     return generateMosaicId = generateMosaicId(ownerAddress, nonce);
 // };
+
+export const isSupplyMutableFlag = flags => (flags & MosaicFlags.SUPPLY_MUTABLE) !== 0;
+export const isTransferableFlag = flags => (flags & MosaicFlags.TRANSFERABLE) !== 0;
+export const isRestrictableFlag = flags => (flags & MosaicFlags.RESTRICTABLE) !== 0;
+export const isRevokableFlag = flags => (flags & MosaicFlags.REVOKABLE) !== 0;

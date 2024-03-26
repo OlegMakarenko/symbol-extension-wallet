@@ -3,7 +3,7 @@ import { NamespaceService } from './';
 import { MosaicFlags } from '@/constants';
 import { addressFromRaw } from '@/utils/account';
 import { makeRequest } from '@/utils/network';
-import { getMosaicRelativeAmountString } from '@/utils/mosaic';
+import { getMosaicRelativeAmountString, isRestrictableFlag, isRevokableFlag, isSupplyMutableFlag, isTransferableFlag } from '@/utils/mosaic';
 
 export class MosaicService {
     static async fetchMosaicInfo(networkProperties, mosaicId) {
@@ -46,10 +46,10 @@ export class MosaicService {
                     isUnlimitedDuration,
                     creator,
                     supply,
-                    isSupplyMutable: (flags & MosaicFlags.SUPPLY_MUTABLE) !== 0,
-                    isTransferable: (flags & MosaicFlags.TRANSFERABLE) !== 0,
-                    isRestrictable: (flags & MosaicFlags.RESTRICTABLE) !== 0,
-                    isRevokable: (flags & MosaicFlags.REVOKABLE) !== 0,
+                    isSupplyMutable: isSupplyMutableFlag(flags),
+                    isTransferable: isTransferableFlag(flags),
+                    isRestrictable: isRestrictableFlag(flags),
+                    isRevokable: isRevokableFlag(flags),
                 },
             ];
         });
