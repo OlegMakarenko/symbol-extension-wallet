@@ -5,13 +5,14 @@ import { NextUIProvider } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { PersistentStorage, StorageMigration } from '@/storage';
 import { isMnemonicStored } from '@/utils/secure';
-import { initLocalization } from 'localization';
+import { initLocalization } from '@/localization';
 import store from '@/store';
 import { Slide, ToastContainer } from 'react-toastify';
 import { Events } from '@/constants';
 import { usePasscode } from '@/utils/hooks';
 import { Router, useRouter } from '@/components/Router';
 import { processRequestAction } from '@/utils/helper';
+import { GlobalStoreHandler } from '@/components/index';
 
 
 export default function Main({isReady}) {
@@ -80,10 +81,13 @@ export default function Main({isReady}) {
                 <Provider store={store}>
                     <main className="dark text-foreground bg-background">
                         {isReady && (
-                            <Router
-                                isMainFlowRendered={isMainFlowRendered}
-                                isWelcomeFlowRendered={isWelcomeFlowRendered}
-                            />
+                            <>
+                                <GlobalStoreHandler />
+                                <Router
+                                    isMainFlowRendered={isMainFlowRendered}
+                                    isWelcomeFlowRendered={isWelcomeFlowRendered}
+                                />
+                            </>
                         )}
                         <Passcode />
                     </main>

@@ -57,7 +57,7 @@ export const DialogBox = (props) => {
     useEffect(() => setPromptValue(''), [isVisible]);
 
     return (
-        <Modal hideCloseButton shouldBlockScroll scrollBehavior="outside" placement="center" className="bg-main" radius="lg" isOpen={isVisible} onOpenChange={onCancel}>
+        <Modal hideCloseButton shouldBlockScroll placement="center" className="bg-main" radius="lg" isOpen={isVisible} onOpenChange={onCancel}>
             <ModalContent>
                 <ModalBody>
                     <h2>{title}</h2>

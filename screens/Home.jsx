@@ -3,7 +3,7 @@ import { $t } from 'localization';
 import { logOut } from '@/utils/secure';
 import { Screen } from '@/components/Screen';
 import { FormItem } from '@/components/FormItem';
-import { useDataManager, useInit } from '@/utils/hooks';
+import { useDataManager, usePasscode } from '@/utils/hooks';
 import { handleError } from '@/utils/helper';
 import store, { connect } from '@/store';
 import { TitleBar } from '@/components/TitleBar';
@@ -23,21 +23,16 @@ export const Home = connect((state) => ({
 }))(function Home(props) {
     const { balances, currentAccount, walletAccounts, isMultisigAccount, networkProperties, networkIdentifier, ticker, price, isWalletReady } = props;
     const router = useRouter();
-    const [loadState, isLoading] = useDataManager(
-        async () => {
-            await store.dispatchAction({ type: 'wallet/fetchAll' });
-        },
-        null,
-        handleError
-    );
+    const isLoading = !isWalletReady;
     const [renameAccount] = useDataManager(
-        async (name) => {
+        async (password, name) => {
             await store.dispatchAction({
                 type: 'wallet/renameAccount',
                 payload: {
-                    privateKey: currentAccount.privateKey,
+                    publicKey: currentAccount.publicKey,
                     networkIdentifier,
                     name,
+                    password
                 },
             });
             store.dispatchAction({ type: 'account/loadState' });
@@ -45,7 +40,7 @@ export const Home = connect((state) => ({
         null,
         handleError
     );
-    useInit(loadState, isWalletReady, [currentAccount]);
+    const [Passcode, confirmRename] = usePasscode(renameAccount);
 
     const accountBalance = currentAccount ? balances[currentAccount.address] : '-';
     const accountName = currentAccount?.name || '-';
@@ -65,9 +60,9 @@ export const Home = connect((state) => ({
                     price={price}
                     networkIdentifier={networkIdentifier}
                     // onReceivePress={Router.goToReceive}
-                    // onSendPress={Router.goToSend}
+                    onSendPress={router.goToSend}
                     onDetailsPress={router.goToAccountDetails}
-                    onNameChange={renameAccount}
+                    onNameChange={confirmRename}
                 />
             </FormItem>
             {isMultisigAccount && (
@@ -78,6 +73,7 @@ export const Home = connect((state) => ({
             <FormItem>
                 <Button color="primary" onClick={logOut}>logOut</Button>
             </FormItem>
+            <Passcode />
         </Screen>
     );
 });
