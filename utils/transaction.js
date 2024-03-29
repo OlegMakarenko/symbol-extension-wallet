@@ -10,17 +10,22 @@ export const isAggregateTransaction = (transaction) => {
 };
 
 export const getTransactionFees = (transaction, networkProperties) => {
+    const stubKeySigner = 'BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F';
+    const stubKeyRecipient = 'F312748473BFB2D61689F680AE5C6E4003FA7EE2B0EC407ADF82D15A1144CF4F';
+    const stubAddress = 'TB3KUBHATFCPV7UZQLWAQ2EUR6SIHBSBEOEDDDF';
     const {
         transactionFees,
         networkCurrency: { divisibility },
     } = networkProperties;
     const stubTransaction = {
         ...transaction,
-        recipientPublicKey: '1111111111111111111111111111111111111111111111111111111111111111',
-        recipientAddress: 'TB3KUBHATFCPV7UZQLWAQ2EUR6SIHBSBEOEDDDF',
+        signerPublicKey: stubKeySigner,
+        recipientPublicKey: stubKeyRecipient,
+        recipientAddress: stubAddress,
     };
     const stubCurrentAccount = {
-        privateKey: '0000000000000000000000000000000000000000000000000000000000000000',
+        privateKey: stubKeySigner,
+        publicKey: stubKeySigner,
     };
     const size = transactionToSymbol(stubTransaction, networkProperties, stubCurrentAccount).size;
 
@@ -167,20 +172,22 @@ export const isIncomingTransaction = (transaction, currentAccount) => transactio
 
 export const encryptMessage = (messageText, recipientPublicKey, privateKey) => {
     const _privateKey = new symbolSdk.PrivateKey(privateKey);
+    const _recipientPublicKey = new symbolSdk.PublicKey(recipientPublicKey);
     const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(_privateKey);
     const messageEncoder = new MessageEncoder(keyPair);
     const messageBytes = Buffer.from(messageText, 'utf-8');
-    const encodedBytes = messageEncoder.encode(recipientPublicKey, messageBytes);
+    const encodedBytes = messageEncoder.encodeDeprecated(_recipientPublicKey, messageBytes);
 
     return Buffer.from(encodedBytes).toString('hex');
 }
 
 export const decryptMessage = (encryptedMessageHex, recipientPublicKey, privateKey) => {
     const _privateKey = new symbolSdk.PrivateKey(privateKey);
+    const _recipientPublicKey = new symbolSdk.PublicKey(recipientPublicKey);
     const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(_privateKey);
     const messageEncoder = new MessageEncoder(keyPair);
     const messageBytes = Buffer.from(encryptedMessageHex, 'hex');
-    const { message } = messageEncoder.tryDecode(recipientPublicKey, messageBytes);
+    const { message } = messageEncoder.tryDecodeDeprecated(_recipientPublicKey, messageBytes);
 
     return Buffer.from(message).toString('utf-8');
 };
