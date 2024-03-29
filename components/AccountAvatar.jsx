@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 export const AccountAvatar = ({ address = '', size, className }) => {
     const [bgBlockie, setBgBlockie] = useState('');
     const [logo, setLogo] = useState('');
-    const rootStyle = ['rounded-full overflow-hidden'];
+    const rootStyle = ['rounded-full overflow-hidden flex-shrink-0'];
 
     switch (size) {
         default:
