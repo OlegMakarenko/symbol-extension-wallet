@@ -1,21 +1,30 @@
 import { Passcode } from '@/components/Passcode';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { showMessage } from './helper';
+import transaction from 'store/transaction';
+import { getTransactionFees } from './transaction';
+import { TransactionType } from '@/constants';
 
 export const usePasscode = (onSubmit, onCancel, cancellable = true) => {
     const [isVisible, setIsVisible] = useState(false);
+    const [args, setArgs] = useState(undefined);
 
-    const showPasscode = () => setIsVisible(true);
+    const showPasscode = (...args) => {
+        setIsVisible(true);
+        setArgs([...args]);
+    }
     const handleCancel = () => {
         if (cancellable) {
             setIsVisible(false);
+            setArgs(undefined);
             onCancel && onCancel()
         }
     };
     const handleSubmit = async (password) => {
         try {
-            await onSubmit(password);
+            await onSubmit(password, ...args);
             setIsVisible(false);
+            setArgs(undefined);
         }
         catch(e) {
             console.error(e);
@@ -122,3 +131,19 @@ export const useToggle = (initialValue) => {
 
     return [value, toggle];
 };
+
+
+export const useTransactionFees = (transaction, networkProperties) => {
+    const defaultTransactionFees = {
+        fast: 0,
+        medium: 0,
+        slow: 0
+    };
+    const deps = [networkProperties];
+
+    if (transaction.type === TransactionType.TRANSFER) {
+        deps.push(...[transaction.message?.text, transaction.messageEncrypted])
+    }
+
+    return useMemo(() => networkProperties.networkIdentifier ? getTransactionFees(transaction, networkProperties) : defaultTransactionFees, deps);
+}
