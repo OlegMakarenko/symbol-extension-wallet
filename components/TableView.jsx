@@ -172,12 +172,12 @@ export const TableView = connect((state) => ({
                         break;
                     case 'message':
                         ItemTemplate = (
-                            <div style={styles.message}>
+                            <div className="flex flex-row items-center">
                                 {item.value.isEncrypted && (
-                                    <img src="/images/icon-tx-lock.png" style={styles.messageTypeIcon} />
+                                    <img src="/images/icon-tx-lock.png" className="w-4 h-4 mr-2" />
                                 )}
                                 {item.value.isRaw && (
-                                    <img src="/images/icon-tx-data.png" style={styles.messageTypeIcon} />
+                                    <img src="/images/icon-tx-data.png" className="w-4 h-4 mr-2" />
                                 )}
                                 {!item.value.isRaw && (
                                     <p>{item.value.text}</p>
@@ -275,15 +275,5 @@ const styles = {
     fee: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    message: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    messageTypeIcon: {
-        width: 12,
-        height: 12,
-        maxHeight: '100%',
-        //marginRight: spacings.paddingSm,
     },
 };
