@@ -3,22 +3,12 @@ import { useEffect, useMemo, useState } from 'react';
 import store, { connect } from '@/store';
 import { useDataManager, useInit, usePasscode, useToggle } from '@/utils/hooks';
 import { MosaicService, NamespaceService, TransactionService } from '@/services';
-import { $t } from '@/localization';
-import { Screen } from '@/components/Screen';
-import { FormItem } from '@/components/FormItem';
-import { TableView } from '@/components/TableView';
-import { Button, Divider, Spacer } from '@nextui-org/react';
-import { Alert } from '@/components/Alert';
-import { DialogBox } from '@/components/DialogBox';
+import { Divider, Spacer } from '@nextui-org/react';
 import { getUserCurrencyAmountText, handleError } from '@/utils/helper';
-import { TitleBar } from '@/components/TitleBar';
 import { useLocation } from 'react-router-dom';
-import { FeeSelector } from '@/components/FeeSelector';
-import { useRouter } from '@/components/Router';
 import { getTransactionFees, transactionFromPayload } from '@/utils/transaction';
-import { signTransaction } from '@/utils/secure';
-import { TransactionGraphic } from '@/components/TransactionGraphic';
 import { transactionFromSymbol } from '@/utils/transaction-from-symbol';
+import { Button, Screen, FormItem, TableView, Alert, DialogBox, TitleBar, FeeSelector, useRouter, TransactionGraphic } from '@/components/index';
 
 export const TransactionRequest = connect((state) => ({
     currentAccount: state.account.current,
@@ -107,8 +97,7 @@ export const TransactionRequest = connect((state) => ({
     );
     const [send, isSending] = useDataManager(
         async (password) => {
-            const signedPayload = await signTransaction(password, networkProperties, transaction, currentAccount)
-            await TransactionService.announce(signedPayload, networkProperties);
+            await TransactionService.signAndAnnounce(password, transaction, networkProperties, currentAccount);
             toggleSuccessAlert();
         },
         null,
@@ -159,14 +148,10 @@ export const TransactionRequest = connect((state) => ({
                     />
                     </FormItem>
                     <FormItem>
-                        <Button fullWidth color="primary" isDisabled={isButtonDisabled} onClick={toggleConfirm}>
-                            {$t('button_send')}
-                        </Button>
+                        <Button title={$t('button_send')} isDisabled={isButtonDisabled} onClick={toggleConfirm} />
                     </FormItem>
                     <FormItem>
-                        <Button fullWidth color="primary" variant="bordered" onClick={router.goToHome}>
-                            {$t('button_cancel')}
-                        </Button>
+                        <Button title={$t('button_cancel')} isSecondary onClick={router.goToHome} />
                     </FormItem>
                 </>
             }

@@ -10,15 +10,13 @@ export const isMnemonicStored = async () => {
 }
 
 export const signTransaction = async (password, networkProperties, transaction, currentAccount) => {
-    console.log('transaction', transaction)
     // Get current account private key from SecureStorage
     const accounts = await SecureStorage.getAccounts(password);
     const networkAccounts = accounts[networkProperties.networkIdentifier];
     const currentAccountWithPrivateKey = networkAccounts.find(account => account.publicKey === currentAccount.publicKey);
 
     // Map transaction
-    const transactionObject = transactionToSymbol(transaction, networkProperties, currentAccount);
-    console.log('transactionObject', transactionObject)
+    const transactionObject = transactionToSymbol(transaction, networkProperties, currentAccountWithPrivateKey);
 
     // Get signature
     const facade = new symbolSdk.facade.SymbolFacade(networkProperties.networkIdentifier);
@@ -28,10 +26,12 @@ export const signTransaction = async (password, networkProperties, transaction, 
 
     // Attach signature
     const jsonString = facade.transactionFactory.constructor.attachSignature(transactionObject, signature);
+    const hash = facade.hashTransaction(transactionObject).toString();
 
-    console.log('jsonString', jsonString)
-
-    return JSON.parse(jsonString).payload
+    return {
+        payload: JSON.parse(jsonString).payload,
+        hash
+    }
 }
 
 export const signTransactionPayload = async (password, networkIdentifier, payload, currentAccount) => {
