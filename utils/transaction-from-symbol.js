@@ -135,7 +135,7 @@ export const transferTransactionFromSymbol = (transaction, config) => {
             messagePayload = Buffer.from(transaction.message.subarray(1)).toString();
         break;
         case isMessageEncrypted:
-            messagePayload = Buffer.from(transaction.message.subarray(1)).toString('hex');
+            messagePayload = Buffer.from(transaction.message).toString('hex');
         break;
         case isDelegatedHarvestingMessage:
         case isMessageRaw:

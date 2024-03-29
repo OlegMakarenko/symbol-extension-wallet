@@ -146,11 +146,14 @@ export const transferTransactionToSymbol = (transaction, networkProperties, curr
         descriptor.message = Buffer.from(transaction.message.payload, 'hex');
     } else if (transaction.message?.isEncrypted) {
         const encryptedText = transaction.message.text
-            ? encryptMessage(transaction.message.text, transaction.recipientPublicKey, currentAccount.privateKey)
+            ? encryptMessage(
+                transaction.message.text,
+                transaction.recipientPublicKey,
+                currentAccount.privateKey
+            )
             : transaction.message.encryptedText;
-        const bytes = Buffer.from(encryptedText, 'hex');
-        descriptor.message = new Uint8Array([1, ...bytes]);
-    } else if (transaction.message?.isPlain) {
+        descriptor.message = Buffer.from(encryptedText, 'hex');
+    } else if (transaction.message?.text) {
         const bytes = new TextEncoder().encode(transaction.message.text)
         descriptor.message = new Uint8Array([0, ...bytes]);
     }
