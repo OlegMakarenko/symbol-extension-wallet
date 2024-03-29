@@ -98,9 +98,6 @@ export default {
             commit({ type: 'wallet/setAccounts', payload: accounts });
 
             // Select first account of the default network
-            console.log('accounts', accounts)
-            console.log('config.defaultNetworkIdentifier', config.defaultNetworkIdentifier)
-            console.log('accounts[config.defaultNetworkIdentifier]', accounts[config.defaultNetworkIdentifier])
             const defaultAccount = accounts[config.defaultNetworkIdentifier][0];
             await dispatchAction({ type: 'wallet/selectAccount', payload: defaultAccount.publicKey });
         },
@@ -123,6 +120,64 @@ export default {
         selectAccount: async ({ commit }, publicKey) => {
             await PersistentStorage.setCurrentAccountPublicKey(publicKey);
             commit({ type: 'wallet/setSelectedAccountId', payload: publicKey });
+        },
+        // Add seed account to wallet
+        addSeedAccount: async ({ commit, dispatchAction, state }, { index, name, networkIdentifier }) => {
+            const { mnemonic } = state.wallet;
+            const accountType = 'seed';
+            const privateKeys = createPrivateKeysFromMnemonic(mnemonic, [index], networkIdentifier);
+            const privateKey = privateKeys[0];
+            const walletAccount = createWalletAccount(privateKey, networkIdentifier, name, accountType, index);
+            const accounts = await SecureStorage.getAccounts();
+            const networkAccounts = accounts[networkIdentifier];
+            const isAccountAlreadyExists = networkAccounts.find((account) => account.index === index);
+
+            if (isAccountAlreadyExists) {
+                throw Error('error_failed_add_account_already_exists');
+            }
+
+            networkAccounts.push(walletAccount);
+
+            await SecureStorage.setAccounts(accounts);
+            commit({ type: 'wallet/setAccounts', payload: accounts });
+
+            await dispatchAction({ type: 'wallet/selectAccount', payload: privateKey });
+        },
+        // Add external (private key) account to wallet
+        addExternalAccount: async ({ commit, dispatchAction }, { privateKey, name, networkIdentifier }) => {
+            const accountType = 'external';
+            const walletAccount = createWalletAccount(privateKey, networkIdentifier, name, accountType, null);
+            const accounts = await SecureStorage.getAccounts();
+            const networkAccounts = accounts[networkIdentifier];
+            const isAccountAlreadyExists = networkAccounts.find((account) => account.privateKey === privateKey);
+
+            if (isAccountAlreadyExists) {
+                throw Error('error_failed_add_account_already_exists');
+            }
+
+            networkAccounts.push(walletAccount);
+
+            await SecureStorage.setAccounts(accounts);
+            commit({ type: 'wallet/setAccounts', payload: accounts });
+
+            await dispatchAction({ type: 'wallet/selectAccount', payload: privateKey });
+        },
+        // Remove account to wallet
+        removeAccount: async ({ commit }, { privateKey, networkIdentifier }) => {
+            const accounts = await SecureStorage.getAccounts();
+            accounts[networkIdentifier] = accounts[networkIdentifier].filter((account) => account.privateKey !== privateKey);
+
+            await SecureStorage.setAccounts(accounts);
+            commit({ type: 'wallet/setAccounts', payload: accounts });
+        },
+        // Rename wallet account
+        renameAccount: async ({ commit }, { publicKey, networkIdentifier, name, password }) => {
+            const accounts = await SecureStorage.getAccounts(password);
+            const account = accounts[networkIdentifier].find((account) => account.publicKey == publicKey);
+            account.name = name;
+
+            await SecureStorage.setAccounts(accounts, password);
+            commit({ type: 'wallet/setAccounts', payload: accounts });
         },
         // Fetch and cache account balance by address
         fetchBalance: async ({ commit, state }, address) => {

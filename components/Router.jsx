@@ -5,6 +5,7 @@ import { CreateWallet } from '@/screens/CreateWallet';
 import { ImportWallet } from '@/screens/ImportWallet';
 import { AccountDetails } from '@/screens/AccountDetails';
 import { TransactionRequest } from '@/screens/TransactionRequest';
+import { Send } from '@/screens/Send';
 
 const keys = {
     Welcome: '/',
@@ -47,6 +48,7 @@ export const useRouter = () => {
         goToImportWallet: () => navigate(keys.ImportWallet),
         goToHome: () => navigate(keys.Home, { replace: true }),
         goToAccountDetails: () => navigate(keys.AccountDetails),
+        goToSend: () => navigate(keys.Send),
         goToTransactionRequest: (state) => navigate(keys.TransactionRequest, { state }),
     };
 }
@@ -65,6 +67,7 @@ export const Router = ({isWelcomeFlowRendered, isMainFlowRendered}) => {
                 <>
                     <Route path={keys.Home} Component={Home} />
                     <Route path={keys.AccountDetails} Component={AccountDetails} />
+                    <Route path={keys.Send} Component={Send} />
                     <Route path={keys.TransactionRequest} Component={TransactionRequest} />
                 </>
             )}
