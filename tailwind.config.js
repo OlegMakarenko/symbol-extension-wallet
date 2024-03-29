@@ -13,6 +13,7 @@ module.exports = {
         extend: {
             fontFamily: {
                 body: ['Protipo', 'Tahoma', 'sans-serif'],
+                button: ['SofiaSansCondensed', 'Tahoma', 'sans-serif'],
                 accent: ['SofiaSansCondensed', 'Tahoma', 'sans-serif'],
                 mono: ['JetBrainsMono', 'Consolas', '"Courier New"', 'monospace']
             }
@@ -29,7 +30,7 @@ module.exports = {
                 },
                 borderWidth: {
                     small: "1px", // border-small
-                    medium: "1px", // border-medium
+                    medium: "1.5px", // border-medium
                     large: "2px", // border-large
                 },
             },
@@ -80,6 +81,17 @@ module.exports = {
                             900: '#350777',
                             1000: '#2f0b40'
                         },
+                        // default: {
+                        //     100: '#000000',
+                        //     200: '#5a5959',
+                        //     300: '#737373',
+                        //     400: '#5a5959',
+                        //     500: '#858585',
+                        //     600: '#a7a5a6',
+                        //     700: '#c2bebf',
+                        //     800: '#ded7d9',
+                        //     900: '#000000',
+                        // },
                         background: "#1b0a29",
                         main: "#1b0a29",
                         screen: "#221c31",

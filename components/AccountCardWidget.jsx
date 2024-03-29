@@ -3,10 +3,12 @@ import { getUserCurrencyAmountText } from '@/utils/helper';
 import { useToggle } from '@/utils/hooks';
 import { validateAccountName, validateRequired } from '@/utils/validators';
 import { Button } from '@nextui-org/react';
-import LoadingIndicator from './LoadingIndicator';
+import { LoadingIndicator } from './LoadingIndicator';
 import { ButtonCopy } from './ButtonCopy';
 import { FormItem } from './FormItem';
 import { AccountAvatar } from './AccountAvatar';
+import { classNames } from '@/styles/class-names';
+import { DialogBox } from './DialogBox';
 
 export const AccountCardWidget = (props) => {
     const {
@@ -61,25 +63,37 @@ export const AccountCardWidget = (props) => {
             </div>
             <div className="relative overflow-hidden flex flex-row rounded-bl-lg rounded-br-lg">
                 <div className="flex-1 h-14 bg-secondary-700 border-r-1.5 border-secondary">
-                    <Button color="secondary" className="bg-secondary-700 w-full h-full" onClick={onDetailsPress}>
+                    <Button
+                        color="secondary"
+                        className={[...classNames.button, 'bg-secondary-700 w-full h-full']}
+                        onClick={onDetailsPress}
+                    >
                         <img src="/images/icon-wallet.png" className="w-5 h-5" />
                         <div>{$t('c_accountCard_button_accountDetails')}</div>
                     </Button>
                 </div>
                 <div className="flex-1 h-14 bg-secondary-700 border-r-1.5 border-secondary">
-                    <Button color="secondary" className="bg-secondary-700 w-full h-full" onClick={onSendPress}>
+                    <Button
+                        color="secondary"
+                        className={[...classNames.button, 'bg-secondary-700 w-full h-full']}
+                        onClick={onSendPress}
+                    >
                         <img src="/images/icon-send.png" className="w-5 h-5" />
                         <div>{$t('c_accountCard_button_send')}</div>
                     </Button>
                 </div>
                 <div className="flex-1 h-14 bg-secondary-700">
-                    <Button color="secondary" className="bg-secondary-700 w-full h-full" onClick={onReceivePress}>
+                    <Button
+                        color="secondary"
+                        className={[...classNames.button, 'bg-secondary-700 w-full h-full']}
+                        onClick={onReceivePress}
+                    >
                         <img src="/images/icon-receive.png" className="w-5 h-5" />
                         <div>{$t('c_accountCard_button_receive')}</div>
                     </Button>
                 </div>
             </div>
-            {/* <DialogBox
+            <DialogBox
                 type="prompt"
                 title={$t('c_accountCard_prompt_title')}
                 text={$t('c_accountCard_prompt_text')}
@@ -87,7 +101,7 @@ export const AccountCardWidget = (props) => {
                 isVisible={isNameEditShown}
                 onSuccess={handleNameChange}
                 onCancel={toggleNameEdit}
-            /> */}
+            />
         </div>
     );
 };

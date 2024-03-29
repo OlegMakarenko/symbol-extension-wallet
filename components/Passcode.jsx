@@ -1,6 +1,7 @@
-import { Button, Input } from '@nextui-org/react';
+import { Button, ButtonGroup, Input } from '@nextui-org/react';
 import { $t } from '@/localization';
 import { useState } from 'react';
+import { classNames } from '@/styles/class-names';
 
 export const Passcode = ({ onSubmit, onCancel }) => {
     const [password, setPassword] = useState('');
@@ -20,8 +21,10 @@ export const Passcode = ({ onSubmit, onCancel }) => {
             </div>
             <Input variant="faded" label="Password" type="password" value={password} onValueChange={setPassword} onKeyDown={handleKeyDown}/>
             <div className="w-full flex flex-row">
-                <Button className="flex-1 rounded-tr-none rounded-br-none" color="primary" onClick={submit}>{$t('button_confirm')}</Button>
-                <Button className="flex-1 rounded-tl-none rounded-bl-none" onClick={onCancel}>{$t('button_cancel')}</Button>
+                <ButtonGroup fullWidth>
+                    <Button className={classNames.button} color="primary" onClick={submit}>{$t('button_confirm')}</Button>
+                    <Button className={classNames.button} onClick={onCancel}>{$t('button_cancel')}</Button>
+                </ButtonGroup>
             </div>
         </div>
     )

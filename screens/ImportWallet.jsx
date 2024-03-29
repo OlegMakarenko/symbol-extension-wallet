@@ -1,4 +1,3 @@
-import { Button, Checkbox, Input, Progress, ScrollShadow } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { createOptInPrivateKeyFromMnemonic, generateMnemonic } from '@/utils/wallet';
 import { $t } from '@/localization';
@@ -14,6 +13,7 @@ import { FormItem } from '@/components/FormItem';
 import { ButtonClose } from '@/components/ButtonClose';
 import { handleError } from '@/utils/helper';
 import { useRouter } from '@/components/Router';
+import { Button } from '@/components/index';
 
 export const ImportWallet = () => {
     const router = useRouter();
@@ -98,7 +98,7 @@ export const ImportWallet = () => {
                 />
                 </FormItem>
                 <FormItem>
-                    <Button className="w-full" color="primary" isDisabled={isButtonDisabled} onClick={next}>{$t('button_next')}</Button>
+                    <Button title={$t('button_next')} isDisabled={isButtonDisabled} onClick={next} />
                 </FormItem>
                 <Passcode />
             </Screen>

@@ -1,5 +1,5 @@
 import { handleError, trunc } from '@/utils/helper';
-import LoadingIndicator from './LoadingIndicator';
+import { LoadingIndicator } from './LoadingIndicator';
 import { AccountAvatar } from './AccountAvatar';
 import { useDataManager, useToggle } from '@/utils/hooks';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -37,8 +37,10 @@ export const AccountSelector = connect((state) => ({
                     }
                 });
             }
-            await store.dispatchAction({ type: 'wallet/selectAccount', payload: account.publicKey });
-            await store.dispatchAction({ type: 'wallet/loadAll' });
+            if (currentAccount.publicKey !== account.publicKey) {
+                await store.dispatchAction({ type: 'wallet/selectAccount', payload: account.publicKey });
+                await store.dispatchAction({ type: 'wallet/loadAll' });
+            }
             // await store.dispatchAction({ type: 'network/fetchData' });
             // await store.dispatchAction({ type: 'account/fetchData' });
             toggleList();

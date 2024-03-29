@@ -38,15 +38,3 @@ export const WalletCreationAnimation = ({ steps, currentStep }) => {
         </div>
     );
 };
-
-// const styles = StyleSheet.create({
-//     root: {
-//         width: '100%',
-//         height: '100%',
-//         flexDirection: 'column',
-//         justifyContent: 'space-around',
-//         alignItems: 'center',
-//         backgroundColor: colors.bgForm,
-//         padding: spacings.padding,
-//     },
-// });

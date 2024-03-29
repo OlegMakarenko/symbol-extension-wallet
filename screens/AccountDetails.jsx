@@ -1,13 +1,10 @@
 import { Card } from '@/components/Card';
-import { DialogBox } from '@/components/DialogBox';
 import { FormItem } from '@/components/FormItem';
 import { Screen } from '@/components/Screen';
 import { TableView } from '@/components/TableView';
 import { TitleBar } from '@/components/TitleBar';
 import { config } from '@/config';
 import { $t } from '@/localization';
-import { publicAccountFromPrivateKey } from '@/utils/account';
-import { usePasscode, useToggle } from '@/utils/hooks';
 import { Button } from '@nextui-org/react';
 import { connect } from 'react-redux';
 

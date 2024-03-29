@@ -1,5 +1,5 @@
 import { Progress } from '@nextui-org/react';
-import LoadingIndicator from './LoadingIndicator';
+import { LoadingIndicator } from './LoadingIndicator';
 
 export const Screen = ({ children, titleBar, isLoading, isRefreshing, bottomComponent }) => {
     return (

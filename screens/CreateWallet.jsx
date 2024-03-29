@@ -1,4 +1,4 @@
-import { Button, Checkbox, Input, Progress, ScrollShadow } from '@nextui-org/react';
+import { Checkbox, Input, Progress, ScrollShadow } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { generateMnemonic } from '@/utils/wallet';
 import { $t } from '@/localization';
@@ -14,6 +14,7 @@ import { FormItem } from '@/components/FormItem';
 import { ButtonClose } from '@/components/ButtonClose';
 import { handleError } from '@/utils/helper';
 import { useRouter } from '@/components/Router';
+import { Button } from '@/components/index';
 
 
 export const CreateWallet = () => {
@@ -96,7 +97,7 @@ export const CreateWallet = () => {
                             />
                         </FormItem>
                         <FormItem bottom>
-                            <Button className="w-full" color="primary" isDisabled={!!nameErrorMessage} onClick={next}>{$t('button_next')}</Button>
+                            <Button title={$t('button_next')} isDisabled={!!nameErrorMessage} onClick={next} />
                         </FormItem>
                     </>
                 )}
@@ -127,7 +128,7 @@ export const CreateWallet = () => {
                             <Checkbox value={isRiskAccepted} onChange={toggleAcceptRisk}>{$t('s_createWallet_confirm_checkbox')}</Checkbox>
                         </FormItem>
                         <FormItem>
-                            <Button className="w-full" color="primary" isDisabled={!isRiskAccepted} onClick={next}>{$t('button_next')}</Button>
+                            <Button title={$t('button_next')} isDisabled={!isRiskAccepted} onClick={next}/>
                         </FormItem>
                     </>
                 )}

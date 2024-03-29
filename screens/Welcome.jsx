@@ -1,7 +1,5 @@
-import { Button } from '@nextui-org/react';
 import { $t } from 'localization';
-import { Screen } from '@/components/Screen';
-import { FormItem } from '@/components/FormItem';
+import { Button, FormItem, Screen } from '@/components/index';
 import { useRouter } from '@/components/Router';
 
 export const Welcome = () => {
@@ -16,22 +14,16 @@ export const Welcome = () => {
                 <div>
                     <FormItem>
                         <Button
-                            color="primary"
-                            className="w-full"
+                            title={$t('button_walletCreate')}
                             onClick={router.goToCreateWallet}
-                        >
-                            {$t('button_walletCreate')}
-                        </Button>
+                        />
                     <FormItem>
                     </FormItem>
                         <Button
-                            color="primary"
+                            title={$t('button_walletImport')}
                             variant="light"
-                            className="w-full"
                             onClick={router.goToImportWallet}
-                        >
-                            {$t('button_walletImport')}
-                        </Button>
+                        />
                     </FormItem>
                 </div>
             </div>

@@ -45,10 +45,10 @@ a:hover {
 
 }
 
-button {
+/* button {
     font-family: theme(fontFamily.accent);
     text-transform: uppercase;
-}
+} */
 
 .s-text-label {
     @apply font-mono uppercase;
