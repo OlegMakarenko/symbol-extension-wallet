@@ -36,7 +36,7 @@ export const AccountCardWidget = (props) => {
     return (
         <div className="overflow-hidden relative w-full rounded-lg bg-secondary">
             {isLoading && <LoadingIndicator className="absolute top-0 left-0 w-full h-full" />}
-            <AccountAvatar address={address} className="absolute top-0 left-0 w-full h-full rounded-none opacity-10"/>
+            <AccountAvatar address={address} className="!absolute top-0 left-0 w-full h-full rounded-none opacity-10"/>
             <div className="account-card-gradient absolute top-0 left-0 w-full h-full" />
             <div className="relative w-full p-4">
                 <FormItem>
@@ -104,88 +104,4 @@ export const AccountCardWidget = (props) => {
             />
         </div>
     );
-};
-
-const styles = {
-    root: {
-        position: 'relative',
-        width: '100%',
-        //backgroundColor: colors.accentLightForm,
-        //borderRadius: borders.borderRadiusForm,
-        marginTop: 58,
-    },
-    loadingIndicator: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#0001',
-    },
-    content: {
-        width: '100%',
-        marginTop: 81,
-       // paddingHorizontal: spacings.padding,
-       // paddingBottom: spacings.padding2,
-    },
-    textTitle: {
-        //...fonts.label,
-        //marginTop: spacings.margin,
-        opacity: 0.7,
-        //color: colors.textForm,
-    },
-    textName: {
-        //...fonts.title,
-        //color: colors.textForm,
-    },
-    editIcon: {
-        width: 18,
-        height: 18,
-       // marginLeft: spacings.margin / 2,
-    },
-    textUserCurrencyBalance: {
-       // ...fonts.body,
-        fontSize: 16,
-        lineHeight: 20,
-        //color: colors.textForm,
-        //marginLeft: spacings.margin,
-    },
-    textAddress: {
-       // ...fonts.body,
-        //color: colors.textForm,
-        //marginRight: spacings.margin / 2,
-    },
-    controls: {
-        flexDirection: 'row',
-        //backgroundColor: colors.accentForm,
-        //borderBottomLeftRadius: borders.borderRadiusForm,
-        //borderBottomRightRadius: borders.borderRadiusForm,
-        overflow: 'hidden',
-    },
-    button: {
-        height: 48,
-        flex: 1,
-       // borderRightColor: colors.accentLightForm,
-        borderRightWidth: 1,
-    },
-    buttonPressable: {
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-    },
-    icon: {
-        width: 18,
-        height: 18,
-        //marginRight: spacings.paddingSm / 2,
-    },
-    textButton: {
-        //...fonts.button,
-        fontSize: 15,
-        //color: colors.textForm,
-    },
-    clearBorderRight: {
-        borderRightWidth: null,
-    },
 };
