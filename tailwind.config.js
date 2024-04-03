@@ -7,6 +7,7 @@ module.exports = {
         './pages/**/*.{js,ts,jsx,tsx,mdx}',
         './components/**/*.{js,ts,jsx,tsx,mdx}',
         './screens/**/*.{js,ts,jsx,tsx,mdx}',
+        './styles/class-names.js',
         './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
     ],
     theme: {
@@ -70,15 +71,16 @@ module.exports = {
                         secondary: {
                             foreground: '#ffffff',
                             DEFAULT: '#b429fa',
-                            100: '#FBD4FE',
-                            200: '#F2A9FE',
-                            300: '#E37EFD',
-                            400: '#D15DFB',
+                            50: '#F4E8FA',
+                            100: '#E6BFFA',
+                            200: '#DCA0FA',
+                            300: '#C969FA',
+                            400: '#BD45F9',
                             500: '#B429FA',
-                            600: '#8D1DD7',
-                            700: '#6A14B3',
-                            800: '#4B0D90',
-                            900: '#350777',
+                            600: '#951FD1',
+                            700: '#7413A6',
+                            800: '#4B086C',
+                            900: '#240135',
                             1000: '#2f0b40'
                         },
                         // default: {
