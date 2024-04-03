@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { applyMiddleware, createStore } from 'redux';
 import { thunk } from 'redux-thunk';
 import account from './account';
+import listener from './listener';
 import market from './market';
 import network from './network';
 import transaction from './transaction';
@@ -9,6 +10,7 @@ import wallet from './wallet';
 
 const modules = {
     account,
+    listener,
     market,
     network,
     transaction,
@@ -17,6 +19,7 @@ const modules = {
 
 const defaultRootState = {
     account: account.state,
+    listener: listener.state,
     market: market.state,
     network: network.state,
     transaction: transaction.state,

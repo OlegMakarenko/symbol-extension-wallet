@@ -129,7 +129,7 @@ export default {
                 if (state.network.chainHeight !== chainHeight) {
                     commit({ type: 'network/setChainHeight', payload: chainHeight });
                 }
-                // dispatchAction({ type: 'listener/connect' });
+                dispatchAction({ type: 'listener/connect' });
                 runAgain();
                 return;
             } catch {}
@@ -157,7 +157,7 @@ export default {
                 try {
                     chainHeight = await NetworkService.ping(nodeUrl);
                     await dispatchAction({ type: 'network/fetchNetworkProperties', payload: nodeUrl });
-                    // dispatchAction({ type: 'listener/connect' });
+                    dispatchAction({ type: 'listener/connect' });
                     const newStatus = 'connected';
                     commit({ type: 'network/setStatus', payload: newStatus });
                     if (state.network.chainHeight !== chainHeight) {
