@@ -83,7 +83,6 @@ export const baseTransactionFromSymbol = (transaction, config) => {
     return {
         type: transaction.type.value,
         deadline: transaction.deadline ? transaction.deadline.value.toString() : null,
-        height: transaction.transactionInfo?.height.toString(),
         fee: transaction.fee ? getMosaicRelativeAmount(transaction.fee.value.toString(), config.networkProperties.networkCurrency.divisibility) : null,
         signerAddress: signerPublicKey ? addressFromPublicKey(signerPublicKey, config.networkProperties.networkIdentifier) : null,
         signerPublicKey,
@@ -97,7 +96,7 @@ export const aggregateTransactionFromSymbol = (transaction, config) => {
 
     const info = {
         ...baseTransaction,
-        amount: resultAmount,
+        amount: resultAmount === -0 ? 0 : resultAmount,
         innerTransactions,
     };
 
@@ -158,7 +157,7 @@ export const transferTransactionFromSymbol = (transaction, config) => {
         ...transactionBody,
         message,
         mosaics: formattedMosaics,
-        amount: resultAmount,
+        amount: resultAmount === -0 ? 0 : resultAmount,
     };
 };
 
@@ -267,7 +266,7 @@ export const hashLockTransactionFromSymbol = (transaction, config) => {
         ...baseTransaction,
         duration: Number(transaction.duration),
         mosaic: formattedMosaic,
-        lockedAmount,
+        lockedAmount: lockedAmount === -0 ? 0 : lockedAmount,
         aggregateHash: transaction.hash.toString('hex')
     };
 };

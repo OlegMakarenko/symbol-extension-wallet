@@ -170,6 +170,7 @@ export const namespaceRegistrationTransactionToSymbol = (transaction, networkPro
             signerPublicKey: transaction.signerPublicKey,
             deadline: createDeadline(transaction, networkProperties),
             fee: createFee(transaction, networkProperties),
+            parentId: 0n,
             duration: transaction.duration === Message.UNLIMITED ? 0n : BigInt(transaction.duration),
             name: transaction.namespaceName,
             registrationType: 'root',
