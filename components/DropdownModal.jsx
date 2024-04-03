@@ -1,5 +1,5 @@
 import { classNames } from '@/styles/class-names';
-import { Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalHeader, Select, SelectItem } from '@nextui-org/react';
+import { Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/react';
 
 export const DropdownModal = (props) => {
     const { title, value, list, renderItem, onChange, isOpen, onClose } = props;
