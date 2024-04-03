@@ -1,4 +1,10 @@
 import _ from 'lodash';
+import { MosaicService, NamespaceService, TransactionService } from '@/services';
+import { PersistentStorage } from '@/storage';
+import { filterAllowedTransactions, filterBlacklistedTransactions } from '@/utils/transaction';
+import { transactionFromDTO } from '@/utils/dto';
+
+const getUnresolvedIdsFromTransactionDTOs = () => ({ addresses: [], mosaicIds: [], namespaceIds: [] })
 
 export default {
     namespace: 'transaction',
@@ -28,8 +34,134 @@ export default {
     },
     actions: {
         // Load data from cache or set an empty values
-        loadState: async () => {},
+        loadState: async ({ commit, state }) => {
+            const { current } = state.account;
+            const latestTransactions = await PersistentStorage.getLatestTransactions();
+            const accountTransactions = latestTransactions[current?.address] || [];
+
+            commit({ type: 'transaction/setConfirmed', payload: accountTransactions });
+            commit({ type: 'transaction/setPartial', payload: [] });
+            commit({ type: 'transaction/setUnconfirmed', payload: [] });
+            commit({ type: 'transaction/setIsLastPage', payload: false });
+        },
         // Fetch the latest partial, unconfirmed and confirmed transaction lists from API
-        fetchData: async () => {},
+        fetchData: async ({ commit, state }, payload = {}) => {
+            const { keepPages, filter } = payload;
+            const { networkProperties } = state.network;
+            const { current } = state.account;
+            const { confirmed } = state.transaction;
+            //const { blackList } = state.addressBook;
+            const blackList = [];
+
+            // Fetch transactions from DTO
+            const [partialDTO, unconfirmedDTO, confirmedDTO] = await Promise.all([
+                TransactionService.fetchAccountTransactions(current, networkProperties, { group: 'partial', filter }),
+                TransactionService.fetchAccountTransactions(current, networkProperties, { group: 'unconfirmed', filter }),
+                TransactionService.fetchAccountTransactions(current, networkProperties, { group: 'confirmed', pageSize: 5, filter }),
+            ]);
+
+            // Fetch mosaic infos for transactions
+            const { addresses, mosaicIds, namespaceIds } = getUnresolvedIdsFromTransactionDTOs([
+                ...partialDTO,
+                ...unconfirmedDTO,
+                ...confirmedDTO,
+            ]);
+            const mosaicInfos = await MosaicService.fetchMosaicInfos(networkProperties, mosaicIds);
+            const namespaceNames = await NamespaceService.fetchNamespaceNames(networkProperties, namespaceIds);
+            const resolvedAddresses = await NamespaceService.resolveAddresses(networkProperties, addresses);
+
+            // Format transactions
+            const transactionOptions = {
+                networkProperties,
+                currentAccount: current,
+                mosaicInfos,
+                namespaceNames,
+                resolvedAddresses,
+            };
+            const partialPage = partialDTO.map((transactionDTO) => transactionFromDTO(transactionDTO, transactionOptions));
+            const unconfirmedPage = unconfirmedDTO.map((transactionDTO) => transactionFromDTO(transactionDTO, transactionOptions));
+            const confirmedPage = confirmedDTO.map((transactionDTO) => transactionFromDTO(transactionDTO, transactionOptions));
+            console.log({confirmedPage})
+
+            //Filter allowed
+            let filteredPartialPage;
+            let filteredUnconfirmedPage;
+            let filteredConfirmedPage;
+
+            if (filter?.blocked) {
+                filteredPartialPage = filterBlacklistedTransactions(partialPage, blackList);
+                filteredUnconfirmedPage = filterBlacklistedTransactions(unconfirmedPage, blackList);
+                filteredConfirmedPage = filterBlacklistedTransactions(confirmedPage, blackList);
+            } else {
+                filteredPartialPage = filterAllowedTransactions(partialPage, blackList);
+                filteredUnconfirmedPage = filterAllowedTransactions(unconfirmedPage, blackList);
+                filteredConfirmedPage = filterAllowedTransactions(confirmedPage, blackList);
+            }
+
+            // Update store
+            commit({ type: 'transaction/setPartial', payload: filteredPartialPage });
+            commit({ type: 'transaction/setUnconfirmed', payload: filteredUnconfirmedPage });
+
+            if (keepPages) {
+                const updatedConfirmed = _.uniqBy([...filteredConfirmedPage, ...confirmed], 'id');
+                commit({ type: 'transaction/setConfirmed', payload: updatedConfirmed });
+            } else {
+                commit({ type: 'transaction/setConfirmed', payload: filteredConfirmedPage });
+                commit({ type: 'transaction/setIsLastPage', payload: false });
+            }
+
+            // Cache transactions for current account
+            const isFilterActivated = filter && Object.keys(filter).length > 0;
+            if (!isFilterActivated) {
+                const latestTransactions = await PersistentStorage.getLatestTransactions();
+                latestTransactions[current.address] = confirmedPage;
+                await PersistentStorage.setLatestTransactions(latestTransactions);
+            }
+        },
+        // Fetch specific page of the confirmed transactions from API
+        fetchPage: async ({ commit, state }, { pageNumber, filter }) => {
+            const { networkProperties } = state.network;
+            const { confirmed } = state.transaction;
+            const { current } = state.account;
+            //const { blackList } = state.addressBook;
+            const blackList = [];
+
+            // Fetch transactions from DTO
+            const confirmedDTO = await TransactionService.fetchAccountTransactions(current, networkProperties, {
+                group: 'confirmed',
+                filter,
+                pageNumber,
+            });
+
+            // Fetch mosaic infos for transactions
+            const { addresses, mosaicIds, namespaceIds } = getUnresolvedIdsFromTransactionDTOs([...confirmedDTO]);
+            const mosaicInfos = await MosaicService.fetchMosaicInfos(networkProperties, mosaicIds);
+            const namespaceNames = await NamespaceService.fetchNamespaceNames(networkProperties, namespaceIds);
+            const resolvedAddresses = await NamespaceService.resolveAddresses(networkProperties, addresses);
+
+            // Format transactions
+            const transactionOptions = {
+                networkProperties,
+                currentAccount: current,
+                mosaicInfos,
+                namespaceNames,
+                resolvedAddresses,
+            };
+            const confirmedPage = confirmedDTO.map((transactionDTO) => transactionFromDTO(transactionDTO, transactionOptions));
+            const isLastPage = confirmedPage.length === 0;
+
+            //Filter allowed
+            let filteredConfirmedPage;
+            if (filter?.blocked) {
+                filteredConfirmedPage = filterBlacklistedTransactions(confirmedPage, blackList);
+            } else {
+                filteredConfirmedPage = filterAllowedTransactions(confirmedPage, blackList);
+            }
+            const updatedConfirmed = _.uniqBy([...confirmed, ...filteredConfirmedPage], 'hash');
+
+            // Update store
+            commit({ type: 'transaction/setConfirmed', payload: updatedConfirmed });
+            commit({ type: 'transaction/setIsLastPage', payload: isLastPage });
+        },
     },
 };

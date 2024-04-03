@@ -1,27 +1,33 @@
-import { Button } from '@nextui-org/react';
 import { $t } from 'localization';
-import { logOut } from '@/utils/secure';
-import { Screen } from '@/components/Screen';
-import { FormItem } from '@/components/FormItem';
 import { useDataManager, usePasscode } from '@/utils/hooks';
 import { handleError } from '@/utils/helper';
 import store, { connect } from '@/store';
-import { TitleBar } from '@/components/TitleBar';
-import { AccountCardWidget } from '@/components/AccountCardWidget';
-import { useRouter } from '@/components/Router';
+import { AccountCardWidget, Alert, Button, FormItem, ItemTransaction, Screen, TitleBar, useRouter } from '@/components/index';
+import { useMemo } from 'react';
+import { config } from '@/config';
+import { ScrollShadow, Spacer } from '@nextui-org/react';
 
 export const Home = connect((state) => ({
     balances: state.wallet.balances,
     isMultisigAccount: state.account.isMultisig,
     currentAccount: state.account.current,
-    walletAccounts: state.wallet.accounts,
     networkIdentifier: state.network.networkIdentifier,
-    networkProperties: state.network.networkProperties,
     ticker: state.network.ticker,
     price: state.market.price,
     isWalletReady: state.wallet.isReady,
+    unconfirmedTransactions: state.transaction.unconfirmed,
+    confirmedTransactions: state.transaction.confirmed,
 }))(function Home(props) {
-    const { balances, currentAccount, walletAccounts, isMultisigAccount, networkProperties, networkIdentifier, ticker, price, isWalletReady } = props;
+    const {
+        balances,
+        currentAccount,
+        isMultisigAccount,
+        networkIdentifier,
+        ticker, price,
+        isWalletReady,
+        unconfirmedTransactions,
+        confirmedTransactions
+    } = props;
     const router = useRouter();
     const isLoading = !isWalletReady;
     const [renameAccount] = useDataManager(
@@ -41,10 +47,13 @@ export const Home = connect((state) => ({
         handleError
     );
     const [Passcode, confirmRename] = usePasscode(renameAccount);
+    const openBlockExplorer = () => window.open(config.explorerURL[networkIdentifier] + '/accounts/' + currentAccount.address, '_blank');
 
     const accountBalance = currentAccount ? balances[currentAccount.address] : '-';
     const accountName = currentAccount?.name || '-';
     const accountAddress = currentAccount?.address || '-';
+
+    const limitedTransactions = useMemo(() => confirmedTransactions.slice(0, 5), [confirmedTransactions]);
 
     return (
         <Screen
@@ -67,12 +76,36 @@ export const Home = connect((state) => ({
             </FormItem>
             {isMultisigAccount && (
                 <FormItem>
-                    {$t('warning_multisig_title')}
+                    <Alert
+                        type="warning"
+                        title={$t('warning_multisig_title')}
+                        body={$t('warning_multisig_body')}
+                    />
                 </FormItem>
             )}
-            <FormItem>
-                <Button color="primary" onClick={logOut}>logOut</Button>
-            </FormItem>
+            {confirmedTransactions.length > 0 && (
+                <>
+                    <Spacer y={4} />
+                    <FormItem>
+                        <h2>{$t('screen_History')}</h2>
+                        <ScrollShadow visibility={confirmedTransactions.length > 5 ? 'bottom' : 'none'} size={100}>
+                            {unconfirmedTransactions.map((item) => (
+                                <FormItem key={'unconfirmed' + item.hash}>
+                                    <ItemTransaction group="unconfirmed" transaction={item} />
+                                </FormItem>
+                            ))}
+                            {limitedTransactions.map((item) => (
+                                <FormItem key={'confirmed' + item.hash}>
+                                    <ItemTransaction group="confirmed" transaction={item} />
+                                </FormItem>
+                            ))}
+                        </ScrollShadow>
+                        {confirmedTransactions.length > 5 && (
+                            <Button title={$t('button_openTransactionInExplorer')} onClick={openBlockExplorer} />
+                        )}
+                    </FormItem>
+                </>
+            )}
             <Passcode />
         </Screen>
     );

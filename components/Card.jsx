@@ -1,9 +1,9 @@
 export const Card = (props) => {
-    const { children, title, color, onHeaderPress } = props;
+    const { children, className, title, color, onHeaderPress } = props;
     const style = color ? { backgroundColor: color } : null;
 
     return (
-        <div className="bg-card rounded-lg min-h-8 overflow-hidden" style={style}>
+        <div className={`bg-card rounded-lg min-h-8 overflow-hidden ${className}`} style={style}>
             {!!title && (
                 <div className="bg-card-transparent w-full p-x-4 p-y-2 flex flex-row items-center" onClick={onHeaderPress}>
                     <p className="s-text-label">{title}</p>

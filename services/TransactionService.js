@@ -7,8 +7,40 @@ import { isSymbolAddress } from '@/utils/account';
 import { ListenerService } from './ListenerService';
 
 export class TransactionService {
+    static async fetchAccountTransactions(account, networkProperties, { pageNumber = 1, pageSize = 15, group = 'confirmed', filter = {} }) {
+        const baseUrl = `${networkProperties.nodeUrl}/transactions/${group}`;
+        const baseSearchCriteria = {
+            pageNumber,
+            pageSize,
+            group,
+            order: 'desc',
+        };
+
+        if (filter.from) {
+            const fromAccount = await AccountService.fetchAccountInfo(networkProperties, filter.from);
+            baseSearchCriteria.signerPublicKey = fromAccount.publicKey;
+            baseSearchCriteria.recipientAddress = account.address;
+
+        } else if (filter.to) {
+
+            baseSearchCriteria.signerPublicKey = account.publicKey;
+            baseSearchCriteria.recipientAddress = filter.to;
+        } else {
+            baseSearchCriteria.address = account.address;
+        }
+
+        if (filter.type) {
+            baseSearchCriteria.type = filter.type;
+        }
+
+        const params = new URLSearchParams(baseSearchCriteria).toString();
+        const transactionPage = await makeRequest(`${baseUrl}?${params}`);
+        const transactions = transactionPage.data;
+
+        return transactions;
+    }
+
     static async sendTransferTransaction(password, transaction, account, networkProperties) {
-        console.log('sendTransfer', transaction)
         const preparedTransaction = {
             type: transaction.type,
             signerPublicKey: account.publicKey,
@@ -38,9 +70,6 @@ export class TransactionService {
             preparedTransaction.recipientPublicKey = recipientAccount.publicKey;
         }
 
-        // Prepare
-
-
         // If transaction is multisig, announce Aggregate Bonded
         if (isMultisigTransaction) {
             const senderAccount = await AccountService.fetchAccountInfo(networkProperties, transaction.sender);
@@ -65,7 +94,7 @@ export class TransactionService {
             const signedTransaction = await signTransaction(password, networkProperties, transaction, currentAccount);
 
             if (transaction.type !== TransactionType.AGGREGATE_BONDED) {
-                resolve(this.announce(signedTransaction.payload, networkProperties, false));
+                return resolve(this.announce(signedTransaction.payload, networkProperties, false));
             }
 
             const hashLockTransaction = {
@@ -82,8 +111,8 @@ export class TransactionService {
             await listener.open();
             listener.listenTransactions((transaction) => {
                 if (transaction.hash === signedHashLockTransaction.hash) {
-                    resolve(this.announce(signedTransaction.payload, networkProperties, true));
                     listener.close();
+                    return resolve(this.announce(signedTransaction.payload, networkProperties, true));
                 }
             })
 

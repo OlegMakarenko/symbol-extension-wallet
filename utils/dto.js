@@ -9,10 +9,11 @@ const addressFromDTO = (address) => {
 }
 
 export const transactionFromDTO = (transactionDTO, config) => {
+    console.log('transactionFromDTO ', transactionDTO)
     const { transaction } = transactionDTO;
     const baseTransaction = baseTransactionFromDTO(transactionDTO, config);
 
-    switch (transaction.type.value) {
+    switch (transaction.type) {
         case TransactionType.AGGREGATE_BONDED:
         case TransactionType.AGGREGATE_COMPLETE:
             return aggregateTransactionFromDTO(transactionDTO, config);
@@ -29,10 +30,10 @@ export const baseTransactionFromDTO = (transactionDTO, config) => {
 
     return {
         type: transaction.type,
-        deadline: transaction.deadline,
+        deadline: Number(transaction.deadline) + config.networkProperties.epochAdjustment * 1000,
+        timestamp: Number(meta.timestamp) + config.networkProperties.epochAdjustment * 1000,
         height: Number(meta.height),
         hash: meta.hash,
-        timestamp: meta.timestamp,
         fee: transaction.maxFee ? getMosaicRelativeAmount(transaction.maxFee, config.networkProperties.networkCurrency.divisibility) : null,
         signerAddress: signerPublicKey ? addressFromPublicKey(signerPublicKey, config.networkProperties.networkIdentifier) : null,
         signerPublicKey,
@@ -41,8 +42,8 @@ export const baseTransactionFromDTO = (transactionDTO, config) => {
 
 export const aggregateTransactionFromDTO = (transactionDTO, config) => {
     const { transaction } = transactionDTO;
-    const baseTransaction = baseTransactionFromDTO(transaction, config);
-    const innerTransactions = transaction.innerTransactions.map((innerTransaction) => transactionFromDTO(innerTransaction, config));
+    const baseTransaction = baseTransactionFromDTO(transactionDTO, config);
+    const innerTransactions = transaction.innerTransactions?.map((innerTransaction) => transactionFromDTO(innerTransaction, config)) || [];
 
     const info = {
         ...baseTransaction,
@@ -64,7 +65,7 @@ export const transferTransactionFromDTO = (transactionDTO, config) => {
     const { transaction } = transactionDTO;
     const { networkProperties, mosaicInfos, currentAccount, resolvedAddresses } = config;
     const baseTransaction = baseTransactionFromDTO(transactionDTO, config);
-    const mosaics = transaction.mosaics.map(mapMosaic);
+    const mosaics = transaction.mosaics//.map(mapMosaic);
     //const formattedMosaics = getMosaicsWithRelativeAmounts(mosaics, mosaicInfos);
     const nativeMosaicAbsoluteAmount = getNativeMosaicAmount(mosaics, networkProperties.networkCurrency.mosaicId);
     const nativeMosaicAmount = getMosaicRelativeAmount(nativeMosaicAbsoluteAmount, networkProperties.networkCurrency.divisibility)
@@ -91,14 +92,14 @@ export const transferTransactionFromDTO = (transactionDTO, config) => {
 
         switch (true) {
             case isMessagePlain:
-                messagePayload = Buffer.from(transaction.message.subarray(1)).toString();
+                messagePayload = Buffer.from(messageBytes.subarray(1)).toString();
             break;
             case isMessageEncrypted:
-                messagePayload = Buffer.from(transaction.message).toString('hex');
+                messagePayload = transaction.message;
             break;
             case isDelegatedHarvestingMessage:
             case isMessageRaw:
-                messagePayload = Buffer.from(transaction.message).toString('hex');
+                messagePayload = transaction.message;
             break;
         }
 
@@ -115,7 +116,7 @@ export const transferTransactionFromDTO = (transactionDTO, config) => {
 
     return {
         ...transactionBody,
-        mosaics: formattedMosaics,
+        mosaics: [],//formattedMosaics,
         amount: resultAmount,
     };
 }

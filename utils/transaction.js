@@ -213,3 +213,43 @@ export const filterAllowedTransactions = (transactions, blackList) => {
 export const filterBlacklistedTransactions = (transactions, blackList) => {
     return transactions.filter((transaction) => blackList.some((contact) => contact.address === transaction.signerAddress));
 };
+
+export const isHarvestingServiceTransaction = (transaction) => {
+    if (!isAggregateTransaction(transaction)) {
+        return false;
+    }
+
+    const keyLinkTypes = [TransactionType.ACCOUNT_KEY_LINK, TransactionType.VRF_KEY_LINK, TransactionType.NODE_KEY_LINK];
+
+    let hasKeyLinkTransaction = false;
+    let hasUnrelatedTypes = false;
+    const transferTransactions = [];
+
+    transaction.innerTransactions.forEach((innerTransaction) => {
+        const isKeyLinkTransaction = keyLinkTypes.some((type) => type === innerTransaction.type);
+        if (isKeyLinkTransaction) {
+            hasKeyLinkTransaction = true;
+            return;
+        }
+
+        const isTransferTransaction = innerTransaction.type === TransactionType.TRANSFER;
+        if (isTransferTransaction) {
+            transferTransactions.push(innerTransaction);
+            return;
+        }
+
+        hasUnrelatedTypes = true;
+    });
+
+    if (hasUnrelatedTypes || !hasKeyLinkTransaction) {
+        return false;
+    }
+
+    const hasTransferTransactionWrongMessage = !!transferTransactions[0] && !transferTransactions[0].message?.isDelegatedHarvestingMessage;
+
+    if (transferTransactions.length > 1 || hasTransferTransactionWrongMessage) {
+        return false;
+    }
+
+    return true;
+};
