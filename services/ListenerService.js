@@ -137,9 +137,15 @@ export class ListenerService {
         this.webSocket.send(JSON.stringify(subscriptionMessage));
     }
 
-    listenTransactions(callback) {
-        this.subscribeTo(`${ListenerChannelName.confirmedAdded}/${this.currentAccount.address}`);
-        this.handlers[ListenerChannelName.confirmedAdded] = callback;
+    listenTransactions(callback, group = 'confirmed') {
+        const channelMap = {
+            confirmed: ListenerChannelName.confirmedAdded,
+            unconfirmed: ListenerChannelName.unconfirmedAdded,
+            partial: ListenerChannelName.partialAdded
+        };
+        const channel = channelMap[group];
+        this.subscribeTo(`${channel}/${this.currentAccount.address}`);
+        this.handlers[channel] = callback;
     }
 
     listenNewBlock(callback) {
