@@ -182,7 +182,6 @@ export default {
         // Fetch and cache account balance by address
         fetchBalance: async ({ commit, state }, address) => {
             const { networkProperties } = state.network;
-            const balances = await PersistentStorage.getBalances();
             let balance;
             try {
                 const accountInfo = await AccountService.fetchAccountInfo(networkProperties, address);
@@ -200,6 +199,7 @@ export default {
             const addressBalance = {
                 [address]: balance,
             };
+            const balances = await PersistentStorage.getBalances();
             const updatedBalances = { ...balances, ...addressBalance };
             await PersistentStorage.setBalances(updatedBalances);
 

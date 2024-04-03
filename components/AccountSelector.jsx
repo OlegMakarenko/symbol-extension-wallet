@@ -3,7 +3,7 @@ import { LoadingIndicator } from './LoadingIndicator';
 import { AccountAvatar } from './AccountAvatar';
 import { useDataManager, useToggle } from '@/utils/hooks';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import store from '@/store';
 import { config } from '@/config';
@@ -11,15 +11,15 @@ import { Tab, Tabs } from '@nextui-org/react';
 import { $t } from '@/localization';
 
 export const AccountSelector = connect((state) => ({
+    isWalletReady: state.wallet.isReady,
+    isAccountReady: state.account.isReady,
     currentAccount: state.account.current,
     accounts: state.wallet.accounts,
     balances: state.wallet.balances,
     networkIdentifier: state.network.networkIdentifier,
     ticker: state.network.ticker,
-}))(function AccountSelector({ currentAccount, accounts, balances, networkIdentifier, ticker }) {
+}))(function AccountSelector({ isWalletReady, isAccountReady, currentAccount, accounts, balances, networkIdentifier, ticker }) {
     const [isListOpen, toggleList] = useToggle(false);
-    const [isRemoveConfirmVisible, toggleRemoveConfirm] = useToggle(false);
-    const [accountToBeRemoved, setAccountToBeRemoved] = useState(null);
     const selectedPublicKey = currentAccount?.publicKey || null;
     const networkAccounts = accounts[networkIdentifier];
 
@@ -41,52 +41,17 @@ export const AccountSelector = connect((state) => ({
                 await store.dispatchAction({ type: 'wallet/selectAccount', payload: account.publicKey });
                 await store.dispatchAction({ type: 'wallet/loadAll' });
             }
-            // await store.dispatchAction({ type: 'network/fetchData' });
-            // await store.dispatchAction({ type: 'account/fetchData' });
             toggleList();
         },
         null,
         handleError
     );
-    const [removeAccount] = useDataManager(
-        async (account) => {
-            const { publicKey } = account;
-            await store.dispatchAction({
-                type: 'wallet/removeAccount',
-                payload: {
-                    publicKey,
-                    networkIdentifier,
-                },
-            });
-            if (selectedPublicKey === publicKey) {
-                await selectAccount(networkAccounts[0]);
-            }
-        },
-        null,
-        handleError
-    );
 
-    const isLoading = isSelectAccountLoading;
-
+    const isLoading = !isWalletReady || !isAccountReady || !currentAccount;
     const isAccountSelected = (account) => account.publicKey === selectedPublicKey;
-    const handleRemovePress = (account) => {
-        if (account.accountType === 'external') {
-            setAccountToBeRemoved(account);
-            toggleRemoveConfirm();
-        } else {
-            removeAccount(account);
-        }
-    };
-    const handleConfirmRemove = () => {
-        removeAccount(accountToBeRemoved);
-        toggleRemoveConfirm();
-    };
-
     const fetchBalances = async () => {
-        const updatedAccountBalanceStateMap = {};
         for (const account of networkAccounts) {
-            updatedAccountBalanceStateMap[account.address] = () =>
-                store.dispatchAction({ type: 'wallet/fetchBalance', payload: account.address });
+            store.dispatchAction({ type: 'wallet/fetchBalance', payload: account.address });
         }
     };
 
@@ -98,22 +63,23 @@ export const AccountSelector = connect((state) => ({
 
     return (
         <>
-            <div
-                className="w-60 h-12 px-2 flex flex-row justify-between items-center cursor-pointer border-solid border-1.5 border-secondary rounded-md z-10"
+            <button
+                className="relative w-60 h-12 px-2 flex flex-row justify-between items-center cursor-pointer border-solid border-1.5 border-secondary rounded-md z-10 text-left"
+                disabled={isLoading}
                 onClick={toggleList}
             >
                 {!!currentAccount && (
                     <div className="relative flex flex-row items-center">
-                        <AccountAvatar size="sm" address={currentAccount.address} className="mr-2" />
+                        <AccountAvatar size="sm" address={currentAccount.address} className={`mr-2 ${isLoading && 'opacity-30 transition-opacity'}`} />
                         <div>
                             <div className="font-mono text-secondary leading-tight uppercase">{currentAccount.name}</div>
                             <div className="leading-tight">{getAddress()}</div>
                         </div>
                     </div>
                 )}
-                {!currentAccount && <LoadingIndicator className="h-full" />}
+                {isLoading && <LoadingIndicator className="absolute h-full" />}
                 <img src="/images/icon-down.png" className="w-8 h-8" />
-            </div>
+            </button>
             <AnimatePresence>
                 {isListOpen && (
                     <motion.div
@@ -155,7 +121,7 @@ export const AccountSelector = connect((state) => ({
                                 ))}
                             </Tabs>
                         </motion.div>
-                        {isLoading && (
+                        {isSelectAccountLoading && (
                             <div className="absolute left-0 top-0 h-full w-full animation-fade-in flex justify-center items-center">
                                 <LoadingIndicator />
                             </div>
