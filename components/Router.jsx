@@ -6,43 +6,44 @@ import { ImportWallet } from '@/screens/ImportWallet';
 import { AccountDetails } from '@/screens/AccountDetails';
 import { TransactionRequest } from '@/screens/TransactionRequest';
 import { Send } from '@/screens/Send';
+import { Settings } from '@/screens/Settings';
 
 const keys = {
     Welcome: '/',
-    CreateWallet: 'CreateWallet',
-    ImportWallet: 'ImportWallet',
+    CreateWallet: '/CreateWallet',
+    ImportWallet: '/ImportWallet',
     Home: '/',
-    History: 'History',
-    Assets: 'Assets',
-    Actions: 'Actions',
-    AccountDetails: 'AccountDetails',
-    AccountList: 'AccountList',
-    AddExternalAccount: 'AddExternalAccount',
-    AddSeedAccount: 'AddSeedAccount',
-    AddressBookEdit: 'AddressBookEdit',
-    AddressBookContact: 'AddressBookContact',
-    AddressBookList: 'AddressBookList',
-    Scan: 'Scan',
-    Send: 'Send',
-    Receive: 'Receive',
-    Settings: 'Settings',
-    SettingsAbout: 'SettingsAbout',
-    SettingsNetwork: 'SettingsNetwork',
-    SettingsSecurity: 'SettingsSecurity',
-    TransactionDetails: 'TransactionDetails',
-    TransactionRequest: 'TransactionRequest',
-    AssetDetails: 'AssetDetails',
-    Harvesting: 'Harvesting',
-    Revoke: 'Revoke',
-    MosaicCreation: 'MosaicCreation',
-    Passcode: 'Passcode',
+    History: '/History',
+    Assets: '/Assets',
+    Actions: '/Actions',
+    AccountDetails: '/AccountDetails',
+    AccountList: '/AccountList',
+    AddExternalAccount: '/AddExternalAccount',
+    AddSeedAccount: '/AddSeedAccount',
+    AddressBookEdit: '/AddressBookEdit',
+    AddressBookContact: '/AddressBookContact',
+    AddressBookList: '/AddressBookList',
+    Scan: '/Scan',
+    Send: '/Send',
+    Receive: '/Receive',
+    Settings: '/Settings',
+    SettingsAbout: '/SettingsAbout',
+    SettingsNetwork: '/SettingsNetwork',
+    SettingsSecurity: '/SettingsSecurity',
+    TransactionDetails: '/TransactionDetails',
+    TransactionRequest: '/TransactionRequest',
+    AssetDetails: '/AssetDetails',
+    Harvesting: '/Harvesting',
+    Revoke: '/Revoke',
+    MosaicCreation: '/MosaicCreation',
+    Passcode: '/Passcode',
 };
 
 export const useRouter = () => {
     const navigate = useNavigate();
 
     return {
-        goBack: () => navigate('..'),
+        goBack: () => navigate(-1),
         goToWelcome: () => navigate(keys.Welcome, { replace: true }),
         goToCreateWallet: () => navigate(keys.CreateWallet),
         goToImportWallet: () => navigate(keys.ImportWallet),
@@ -50,6 +51,7 @@ export const useRouter = () => {
         goToAccountDetails: () => navigate(keys.AccountDetails),
         goToSend: () => navigate(keys.Send),
         goToTransactionRequest: (state) => navigate(keys.TransactionRequest, { state }),
+        goToSettings: () => navigate(keys.Settings),
     };
 }
 
@@ -69,6 +71,7 @@ export const Router = ({isWelcomeFlowRendered, isMainFlowRendered}) => {
                     <Route path={keys.AccountDetails} Component={AccountDetails} />
                     <Route path={keys.Send} Component={Send} />
                     <Route path={keys.TransactionRequest} Component={TransactionRequest} />
+                    <Route path={keys.Settings} Component={Settings} />
                 </>
             )}
         </Routes>

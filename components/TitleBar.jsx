@@ -13,7 +13,7 @@ export const TitleBar = ({ hasAccountSelector, hasSettingsButton, hasBackButton 
             )}
             {hasAccountSelector && <AccountSelector />}
             {hasSettingsButton && (
-                <div className="cursor-pointer">
+                <div className="cursor-pointer" onClick={router.goToSettings}>
                     <img src="/images/icon-settings.png" className="w-8 h-8" />
                 </div>
             )}

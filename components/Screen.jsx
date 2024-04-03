@@ -3,7 +3,7 @@ import { LoadingIndicator } from './LoadingIndicator';
 
 export const Screen = ({ children, titleBar, isLoading, isRefreshing, bottomComponent }) => {
     return (
-        <div className="h-full w-full animation-fade-in flex flex-col bg-screen">
+        <div className="h-full w-full animation-fade-in-half flex flex-col bg-screen">
             {isLoading && (
                 <div className="h-full w-full animation-fade-in flex justify-center items-center">
                     <LoadingIndicator />
