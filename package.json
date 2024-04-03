@@ -4,7 +4,8 @@
     "build": "cross-env MODE=production && next build",
     "build:chrome": "npm run build && bash ./scripts/build.sh",
     "dev": "next dev",
-    "start": "next start"
+    "start": "next start",
+    "test": "jest"
   },
   "dependencies": {
     "@js-joda/core": "^5.6.2",
@@ -14,7 +15,6 @@
     "cross-env": "^7.0.3",
     "ethereum-blockies-base64": "^1.0.2",
     "framer-motion": "^11.0.8",
-    "i": "^0.3.7",
     "i18n-js": "^4.4.3",
     "javascript-time-ago": "^2.5.9",
     "lodash": "^4.17.21",
@@ -34,7 +34,11 @@
     "symbol-sdk": "^3.1.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.2",
     "autoprefixer": "^10.4.17",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "webpack": "^5.90.3"
