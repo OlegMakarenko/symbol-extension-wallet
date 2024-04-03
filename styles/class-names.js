@@ -6,5 +6,11 @@ export const classNames = {
     ],
     controlLabel: [''],
     button: ['font-button', 'uppercase'],
-    popup: ['bg-black']
+    popup: ['bg-black'],
+    listItemBase: [
+        'data-[selected=true]:bg-secondary',
+        'data-[selectable=true]:focus:bg-unset',
+        'data-[hover=true]:!bg-unset',
+        '[&_div_span]:data-[selected=true]:!text-foreground',
+    ]
 }

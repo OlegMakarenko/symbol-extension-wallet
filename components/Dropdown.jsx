@@ -16,6 +16,11 @@ export const Dropdown = (props) => {
             items={list}
             label={title}
             classNames={{ trigger: classNames.controlWrapper, selectorIcon: 'w-6 h-6' }}
+            listboxProps={{
+                itemClasses: {
+                    base: classNames.listItemBase
+                }
+            }}
             variant="faded"
             disallowEmptySelection
             selectionMode="single"
