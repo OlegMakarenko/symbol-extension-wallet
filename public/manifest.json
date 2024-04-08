@@ -8,7 +8,7 @@
         "activeTab"
     ],
     "background": {
-        "service_worker": "background-script.js"
+        "service_worker": "background/main.js"
     },
     "content_scripts": [
         {
@@ -18,7 +18,7 @@
                 "https://*/*"
             ],
             "js": [
-                "content-script.js"
+                "content/main.js"
             ],
             "run_at": "document_start",
             "all_frames": true

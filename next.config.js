@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 
 module.exports = {
-	distDir: process.env.MODE === 'production' ? 'build' : null,
+	distDir: process.env.NODE_ENV === 'production' ? 'build' : null,
 	output: 'export',
 	reactStrictMode: true,
 	eslint: {
