@@ -14,7 +14,7 @@
             "@/styles/*": ["styles/*"],
             "@/storage": ["storage/index.js"],
             "@/store": ["store/index.js"],
-            "@/utils/*": ["utils/*"],
+            "@/utils/*": ["utils/*"]
         }
     },
     "exclude": [
