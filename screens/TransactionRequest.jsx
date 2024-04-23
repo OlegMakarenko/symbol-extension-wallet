@@ -6,9 +6,10 @@ import { MosaicService, NamespaceService, TransactionService } from '@/services'
 import { Divider, Spacer } from '@nextui-org/react';
 import { getUserCurrencyAmountText, handleError } from '@/utils/helper';
 import { useLocation } from 'react-router-dom';
-import { getTransactionFees, transactionFromPayload } from '@/utils/transaction';
+import { getTransactionFees, getUnresolvedIdsFromSymbolTransaction, transactionFromPayload } from '@/utils/transaction';
 import { transactionFromSymbol } from '@/utils/transaction-from-symbol';
 import { Button, Screen, FormItem, TableView, Alert, DialogBox, TitleBar, FeeSelector, useRouter, TransactionGraphic } from '@/components/index';
+import { $t } from '@/localization';
 
 export const TransactionRequest = connect((state) => ({
     currentAccount: state.account.current,
@@ -56,7 +57,7 @@ export const TransactionRequest = connect((state) => ({
     const [loadTransaction, isTransactionLoading] = useDataManager(
         async (payload, generationHash) => {
             const symbolTransaction = transactionFromPayload(payload);
-            const { addresses, mosaicIds, namespaceIds } = getUnresolvedIdsFromTransactionDTOs([symbolTransaction]);
+            const { addresses, mosaicIds, namespaceIds } = getUnresolvedIdsFromSymbolTransaction([symbolTransaction]);
             const mosaicInfos = await MosaicService.fetchMosaicInfos(networkProperties, mosaicIds);
             const namespaceNames = await NamespaceService.fetchNamespaceNames(networkProperties, namespaceIds);
             const resolvedAddresses = await NamespaceService.resolveAddresses(networkProperties, addresses);
@@ -82,7 +83,7 @@ export const TransactionRequest = connect((state) => ({
                 price,
                 networkProperties.networkIdentifier
             );
-
+                transaction.innerTransactions[0].recipientAddress = 'TDAAA3NEIGUMMKJCDXTNEM6U644USLJBG7M6345'
             setPayload(payload);
             setTransaction(transaction);
             setIsNetworkSupported(generationHash === networkProperties.generationHash);
