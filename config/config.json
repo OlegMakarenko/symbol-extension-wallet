@@ -34,5 +34,22 @@
     "defaultNetworkIdentifier": "mainnet",
     "maxSeedAccounts": 10,
     "connectionInterval": 10000,
-    "allowedMarkedDataCallInterval": 600000
+    "allowedMarkedDataCallInterval": 600000,
+    "blockedDomains": [
+        "execution.consensys.io",
+        "execution.metamask.io",
+        "uscourts.gov",
+        "dropbox.com",
+        "webbyawards.com",
+        "adyen.com",
+        "gravityforms.com",
+        "harbourair.com",
+        "ani.gamer.com.tw",
+        "blueskybooking.com",
+        "sharefile.com",
+        "battle.net"
+    ],
+    "blockedUrlPaths": [
+        "cdn.shopify.com/s/javascripts/tricorder/xtld-read-only-frame.html"
+    ]
 }

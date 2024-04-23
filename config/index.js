@@ -23,4 +23,6 @@ export const config = {
     maxSeedAccounts: configFile.maxSeedAccounts,
     connectionInterval: configFile.connectionInterval,
     allowedMarkedDataCallInterval: configFile.allowedMarkedDataCallInterval,
+    blockedDomains: configFile.blockedDomains,
+    blockedUrlPaths: configFile.blockedUrlPaths,
 };
