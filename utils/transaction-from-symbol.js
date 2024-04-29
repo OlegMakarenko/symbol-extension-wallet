@@ -2,7 +2,7 @@ import { AddressRestrictionFlagMessage, AliasActionMessage, LinkActionMessage, L
 import { addressFromPublicKey } from './account';
 import { getMosaicRelativeAmount, getMosaicsWithRelativeAmounts, getNativeMosaicAmount, isRestrictableFlag, isRevokableFlag, isSupplyMutableFlag, isTransferableFlag } from './mosaic';
 import { isIncomingTransaction, isOutgoingTransaction } from './transaction';
-import symbolSdk from 'symbol-sdk';
+import { Address } from 'symbol-sdk/symbol';
 
 const mapMosaic = (mosaic) => ({
     id: mosaic.mosaicId.toString().replace('0x', ''),
@@ -10,7 +10,7 @@ const mapMosaic = (mosaic) => ({
 });
 
 const mapAddress = (address) =>
-    new symbolSdk.symbol.Address(address.bytes).toString();
+    new Address(address.bytes).toString();
 
 const mapId = (id) => id.toString().replace('0x', '');
 

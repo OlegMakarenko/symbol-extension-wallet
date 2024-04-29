@@ -1,8 +1,9 @@
-import symbolSdk from 'symbol-sdk';
+import { PrivateKey, PublicKey } from 'symbol-sdk';
+import { SymbolFacade, Address } from 'symbol-sdk/symbol';
 
 export const generateKeyPair = () => {
-    const privateKey = symbolSdk.PrivateKey.random();
-    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(privateKey);
+    const privateKey = PrivateKey.random();
+    const keyPair = new SymbolFacade.KeyPair(privateKey);
 
     return {
         privateKey: privateKey.toString(),
@@ -15,16 +16,16 @@ export const addressFromPrivateKey = (privateKey, networkIdentifier) => {
 };
 
 export const addressFromPublicKey = (publicKey, networkIdentifier) => {
-    const facade = new symbolSdk.facade.SymbolFacade(networkIdentifier);
-    const _publicKey = new symbolSdk.PublicKey(publicKey);
+    const facade = new SymbolFacade(networkIdentifier);
+    const _publicKey = new PublicKey(publicKey);
 
     return facade.network.publicKeyToAddress(_publicKey).toString();
 };
 
 export const publicAccountFromPrivateKey = (privateKey, networkIdentifier) => {
-    const facade = new symbolSdk.facade.SymbolFacade(networkIdentifier);
-    const _privateKey = new symbolSdk.PrivateKey(privateKey);
-    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(_privateKey);
+    const facade = new SymbolFacade(networkIdentifier);
+    const _privateKey = new PrivateKey(privateKey);
+    const keyPair = new SymbolFacade.KeyPair(_privateKey);
     const address = facade.network.publicKeyToAddress(keyPair.publicKey);
 
     return {
@@ -76,5 +77,5 @@ export const isSymbolAddress = (address) => {
 };
 
 export const addressFromRaw = (rawAddress) => {
-    return new symbolSdk.symbol.Address(Buffer.from(rawAddress, 'hex')).toString()
+    return new Address(Buffer.from(rawAddress, 'hex')).toString()
 };

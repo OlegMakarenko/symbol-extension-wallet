@@ -1,5 +1,5 @@
 import { MosaicFlags } from '@/constants';
-import { bytesToInt } from 'symbol-sdk/src/utils/converter';
+import { bytesToNumber } from '@metamask/utils';
 
 export const getNativeMosaicAmount = (mosaicList, nativeMosaicId) => {
     if (!mosaicList || !nativeMosaicId) {
@@ -74,7 +74,7 @@ export const generateNonce = () => {
     const bytes = Crypto.randomBytes(4);
     const nonce = new Uint8Array(bytes);
 
-    return bytesToInt(nonce, 4);
+    return bytesToNumber(nonce, 4);
 };
 
 // export const generateMosaicId = (nonce, ownerAddress) => {

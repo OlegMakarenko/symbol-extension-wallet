@@ -1,15 +1,14 @@
 import { TransactionType } from '@/constants';
 import { addressFromPublicKey } from './account';
 import { getMosaicRelativeAmount, getNativeMosaicAmount } from './mosaic';
-import symbolSdk from 'symbol-sdk';
 import { isIncomingTransaction, isOutgoingTransaction } from './transaction';
+import { Address } from 'symbol-sdk/symbol';
 
 const addressFromDTO = (address) => {
-    return new symbolSdk.symbol.Address(Buffer.from(address, 'hex')).toString()
+    return new Address(Buffer.from(address, 'hex')).toString()
 }
 
 export const transactionFromDTO = (transactionDTO, config) => {
-    console.log('transactionFromDTO ', transactionDTO)
     const { transaction } = transactionDTO;
     const baseTransaction = baseTransactionFromDTO(transactionDTO, config);
 

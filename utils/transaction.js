@@ -1,9 +1,10 @@
 import { TransactionType } from '@/constants';
 import { getMosaicRelativeAmount } from './mosaic';
 import { toFixedNumber } from './helper';
-import symbolSdk from 'symbol-sdk';
+import { PrivateKey, PublicKey, utils } from 'symbol-sdk';
+import { SymbolFacade, MessageEncoder, NamespaceId, models } from 'symbol-sdk/symbol';
 import { transactionToSymbol } from './transaction-to-symbol';
-import MessageEncoder from 'symbol-sdk/src/symbol/MessageEncoder';
+const { TransactionFactory, UnresolvedAddress } = models;
 
 export const isAggregateTransaction = (transaction) => {
     return transaction.type === TransactionType.AGGREGATE_BONDED || transaction.type === TransactionType.AGGREGATE_COMPLETE ||  transaction.type.value === TransactionType.AGGREGATE_BONDED || transaction.type.value === TransactionType.AGGREGATE_COMPLETE;
@@ -41,9 +42,9 @@ export const getTransactionFees = (transaction, networkProperties) => {
 };
 
 export const transactionFromPayload = (payload) => {
-    const transactionHex = symbolSdk.utils.hexToUint8(payload);
+    const transactionHex = utils.hexToUint8(payload);
 
-    return symbolSdk.symbol.TransactionFactory.deserialize(transactionHex);
+    return TransactionFactory.deserialize(transactionHex);
 };
 
 export const getUnresolvedIdsFromSymbolTransaction = (transactions) => {
@@ -103,7 +104,7 @@ export const getUnresolvedIdsFromSymbolTransaction = (transactions) => {
     };
 
     const isNamespaceId = (unresolvedAddress) => {
-        return new symbolSdk.symbol.UnresolvedAddress(unresolvedAddress.bytes).toString().length !== 48;
+        return new UnresolvedAddress(unresolvedAddress.bytes).toString().length !== 48;
     };
 
     transactions.forEach((transaction) => {
@@ -128,7 +129,7 @@ export const getUnresolvedIdsFromSymbolTransaction = (transactions) => {
 
                 if (mode === 'address' && isNamespaceId(value)) {
                     addresses.push({
-                        namespaceId: new symbolSdk.symbol.NamespaceId(value.bytes).toString(),
+                        namespaceId: new NamespaceId(value.bytes).toString(),
                         height: transaction.transactionInfo?.height,
                     });
                 } else if (mode === 'addressArray' && Array.isArray(value)) {
@@ -136,7 +137,7 @@ export const getUnresolvedIdsFromSymbolTransaction = (transactions) => {
                         .filter((address) => isNamespaceId(address))
                         .forEach((address) =>
                             addresses.push({
-                                namespaceId: new symbolSdk.symbol.NamespaceId(address.value.bytes),
+                                namespaceId: new NamespaceId(address.value.bytes),
                                 height: transaction.transactionInfo?.height,
                             })
                         );
@@ -171,9 +172,9 @@ export const isOutgoingTransaction = (transaction, currentAccount) => transactio
 export const isIncomingTransaction = (transaction, currentAccount) => transaction.recipientAddress === currentAccount.address;
 
 export const encryptMessage = (messageText, recipientPublicKey, privateKey) => {
-    const _privateKey = new symbolSdk.PrivateKey(privateKey);
-    const _recipientPublicKey = new symbolSdk.PublicKey(recipientPublicKey);
-    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(_privateKey);
+    const _privateKey = new PrivateKey(privateKey);
+    const _recipientPublicKey = new PublicKey(recipientPublicKey);
+    const keyPair = new SymbolFacade.KeyPair(_privateKey);
     const messageEncoder = new MessageEncoder(keyPair);
     const messageBytes = Buffer.from(messageText, 'utf-8');
     const encodedBytes = messageEncoder.encodeDeprecated(_recipientPublicKey, messageBytes);
@@ -182,9 +183,9 @@ export const encryptMessage = (messageText, recipientPublicKey, privateKey) => {
 }
 
 export const decryptMessage = (encryptedMessageHex, recipientPublicKey, privateKey) => {
-    const _privateKey = new symbolSdk.PrivateKey(privateKey);
-    const _recipientPublicKey = new symbolSdk.PublicKey(recipientPublicKey);
-    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(_privateKey);
+    const _privateKey = new PrivateKey(privateKey);
+    const _recipientPublicKey = new PublicKey(recipientPublicKey);
+    const keyPair = new SymbolFacade.KeyPair(_privateKey);
     const messageEncoder = new MessageEncoder(keyPair);
     const messageBytes = Buffer.from(encryptedMessageHex, 'hex');
     const { message } = messageEncoder.tryDecodeDeprecated(_recipientPublicKey, messageBytes);

@@ -1,5 +1,7 @@
-import { generateNamespaceId } from 'symbol-sdk/src/symbol/idGenerator.js';
-import { hexToUint8, uint8ToHex } from 'symbol-sdk/src/utils/converter';
+import { generateNamespaceId } from 'symbol-sdk/symbol';
+import { utils } from 'symbol-sdk';
+
+const { hexToUint8, uint8ToHex } = utils;
 
 export const namespaceIdFromName = (namespaceName) => {
     return generateNamespaceId(namespaceName).toString(16);

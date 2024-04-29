@@ -1,4 +1,4 @@
-import { NetworkIdentifier } from '@/constants';
+import { ExtensionRpcMethods, NetworkIdentifier } from '@/constants';
 import { $t } from '@/localization';
 import { toast } from 'react-toastify';
 import makeBlockie from 'ethereum-blockies-base64';
@@ -125,16 +125,13 @@ export const getAddressName = (address, currentAccount, accounts, addressBook) =
 };
 
 
-export const processRequestAction = async (PersistentStorage, router) => {
-    const requestAction = await PersistentStorage.getRequest();
-    console.log('requestAction', requestAction);
-
+export const processRequestAction = async (requestAction, router) => {
     if (!requestAction) {
         return;
     }
 
-    if (requestAction.method === 'sign-and-send') {
-        router.goToTransactionRequest(requestAction)
+    if (requestAction.method === ExtensionRpcMethods.sendTransaction) {
+        router.goToTransactionRequest({ ...requestAction.payload, id: requestAction.id })
     }
 }
 

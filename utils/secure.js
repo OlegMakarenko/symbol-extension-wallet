@@ -1,9 +1,11 @@
 import { PersistentStorage, SecureStorage } from '@/storage';
 import { createWalletAccount } from './account';
-import symbolSdk from 'symbol-sdk';
+import { PrivateKey, utils } from 'symbol-sdk';
+import { SymbolFacade, models } from 'symbol-sdk/symbol';
 import { Events } from '@/constants';
 import { createNetworkMap } from './helper';
 import { transactionToSymbol } from './transaction-to-symbol';
+const { TransactionFactory } = models;
 
 export const isMnemonicStored = async () => {
     return !!(await SecureStorage.getMnemonicEncrypted());
@@ -19,9 +21,9 @@ export const signTransaction = async (password, networkProperties, transaction, 
     const transactionObject = transactionToSymbol(transaction, networkProperties, currentAccountWithPrivateKey);
 
     // Get signature
-    const facade = new symbolSdk.facade.SymbolFacade(networkProperties.networkIdentifier);
-    const privateKey = new symbolSdk.PrivateKey(currentAccountWithPrivateKey.privateKey);
-    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(privateKey);
+    const facade = new SymbolFacade(networkProperties.networkIdentifier);
+    const privateKey = new PrivateKey(currentAccountWithPrivateKey.privateKey);
+    const keyPair = new SymbolFacade.KeyPair(privateKey);
     const signature = facade.signTransaction(keyPair, transactionObject);
 
     // Attach signature
@@ -41,11 +43,11 @@ export const signTransactionPayload = async (password, networkIdentifier, payloa
     const currentAccountPrivateKey = networkAccounts.find(account => account.publicKey === currentAccount.publicKey).privateKey
 
     // Get signature
-    const facade = new symbolSdk.facade.SymbolFacade(networkIdentifier);
-    const privateKey = new symbolSdk.PrivateKey(currentAccountPrivateKey);
-    const keyPair = new symbolSdk.facade.SymbolFacade.KeyPair(privateKey);
-    const payloadBytes = symbolSdk.utils.hexToUint8(payload);
-	const transaction = symbolSdk.symbol.TransactionFactory.deserialize(payloadBytes);
+    const facade = new SymbolFacade(networkIdentifier);
+    const privateKey = new PrivateKey(currentAccountPrivateKey);
+    const keyPair = new SymbolFacade.KeyPair(privateKey);
+    const payloadBytes = utils.hexToUint8(payload);
+	const transaction = TransactionFactory.deserialize(payloadBytes);
     const signature = facade.signTransaction(keyPair, transaction);
 
     // Attach signature

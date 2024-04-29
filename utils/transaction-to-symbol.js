@@ -1,11 +1,11 @@
 import { AddressRestrictionFlag, AddressRestrictionFlagMessage, AliasAction, AliasActionMessage, LinkAction, LinkActionMessage, Message, MosaicRestrictionFlag, MosaicRestrictionFlagMessage, MosaicRestrictionType, MosaicRestrictionTypeMessage, MosaicSupplyChangeAction, MosaicSupplyChangeActionMessage, NamespaceRegistrationType, NamespaceRegistrationTypeMessage, OperationRestrictionFlag, OperationRestrictionFlagMessage, TransactionType } from '@/constants';
 import { ChronoUnit, Instant } from '@js-joda/core';
 import _ from 'lodash';
-import symbolSdk from 'symbol-sdk';
+import { SymbolFacade } from 'symbol-sdk/symbol';
 import { encryptMessage } from './transaction';
 
 const createSymbolTransaction = (transactionDescriptor, networkProperties, isEmbedded) => {
-    const facade = new symbolSdk.facade.SymbolFacade(networkProperties.networkIdentifier);
+    const facade = new SymbolFacade(networkProperties.networkIdentifier);
 
     if (isEmbedded) {
         return facade.transactionFactory.createEmbedded(_.omit(transactionDescriptor, 'fee', 'deadline'));
@@ -100,7 +100,7 @@ export const transactionToSymbol = (transaction, networkProperties, currentAccou
 
 
 export const aggregateTransactionToSymbol = (transaction, networkProperties, currentAccount) => {
-    const facade = new symbolSdk.facade.SymbolFacade(networkProperties.networkIdentifier);
+    const facade = new SymbolFacade(networkProperties.networkIdentifier);
     const innerTransactions = transaction.innerTransactions.map((innerTransaction) =>
         transactionToSymbol(innerTransaction, networkProperties, currentAccount, true)
     );
