@@ -15,6 +15,7 @@ export * from './FormItem.jsx';
 export * from './GlobalStoreHandler.jsx';
 export * from './InputAddress.jsx';
 export * from './InputAmount.jsx';
+export * from './ItemRequestAction';
 export * from './ItemTransaction.jsx';
 export * from './LoadingIndicator.jsx';
 export * from './MnemonicView.jsx';

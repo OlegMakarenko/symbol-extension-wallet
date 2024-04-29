@@ -1,11 +1,13 @@
 import { $t } from 'localization';
 import { useDataManager, usePasscode } from '@/utils/hooks';
-import { handleError } from '@/utils/helper';
+import { handleError, processRequestAction } from '@/utils/helper';
 import store, { connect } from '@/store';
-import { AccountCardWidget, Alert, Button, FormItem, ItemTransaction, Screen, TitleBar, useRouter } from '@/components/index';
-import { useMemo } from 'react';
+import { AccountCardWidget, Alert, Button, FormItem, ItemRequestAction, ItemTransaction, Screen, TitleBar, useRouter } from '@/components/index';
+import { useEffect, useMemo, useState } from 'react';
 import { config } from '@/config';
 import { ScrollShadow, Spacer } from '@nextui-org/react';
+import { PersistentStorage } from '@/storage';
+import { WalletController } from '@/core/WalletController';
 
 export const Home = connect((state) => ({
     balances: state.wallet.balances,
@@ -55,6 +57,22 @@ export const Home = connect((state) => ({
 
     const limitedTransactions = useMemo(() => confirmedTransactions.slice(0, 5), [confirmedTransactions]);
 
+    const [requests, setRequests] = useState([]);
+    const refreshActionRequests = async () => {
+        const requests = await PersistentStorage.getRequestQueue();
+        setRequests(requests);
+    }
+    const declineActionRequest = async (request) => {
+        await WalletController.removeRequests([request.id]);
+        refreshActionRequests();
+    }
+    const handleActionRequest = (request) => {
+        processRequestAction(request, router);
+    }
+    useEffect(() => {
+        refreshActionRequests()
+    }, []);
+
     return (
         <Screen
             isRefreshing={isLoading}
@@ -82,6 +100,24 @@ export const Home = connect((state) => ({
                         body={$t('warning_multisig_body')}
                     />
                 </FormItem>
+            )}
+            {requests.length > 0 && (
+                <>
+                    <Spacer y={4} />
+                    <FormItem>
+                        <h2>Request Action</h2>
+                        {requests.map((item) => (
+                            <FormItem key={'unconfirmed' + item.hash}>
+                                <ItemRequestAction
+                                    request={item}
+                                    router={router}
+                                    onDetailsClick={handleActionRequest}
+                                    onCancelClick={declineActionRequest}
+                                />
+                            </FormItem>
+                        ))}
+                    </FormItem>
+                </>
             )}
             {confirmedTransactions.length > 0 && (
                 <>

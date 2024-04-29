@@ -101,6 +101,7 @@ module.exports = {
                         navbar: '#1A1A1A',
                         toast: '#000000',
                         card: '#413c4f',
+                        panel: 'rgba(241, 243, 244, 0.15)',
 
                         danger: {
                             DEFAULT: '#ff9999',

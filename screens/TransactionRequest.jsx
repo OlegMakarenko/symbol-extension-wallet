@@ -10,6 +10,8 @@ import { getTransactionFees, getUnresolvedIdsFromSymbolTransaction, transactionF
 import { transactionFromSymbol } from '@/utils/transaction-from-symbol';
 import { Button, Screen, FormItem, TableView, Alert, DialogBox, TitleBar, FeeSelector, useRouter, TransactionGraphic } from '@/components/index';
 import { $t } from '@/localization';
+import { networkIdentifierToNetworkType } from '@/utils/network';
+import { WalletController } from '@/core/WalletController';
 
 export const TransactionRequest = connect((state) => ({
     currentAccount: state.account.current,
@@ -55,7 +57,7 @@ export const TransactionRequest = connect((state) => ({
             isEmbedded ? 'fee' : null,
         ]);
     const [loadTransaction, isTransactionLoading] = useDataManager(
-        async (payload, generationHash) => {
+        async (payload) => {
             const symbolTransaction = transactionFromPayload(payload);
             const { addresses, mosaicIds, namespaceIds } = getUnresolvedIdsFromSymbolTransaction([symbolTransaction]);
             const mosaicInfos = await MosaicService.fetchMosaicInfos(networkProperties, mosaicIds);
@@ -83,10 +85,10 @@ export const TransactionRequest = connect((state) => ({
                 price,
                 networkProperties.networkIdentifier
             );
-                transaction.innerTransactions[0].recipientAddress = 'TDAAA3NEIGUMMKJCDXTNEM6U644USLJBG7M6345'
+
             setPayload(payload);
             setTransaction(transaction);
-            setIsNetworkSupported(generationHash === networkProperties.generationHash);
+            setIsNetworkSupported(symbolTransaction.network.value === networkIdentifierToNetworkType(networkProperties.networkIdentifier));
             setStyleAmount(styleAmount);
             setUserCurrencyAmountText(userCurrencyAmountText);
         },
@@ -118,7 +120,7 @@ export const TransactionRequest = connect((state) => ({
     }, [transactionFees, speed, transaction]);
 
     useEffect(() => {
-        if (isAccountReady) loadTransaction(state.payload, state.generationHash);
+        if (isAccountReady) loadTransaction(state.transactionPayload, state.generationHash);
     }, [state, currentAccount, isAccountReady]);
 
     const [loadState, isStateLoading] = useDataManager(
@@ -129,6 +131,11 @@ export const TransactionRequest = connect((state) => ({
         handleError
     );
     useInit(loadState, isWalletReady, [currentAccount]);
+
+    const cancel = async () => {
+        await WalletController.removeRequests([state.id]);
+        router.goToHome();
+    }
 
     const isButtonDisabled = !isTransactionLoaded || !isNetworkSupported || isMultisigAccount;
     const isLoading = !isAccountReady || isTransactionLoading || isSending || isStateLoading;
@@ -152,7 +159,7 @@ export const TransactionRequest = connect((state) => ({
                         <Button title={$t('button_send')} isDisabled={isButtonDisabled} onClick={toggleConfirm} />
                     </FormItem>
                     <FormItem>
-                        <Button title={$t('button_cancel')} isSecondary onClick={router.goToHome} />
+                        <Button title={$t('button_cancel')} isSecondary onClick={cancel} />
                     </FormItem>
                 </>
             }

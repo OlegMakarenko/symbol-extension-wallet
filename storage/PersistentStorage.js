@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export class PersistentStorage {
     // Keys
     static DATA_SCHEMA_VERSION = 'DATA_SCHEMA_VERSION';
@@ -12,6 +14,7 @@ export class PersistentStorage {
     static ACCOUNT_INFOS_KEY = 'accountInfos';
     static USER_CURRENCY_KEY = 'USER_CURRENCY_KEY';
     static REQUEST_KEY = 'REQUEST';
+    static PERMISSIONS_KEY = 'PERMISSIONS';
 
     // Data Schema Version
     static getDataSchemaVersion = async () => {
@@ -172,19 +175,36 @@ export class PersistentStorage {
     }
 
     // Request Action
-    static async getRequest() {
+    static async getRequestQueue() {
         const value = await this.get(this.REQUEST_KEY);
-            const defaultValue = null;
+        const defaultValue = [];
 
-            try {
-                return JSON.parse(value) || defaultValue;
-            } catch {
-                return defaultValue;
-            }
+        try {
+            const parsedValue = JSON.parse(value);
+            return _.isArray(parsedValue) ? parsedValue : defaultValue;
+        } catch {
+            return defaultValue;
+        }
     }
 
-    static async setRequest(payload) {
+    static async setRequestQueue(payload) {
         return this.set(this.REQUEST_KEY, JSON.stringify(payload));
+    }
+
+    // Permissions
+    static async getPermissions() {
+        const value = await this.get(this.PERMISSIONS_KEY);
+        const defaultValue = {};
+
+        try {
+            return JSON.parse(value) || defaultValue;
+        } catch {
+            return defaultValue;
+        }
+    }
+
+    static async setPermissions(payload) {
+        return this.set(this.PERMISSIONS_KEY, JSON.stringify(payload));
     }
 
     // API
@@ -225,6 +245,7 @@ export class PersistentStorage {
             this.remove(this.ACCOUNT_INFOS_KEY),
             this.remove(this.USER_CURRENCY_KEY),
             this.remove(this.REQUEST_KEY),
+            this.remove(this.PERMISSIONS_KEY),
         ]);
     };
 }

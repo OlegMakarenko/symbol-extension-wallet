@@ -25,4 +25,5 @@ export const config = {
     allowedMarkedDataCallInterval: configFile.allowedMarkedDataCallInterval,
     blockedDomains: configFile.blockedDomains,
     blockedUrlPaths: configFile.blockedUrlPaths,
+    actionRequestDeadline: configFile.actionRequestDeadline,
 };

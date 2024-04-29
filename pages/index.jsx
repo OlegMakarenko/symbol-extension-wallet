@@ -28,7 +28,8 @@ export default function Main({isReady}) {
         await store.dispatchAction({ type: 'wallet/loadAll' });
         setIsWalletLoaded(true);
         store.dispatchAction({ type: 'network/connect' });
-        processRequestAction(PersistentStorage, router);
+        const [requestAction] = await PersistentStorage.getRequestQueue();
+        //processRequestAction(requestAction, router);
     };
     const init = async () => {
         setIsWalletStored(false)

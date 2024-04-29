@@ -1,5 +1,7 @@
 import { MnemonicPassPhrase } from 'symbol-hd-wallets';
 import { isSymbolAddress } from './account';
+import { ExtensionRpcMethods } from '@/constants';
+import { isInteger } from 'lodash';
 
 export const validateRequired =
     (isRequired = true) =>
@@ -77,3 +79,17 @@ export const validateMosaicDuration = (blockGenerationTargetTime) => (str) => {
         return 'validation_error_mosaic_duration';
     }
 };
+
+export const validateRequestAction = () => (obj) => {
+    const { sender, method, timestamp } = obj;
+
+    if (!sender || !sender.origin || !sender.icon || !sender.title) {
+        return 'validation_error_requestAction_sender';
+    }
+    if (!Object.values(ExtensionRpcMethods).some(rpcMethod => rpcMethod === method)) {
+        return 'validation_error_requestAction_method';
+    }
+    if (!isInteger(timestamp)) {
+        return 'validation_error_requestAction_timestamp';
+    }
+}

@@ -6,6 +6,7 @@
             "@/components/*": ["components/*"],
             "@/config": ["config/index.js"],
             "@/constants": ["constants/index.js"],
+            "@/core/*": ["core/*"],
             "@/localization": ["localization/index.js"],
             "@/pages/*": ["pages/*"],
             "@/public/*": ["public/*"],

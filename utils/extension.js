@@ -1,5 +1,6 @@
 import { config } from '@/config';
 import { Events } from '@/constants';
+import { isObject } from '@metamask/utils';
 
 
 /**
@@ -80,8 +81,6 @@ export const isDomainBlocked = () => {
  * @returns Whether the ProviderDetail is valid.
  */
 export const isValidProviderDetail = (providerDetail) => {
-    const isObject = (value) =>
-        Boolean(value) && typeof value === 'object' && !Array.isArray(value);
     if (
         !isObject(providerDetail) ||
         !isObject(providerDetail.info) ||

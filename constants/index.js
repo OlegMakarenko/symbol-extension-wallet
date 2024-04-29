@@ -1,3 +1,5 @@
+export * from './extension';
+
 export const DEFAULT_ACCOUNT_NAME = 'My Account';
 
 export const MAX_SEED_ACCOUNTS_PER_NETWORK = 10;
@@ -11,29 +13,6 @@ export const Events = {
     PROVIDER_REQUEST: 'symbol:requestProvider',
     PROVIDER_INITIALIZED: 'symbol:initialized'
 };
-
-export const StreamName = {
-    CONTENT: 'symbol-contentscript',
-    INPAGE: 'symbol-inpage',
-    PROVIDER: 'symbol-provider',
-}
-
-export const EXTENSION_MESSAGES = {
-    CONNECTION_READY: 'CONNECTION_READY',
-    READY: 'METAMASK_EXTENSION_READY',
-}
-
-export const DEFAULT_PROVIDER = {
-    name: 'Symbol Wallet',
-    rdns: 'com.symbol.wallet',
-    icon: 'data:image/svg+xml;utf8,<svg></svg>',
-}
-
-export const ExtensionMethods = {
-    wallet_getPermissions: 'wallet_getPermissions',
-    wallet_requestPermissions: 'wallet_requestPermissions',
-    wallet_switchSymbolChain: 'wallet_switchSymbolChain'
-}
 
 export const WalletAccountType = {
     SEED: 'seed',

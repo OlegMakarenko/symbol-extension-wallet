@@ -51,5 +51,6 @@
     ],
     "blockedUrlPaths": [
         "cdn.shopify.com/s/javascripts/tricorder/xtld-read-only-frame.html"
-    ]
+    ],
+    "actionRequestDeadline": 60000
 }
