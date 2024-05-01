@@ -1,11 +1,35 @@
-import SafeEventEmitter from '@metamask/safe-event-emitter';
 import { PersistentStorage } from '@/storage';
 import { config } from '@/config';
 import { ExtensionPermissions } from '@/constants';
+import { networkIdentifierToNetworkType } from '@/utils/network';
+import { v4 as uuid } from 'uuid';
 
-export class WalletController extends SafeEventEmitter {
-    static getRequests = async (ids) => {
+export class WalletController  {
+    static getAccountInfo = async () => {
+        const networkIdentifier = await PersistentStorage.getNetworkIdentifier();
+        const networkType = networkIdentifierToNetworkType(networkIdentifier);
+        const publicKey = await PersistentStorage.getCurrentAccountPublicKey();
+
+        return {
+            networkType,
+            publicKey
+        }
+    }
+
+    static getRequests = async () => {
         return PersistentStorage.getRequestQueue();
+    }
+
+    static addRequest = async (sender, method, payload) => {
+        const requests = await PersistentStorage.getRequestQueue();
+        requests.push({
+            sender,
+            method,
+            payload,
+            timestamp: Date.now(),
+            id: uuid(),
+        });
+        await PersistentStorage.setRequestQueue(requests);
     }
 
     static removeExpiredRequests = async ()  => {
@@ -26,18 +50,11 @@ export class WalletController extends SafeEventEmitter {
         await PersistentStorage.setRequestQueue(updatedRequests);
     }
 
-    static addAccountPermission = async (origin) => {
-        return WalletController.addPermission(origin, ExtensionPermissions.account);
-    }
-
     static getPermissions = async () => {
-        console.log('getPermissions')
         return PersistentStorage.getPermissions();
     }
 
     static addPermission = async (origin, permission) => {
-        console.log('addPermission', origin, permission)
-
         const isPermissionSupported = Object.values(ExtensionPermissions).some(item => item === permission);
 
         if (!isPermissionSupported) {
@@ -62,7 +79,6 @@ export class WalletController extends SafeEventEmitter {
     }
 
     static removePermission = async (origin, permission) => {
-        console.log('removePermission', origin, permission)
         const permissions = await PersistentStorage.getPermissions();
 
         if (!permissions[origin]) {
@@ -81,7 +97,6 @@ export class WalletController extends SafeEventEmitter {
     }
 
     static hasPermission = async (origin, permission) => {
-        console.log('hasPermission', origin, permission)
         const permissions = await PersistentStorage.getPermissions();
 
         if (!permissions[origin]) {

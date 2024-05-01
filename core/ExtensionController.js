@@ -1,20 +1,14 @@
-import SafeEventEmitter from '@metamask/safe-event-emitter';
+import browser from 'webextension-polyfill';
 import ObjectMultiplex from 'obj-multiplex';
 import { EXTENSION_MESSAGES, ExtensionPermissions, ExtensionRpcMethods, StreamName } from '@/constants';
 import pump from 'pump';
-import { PersistentStorage } from '@/storage';
 import { sanitizeUrl } from '@braintree/sanitize-url';
-import { v4 as uuid } from 'uuid';
 import { WalletController } from './WalletController';
-import { networkIdentifierToNetworkType } from '@/utils/network';
 
 const MAX_OPEN_POPUPS = 1;
-export class ExtensionController extends SafeEventEmitter {
+export class ExtensionController {
     constructor(ops) {
-        super();
-
         this.extension = ops.browser;
-        this.tabs = {};
         this.openPopupIds = [];
 
         this.extension.windows.onRemoved.addListener((closedPopupId) => {
@@ -39,14 +33,14 @@ export class ExtensionController extends SafeEventEmitter {
         return mux;
     }
     /**
-   * Used to create a multiplexed stream for connecting to a trusted context,
-   * like our own user interfaces, which have the provider APIs, but also
-   * receive the exported API from this controller, which includes trusted
-   * functions, like the ability to approve transactions or sign messages.
-   *
-   * @param {*} connectionStream - The duplex stream to connect to.
-   * @param {MessageSender} sender - The sender of the messages on this stream
-   */
+     * Used to create a multiplexed stream for connecting to a trusted context,
+     * like our own user interfaces, which have the provider APIs, but also
+     * receive the exported API from this controller, which includes trusted
+     * functions, like the ability to approve transactions or sign messages.
+     *
+     * @param {*} connectionStream - The duplex stream to connect to.
+     * @param {MessageSender} sender - The sender of the messages on this stream
+     */
     setupCommunication = (connectionStream, sender) => {
         const senderInfo = {
             tabId: sender.tab.id,
@@ -54,7 +48,7 @@ export class ExtensionController extends SafeEventEmitter {
             icon: sanitizeUrl(sender.tab.favIconUrl),
             title: sender.tab.title
         }
-        console.log('Communication with', senderInfo)
+
         // setup multiplexing
         const mux = this.setupMultiplex(connectionStream);
 
@@ -64,7 +58,7 @@ export class ExtensionController extends SafeEventEmitter {
         connectionStream.on('data', data => this._handleMessage(data, senderInfo, outStream))
     }
 
-    _handleMessage = async (message, sender, outStream) => {
+    _handleMessage = async (message, senderInfo, outStream) => {
         try {
             const { method, params } = message.data;
             const api = this.getApi();
@@ -74,7 +68,7 @@ export class ExtensionController extends SafeEventEmitter {
                 throw Error(`Method "${method}" is unsupported`);
             }
 
-            const result = await api[method](sender, ...params);
+            const result = await api[method](senderInfo, ...params);
             outStream.write({
                 result,
                 id: message.data.id,
@@ -92,12 +86,12 @@ export class ExtensionController extends SafeEventEmitter {
     }
 
     /**
-  * Returns an Object containing API Callback Functions.
-  * These functions are the interface for the UI.
-  * The API object can be transmitted over a stream via JSON-RPC.
-  *
-  * @returns {object} Object containing API functions.
-  */
+     * Returns an Object containing API Callback Functions.
+     * These functions are the interface for the UI.
+     * The API object can be transmitted over a stream via JSON-RPC.
+     *
+     * @returns {object} Object containing API functions.
+     */
     getApi = () => {
         return {
             [ExtensionRpcMethods.requestTransaction]: this.requestTransaction,
@@ -107,37 +101,13 @@ export class ExtensionController extends SafeEventEmitter {
     }
 
     requestTransaction = async (sender, transactionPayload) => {
-        const requests = await PersistentStorage.getRequestQueue();
-        requests.push({
-            sender,
-            method: ExtensionRpcMethods.requestTransaction,
-            payload: {
-                transactionPayload
-            },
-            timestamp: Date.now(),
-            id: uuid(),
-        });
-        await PersistentStorage.setRequestQueue(requests);
+        const method = ExtensionRpcMethods.requestTransaction;
+        const payload = {
+            transactionPayload
+        };
+        await WalletController.addRequest(sender, method, payload);
 
         this.openWalletPopup();
-    }
-
-    getAccountInfo = async (sender) => {
-        const isPermissionGranted = await WalletController.hasPermission(sender.origin, ExtensionPermissions.accountInfo);
-        console.log('getAccountInfo', sender.origin, isPermissionGranted)
-
-        if (!isPermissionGranted) {
-            throw Error('No permission')
-        }
-
-        const networkIdentifier = await PersistentStorage.getNetworkIdentifier();
-        const networkType = networkIdentifierToNetworkType(networkIdentifier);
-        const publicKey = await PersistentStorage.getCurrentAccountPublicKey();
-
-        return {
-            networkType,
-            publicKey
-        }
     }
 
     requestPermission = async (sender, permission) => {
@@ -153,17 +123,21 @@ export class ExtensionController extends SafeEventEmitter {
             return;
         }
 
-        const requests = await PersistentStorage.getRequestQueue();
-        requests.push({
-            sender,
-            method: ExtensionRpcMethods.requestPermission,
-            payload: permission,
-            timestamp: Date.now(),
-            id: uuid(),
-        });
-        await PersistentStorage.setRequestQueue(requests);
+        const method = ExtensionRpcMethods.requestPermission;
+        const payload = permission;
+        await WalletController.addRequest(sender, method, payload);
 
         this.openWalletPopup();
+    }
+
+    getAccountInfo = async (sender) => {
+        const isPermissionGranted = await WalletController.hasPermission(sender.origin, ExtensionPermissions.accountInfo);
+
+        if (!isPermissionGranted) {
+            throw Error('No permission')
+        }
+
+        return WalletController.getAccountInfo();
     }
 
     openWalletPopup = async () => {
@@ -192,9 +166,7 @@ export class ExtensionController extends SafeEventEmitter {
             label = String(count);
         }
 
-        {
-            this.extension.action.setBadgeText({ text: label });
-            this.extension.action.setBadgeBackgroundColor({ color: '#037DD6' });
-        }
+        this.extension.action.setBadgeText({ text: label });
+        this.extension.action.setBadgeBackgroundColor({ color: '#037DD6' });
     }
 }

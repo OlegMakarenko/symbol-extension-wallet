@@ -2,9 +2,9 @@ import { TransactionType } from '@/constants';
 import { getMosaicRelativeAmount } from './mosaic';
 import { toFixedNumber } from './helper';
 import { PrivateKey, PublicKey, utils } from 'symbol-sdk';
-import { SymbolFacade, MessageEncoder, NamespaceId, models } from 'symbol-sdk/symbol';
+import { SymbolFacade, MessageEncoder, models } from 'symbol-sdk/symbol';
 import { transactionToSymbol } from './transaction-to-symbol';
-const { TransactionFactory, UnresolvedAddress } = models;
+const { NamespaceId, TransactionFactory, UnresolvedAddress } = models;
 
 export const isAggregateTransaction = (transaction) => {
     return transaction.type === TransactionType.AGGREGATE_BONDED || transaction.type === TransactionType.AGGREGATE_COMPLETE ||  transaction.type.value === TransactionType.AGGREGATE_BONDED || transaction.type.value === TransactionType.AGGREGATE_COMPLETE;
