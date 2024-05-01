@@ -16,6 +16,9 @@ export const ItemRequestAction = connect((state) => ({
     const { sender, method, timestamp } = request;
     const errorMessage = validateRequestAction()(request);
 
+    const title = $t(`extensionMethod_${method}`);
+    const description = $t(`extensionMethod_${method}_description`);
+
     return (
         <Card className="relative overflow-hidden">
             {!!errorMessage && <h3>{errorMessage}</h3>}
@@ -34,15 +37,15 @@ export const ItemRequestAction = connect((state) => ({
                         </div>
                     </div>
                     <div className="h-12 mb-4" />
-                    <h3>{'Transaction Request' || method}</h3>
-                    <p>The website requests transaction from your wallet</p>
+                    <h3>{title}</h3>
+                    <p>{description}</p>
                     <div className="flex flex-col justify-between items-end pl-4">
-                                <Countdown
-                                    className="font-mono text-small opacity-70"
-                                    daysInHours
-                                    date={timestamp + config.actionRequestDeadline}
-                                />
-                            </div>
+                        <Countdown
+                            className="font-mono text-small opacity-70"
+                            daysInHours
+                            date={timestamp + config.actionRequestDeadline}
+                        />
+                    </div>
                     <Divider className="my-4" />
                     <div className="flex flex-row gap-4">
                         <Button

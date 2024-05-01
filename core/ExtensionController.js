@@ -1,10 +1,12 @@
 import SafeEventEmitter from '@metamask/safe-event-emitter';
 import ObjectMultiplex from 'obj-multiplex';
-import { EXTENSION_MESSAGES, ExtensionRpcMethods, StreamName } from '@/constants';
+import { EXTENSION_MESSAGES, ExtensionPermissions, ExtensionRpcMethods, StreamName } from '@/constants';
 import pump from 'pump';
 import { PersistentStorage } from '@/storage';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import { v4 as uuid } from 'uuid';
+import { WalletController } from './WalletController';
+import { networkIdentifierToNetworkType } from '@/utils/network';
 
 const MAX_OPEN_POPUPS = 1;
 export class ExtensionController extends SafeEventEmitter {
@@ -62,7 +64,7 @@ export class ExtensionController extends SafeEventEmitter {
         connectionStream.on('data', data => this._handleMessage(data, senderInfo, outStream))
     }
 
-    _handleMessage = (message, sender, outStream) => {
+    _handleMessage = async (message, sender, outStream) => {
         try {
             const { method, params } = message.data;
             const api = this.getApi();
@@ -72,7 +74,11 @@ export class ExtensionController extends SafeEventEmitter {
                 throw Error(`Method "${method}" is unsupported`);
             }
 
-            api[method](sender, ...params);
+            const result = await api[method](sender, ...params);
+            outStream.write({
+                result,
+                id: message.data.id,
+            })
         }
         catch (error) {
             console.error(error);
@@ -94,18 +100,64 @@ export class ExtensionController extends SafeEventEmitter {
   */
     getApi = () => {
         return {
-            [ExtensionRpcMethods.sendTransaction]: this.sendTransaction
+            [ExtensionRpcMethods.requestTransaction]: this.requestTransaction,
+            [ExtensionRpcMethods.requestPermission]: this.requestPermission,
+            [ExtensionRpcMethods.getAccountInfo]: this.getAccountInfo
         };
     }
 
-    sendTransaction = async (sender, transactionPayload) => {
+    requestTransaction = async (sender, transactionPayload) => {
         const requests = await PersistentStorage.getRequestQueue();
         requests.push({
             sender,
-            method: ExtensionRpcMethods.sendTransaction,
+            method: ExtensionRpcMethods.requestTransaction,
             payload: {
                 transactionPayload
             },
+            timestamp: Date.now(),
+            id: uuid(),
+        });
+        await PersistentStorage.setRequestQueue(requests);
+
+        this.openWalletPopup();
+    }
+
+    getAccountInfo = async (sender) => {
+        const isPermissionGranted = await WalletController.hasPermission(sender.origin, ExtensionPermissions.accountInfo);
+        console.log('getAccountInfo', sender.origin, isPermissionGranted)
+
+        if (!isPermissionGranted) {
+            throw Error('No permission')
+        }
+
+        const networkIdentifier = await PersistentStorage.getNetworkIdentifier();
+        const networkType = networkIdentifierToNetworkType(networkIdentifier);
+        const publicKey = await PersistentStorage.getCurrentAccountPublicKey();
+
+        return {
+            networkType,
+            publicKey
+        }
+    }
+
+    requestPermission = async (sender, permission) => {
+        const isPermissionSupported = Object.values(ExtensionPermissions).some(item => item === permission);
+
+        if (!isPermissionSupported) {
+            throw Error('Invalid permission');
+        }
+
+        const isPermissionAlreadyGranted = await WalletController.hasPermission(sender.origin, permission);
+
+        if (isPermissionAlreadyGranted) {
+            return;
+        }
+
+        const requests = await PersistentStorage.getRequestQueue();
+        requests.push({
+            sender,
+            method: ExtensionRpcMethods.requestPermission,
+            payload: permission,
             timestamp: Date.now(),
             id: uuid(),
         });

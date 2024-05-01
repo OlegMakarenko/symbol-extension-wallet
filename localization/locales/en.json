@@ -507,6 +507,8 @@
     "s_settings_item_language_description": "Select language of the interface.",
     "s_settings_item_security_title": "Security",
     "s_settings_item_security_description": "Backup your passphrase and manage PIN code.",
+    "s_settings_item_permission_title": "Permissions",
+    "s_settings_item_permission_description": "Permissions are used to determine which wallet capabilities are exposed to websites.",
     "s_settings_item_about_title": "About",
     "s_settings_item_about_description": "Learn morn about Symbol. Application version information.",
     "s_settings_item_logout_title": "Logout",
@@ -519,6 +521,8 @@
     "s_settings_node_automatically": "Select Automatically",
     "s_settings_item_currency_title": "Currency",
     "s_settings_item_currency_description": "Set your preferred local currency.",
+    "s_actionRequest_title": "Action Request",
+    "s_actionRequest_description": "A third-party service requests an action from your wallet.",
     "s_transactionRequest_title": "Transaction Request",
     "s_transactionRequest_description": "A third-party service requests a transaction from your wallet. Please carefully review amounts and recipient addresses, as transactions are not reversible. Malicious transactions can result in a total loss of funds.",
     "s_transactionRequest_error_title": "Error",
@@ -576,5 +580,11 @@
     "error_unknown_account_name": "Address not found",
     "transaction_confirm_title": "Confirm Transaction",
     "transaction_success_title": "Transaction announced",
-    "transaction_success_text": "Transaction is processing and awaiting confirmation by the network."
+    "transaction_success_text": "Transaction is processing and awaiting confirmation by the network.",
+    "extensionPermission_accountInfo": "Account Information",
+    "extensionPermission_accountInfo_description": "Enables the website to access public information, such as addresses and public keys, of any accounts stored within the wallet.",
+    "extensionMethod_requestPermission": "Permission Request",
+    "extensionMethod_requestPermission_description": "The webpage requests a permission.",
+    "extensionMethod_requestTransaction": "Transaction Request",
+    "extensionMethod_requestTransaction_description": "The webpage requests a transaction from the wallet."
 }

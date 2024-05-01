@@ -16,12 +16,16 @@ export const DEFAULT_PROVIDER = {
 }
 
 export const ExtensionRpcMethods = {
-    getPermissions: 'wallet_getPermissions',
-    requestPermissions: 'wallet_requestPermissions',
-    switchSymbolChain: 'wallet_switchSymbolChain',
-    sendTransaction: 'symbol_sendTransaction',
-    chainId: 'symbol_chainId',
-    requestAccounts: 'symbol_requestAccounts'
+    getPermissions: 'getPermissions',
+    requestPermission: 'requestPermission',
+    requestTransaction: 'requestTransaction',
+    getNetworkType: 'getNetworkType',
+    getAccountInfo: 'getAccountInfo',
+    requestAccountPermission: 'requestAccountPermission',
+}
+
+export const ExtensionPermissions = {
+    accountInfo: 'accountInfo',
 }
 
 export const ProviderEvents = {

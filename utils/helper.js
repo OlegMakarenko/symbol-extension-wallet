@@ -130,8 +130,11 @@ export const processRequestAction = async (requestAction, router) => {
         return;
     }
 
-    if (requestAction.method === ExtensionRpcMethods.sendTransaction) {
-        router.goToTransactionRequest({ ...requestAction.payload, id: requestAction.id })
+    if (requestAction.method === ExtensionRpcMethods.requestTransaction) {
+        router.goToTransactionRequest({ ...requestAction.payload, id: requestAction.id });
+    }
+    else {
+        router.goToActionRequest({ ...requestAction });
     }
 }
 

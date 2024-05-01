@@ -1,7 +1,8 @@
 import SafeEventEmitter from '@metamask/safe-event-emitter';
+import { v4 as uuid } from 'uuid';
 import { Duplex, pipeline } from 'readable-stream';
-import { StreamName } from '@/constants';
 import ObjectMultiplex from 'obj-multiplex';
+import { StreamName } from '@/constants';
 
 export class InpageProvider extends SafeEventEmitter {
     _log;
@@ -98,7 +99,7 @@ export class InpageProvider extends SafeEventEmitter {
             ? { method }
             : { method, params };
 
-        this._stream.push({ ...payload });
+        this._stream.push({ ...payload, id: uuid() });
     }
 
     _onMessage(event) {

@@ -132,7 +132,7 @@ export const TransactionRequest = connect((state) => ({
     );
     useInit(loadState, isWalletReady, [currentAccount]);
 
-    const cancel = async () => {
+    const clearAndLeave = async () => {
         await WalletController.removeRequests([state.id]);
         router.goToHome();
     }
@@ -159,7 +159,7 @@ export const TransactionRequest = connect((state) => ({
                         <Button title={$t('button_send')} isDisabled={isButtonDisabled} onClick={toggleConfirm} />
                     </FormItem>
                     <FormItem>
-                        <Button title={$t('button_cancel')} isSecondary onClick={cancel} />
+                        <Button title={$t('button_cancel')} isSecondary onClick={clearAndLeave} />
                     </FormItem>
                 </>
             }
@@ -236,7 +236,7 @@ export const TransactionRequest = connect((state) => ({
                 title={$t('transaction_success_title')}
                 text={$t('transaction_success_text')}
                 isVisible={isSuccessAlertVisible}
-                onSuccess={router.goToHome}
+                onSuccess={clearAndLeave}
             />
             <DialogBox
                 type="alert"

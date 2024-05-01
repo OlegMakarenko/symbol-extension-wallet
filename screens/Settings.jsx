@@ -44,6 +44,12 @@ export const Settings = connect((state) => ({
             handler: toggleLanguageSelector,
         },
         {
+            title: $t('s_settings_item_permission_title'),
+            description: $t('s_settings_item_permission_description'),
+            icon: '/images/icon-settings-security.png',
+            handler: router.goToSettingsPermissions,
+        },
+        {
             title: $t('s_settings_item_currency_title'),
             description: $t('s_settings_item_currency_description'),
             icon: '/images/icon-settings-currency.png',
