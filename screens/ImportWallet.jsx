@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
-import { createOptInPrivateKeyFromMnemonic, generateMnemonic } from '@/utils/wallet';
+import { useState } from 'react';
+import { createOptInPrivateKeyFromMnemonic } from '@/utils/wallet';
 import { $t } from '@/localization';
 import store from '@/store';
 import { Events } from '@/constants';
-import { useDataManager, usePasscode, useToggle, useValidation } from '@/utils/hooks';
-import { validateAccountName, validateMnemonic, validateRequired } from '@/utils/validators';
+import { useDataManager, usePasscode, useValidation } from '@/utils/hooks';
+import { validateMnemonic, validateRequired } from '@/utils/validators';
 import { TextBox } from '@/components/TextBox';
-import { MnemonicView } from '@/components/MnemonicView';
 import { WalletCreationAnimation } from '@/components/WalletCreationAnimation';
 import { Screen } from '@/components/Screen';
 import { FormItem } from '@/components/FormItem';
@@ -80,7 +79,11 @@ export const ImportWallet = () => {
     return (
         isLoading
             ? <WalletCreationAnimation steps={loadingSteps} currentStep={loadingStep} />
-            : <Screen>
+            : <Screen bottomComponent={(
+                <FormItem>
+                    <Button title={$t('button_next')} isDisabled={isButtonDisabled} onClick={next} />
+                </FormItem>
+            )}>
                 <ButtonClose type="cancel" className="self-end" onClick={router.goToWelcome}/>
                 <FormItem>
                     <img src="/images/logo-symbol-full.png" className="h-12 mx-auto" />
@@ -96,9 +99,6 @@ export const ImportWallet = () => {
                     onChange={handleMnemonicChange}
                     errorMessage={mnemonicErrorMessage}
                 />
-                </FormItem>
-                <FormItem>
-                    <Button title={$t('button_next')} isDisabled={isButtonDisabled} onClick={next} />
                 </FormItem>
                 <Passcode />
             </Screen>

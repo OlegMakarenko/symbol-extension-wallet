@@ -80,26 +80,28 @@ export const CreateWallet = () => {
                     <img src="/images/logo-symbol-full.png" className="h-12 mx-auto" />
                 </FormItem>
                 <FormItem>
-                    <Progress size="sm" maxValue={stepsCount + 1} value={step} className="w-full"/>
+                    <Progress size="sm" maxValue={stepsCount + 1} value={step} className="w-full my-4"/>
                 </FormItem>
                 {step === 1 && (
-                    <>
-                        <FormItem>
-                            <h2>{$t('s_createWallet_accountName_title')}</h2>
-                            <p>{$t('s_createWallet_accountName_text')}</p>
-                        </FormItem>
-                        <FormItem>
-                            <TextBox
-                                title={$t('s_createWallet_accountName_input')}
-                                value={name}
-                                errorMessage={nameErrorMessage}
-                                onChange={setName}
-                            />
-                        </FormItem>
+                    <div className="h-full flex flex-col justify-between">
+                        <div>
+                            <FormItem>
+                                <h2>{$t('s_createWallet_accountName_title')}</h2>
+                                <p>{$t('s_createWallet_accountName_text')}</p>
+                            </FormItem>
+                            <FormItem>
+                                <TextBox
+                                    title={$t('s_createWallet_accountName_input')}
+                                    value={name}
+                                    errorMessage={nameErrorMessage}
+                                    onChange={setName}
+                                />
+                            </FormItem>
+                        </div>
                         <FormItem bottom>
                             <Button title={$t('button_next')} isDisabled={!!nameErrorMessage} onClick={next} />
                         </FormItem>
-                    </>
+                    </div>
                 )}
                 {step === 2 && (
                     <>

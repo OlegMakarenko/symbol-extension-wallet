@@ -45,10 +45,9 @@ a:hover {
 
 }
 
-/* button {
-    font-family: theme(fontFamily.accent);
-    text-transform: uppercase;
-} */
+.gradient-spotlight {
+    background: radial-gradient(ellipse at center, rgba(238, 238, 238, 0.3) 0%, rgba(238, 238, 238, 0) 50%);
+}
 
 .s-text-label {
     @apply font-mono uppercase;
@@ -104,8 +103,3 @@ a:hover {
         opacity: 1;
     }
 }
-
-
-/* .flex-1 {
-    flex: 1 1 0;
-} */
