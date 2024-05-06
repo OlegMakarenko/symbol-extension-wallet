@@ -7,6 +7,7 @@ import { AccountDetails } from '@/screens/AccountDetails';
 import { ActionRequest } from '@/screens/ActionRequest';
 import { TransactionRequest } from '@/screens/TransactionRequest';
 import { Send } from '@/screens/Send';
+import { Receive } from '@/screens/Receive';
 import { Settings } from '@/screens/Settings';
 import { SettingsPermissions } from '@/screens/SettingsPermissions';
 
@@ -55,6 +56,7 @@ export const useRouter = () => {
         goToAccountDetails: () => navigate(keys.AccountDetails),
         goToActionRequest: (state) => navigate(keys.ActionRequest, { state }),
         goToSend: () => navigate(keys.Send),
+        goToReceive: () => navigate(keys.Receive),
         goToTransactionRequest: (state) => navigate(keys.TransactionRequest, { state }),
         goToSettings: () => navigate(keys.Settings),
         goToSettingsPermissions: () => navigate(keys.SettingsPermissions),
@@ -76,6 +78,7 @@ export const Router = ({isWelcomeFlowRendered, isMainFlowRendered}) => {
                     <Route path={keys.Home} Component={Home} />
                     <Route path={keys.AccountDetails} Component={AccountDetails} />
                     <Route path={keys.Send} Component={Send} />
+                    <Route path={keys.Receive} Component={Receive} />
                     <Route path={keys.ActionRequest} Component={ActionRequest} />
                     <Route path={keys.TransactionRequest} Component={TransactionRequest} />
                     <Route path={keys.Settings} Component={Settings} />

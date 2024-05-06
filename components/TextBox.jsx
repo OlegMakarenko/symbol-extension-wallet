@@ -23,7 +23,7 @@ export const TextBox = (props) => {
     )
     else return (
         <Textarea
-            classNames={{ inputWrapper: classNames.controlWrapper, label: classNames.controlLabel }}
+            classNames={{ inputWrapper: classNames.controlWrapper, label: classNames.controlLabel, input: 'min-h-36' }}
             fullWidth
             variant="faded"
             isDisabled={isDisabled}

@@ -47,6 +47,16 @@ export const transactionFromPayload = (payload) => {
     return TransactionFactory.deserialize(transactionHex);
 };
 
+export const symbolTransactionToPayload = (symbolTransaction) => {
+    const bytes = symbolTransaction.serialize();
+
+    return utils.uint8ToHex(bytes);
+};
+
+export const createTransactionURI = (transactionPayload, generationHash) => {
+    return `web+symbol://transaction?data=${transactionPayload}&generationHash=${generationHash}`;
+}
+
 export const getUnresolvedIdsFromSymbolTransaction = (transactions) => {
     const mosaicIds = [];
     const namespaceIds = [];

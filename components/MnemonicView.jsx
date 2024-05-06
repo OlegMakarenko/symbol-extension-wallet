@@ -9,12 +9,21 @@ export const MnemonicView = (props) => {
 
     return (
         <div className="relative w-full">
-            <Textarea minRows={4} readOnly className="w-full" value={mnemonicText} isDisabled={!isShown} />
+            <Textarea
+                minRows={4}
+                readOnly
+                className="w-full"
+                classNames={{
+                    input: 'min-h-28 py-2 font-mono uppercase'
+                }}
+                value={mnemonicText}
+                isDisabled={!isShown}
+            />
             {isShown && !isCopyDisabled && (
                 <ButtonCopy content={mnemonicText} className="absolute top-0 right-0" />
             )}
             {!isShown && (
-                <Button color="primary" variant="light" onClick={onShowPress} className="absolute top-0 w-full h-full text-center">
+                <Button color="primary" variant="light" onClick={onShowPress} className="absolute top-0 w-full h-full text-center font-mono uppercase">
                     {$t('button_showMnemonic')}
                 </Button>
             )}

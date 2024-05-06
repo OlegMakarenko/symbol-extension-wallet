@@ -39,7 +39,7 @@ export const InputAmount = (props) => {
                 onChange={handleChange}
                 contentRight={
                     <div className="flex flex-col items-end">
-                        {!!priceText && <p className="text-default-500">{priceText}</p>}
+                        {!!priceText && <p className="text-default-500 min-w-60 text-right">{priceText}</p>}
                         {isAvailableBalanceShown && (
                             <button
                                 onClick={toggleConfirm}

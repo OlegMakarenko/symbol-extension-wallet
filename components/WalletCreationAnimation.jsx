@@ -10,7 +10,7 @@ export const WalletCreationAnimation = ({ steps, currentStep }) => {
 
     useEffect(() => {
         const textLength = currentStepText.length;
-        const duration = 10;
+        const duration = 20;
         setIndex(0);
         clearInterval(timer);
 
@@ -23,7 +23,7 @@ export const WalletCreationAnimation = ({ steps, currentStep }) => {
     return (
         <div className="w-full h-full flex flex-col justify-around items-center gap-4 p-2 bg-black">
             <img src="/images/logo-symbol-ascii-small.png" className="w-full m-auto object-contain" />
-            <div className="w-full min-h-30">
+            <div className="w-full min-h-40">
                 {typedLines.map((line, index) => (
                     <div className="w-full" key={'la' + index}>
                         <span className="font-mono text-primary">Symbol Wallet: </span>

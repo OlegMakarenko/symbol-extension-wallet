@@ -15,6 +15,9 @@ const createSymbolTransaction = (transactionDescriptor, networkProperties, isEmb
     }
 }
 
+const createSignerPublicKey = (transaction) =>
+    transaction.signerPublicKey || '0000000000000000000000000000000000000000000000000000000000000000';
+
 const createFee = (transaction, networkProperties) => {
     if (!transaction.fee) return 0n;
 
@@ -111,7 +114,7 @@ export const aggregateTransactionToSymbol = (transaction, networkProperties, cur
     if (transaction.type === TransactionType.AGGREGATE_BONDED) {
         descriptor = {
             type: 'aggregate_bonded_transaction_v2',
-            signerPublicKey: transaction.signerPublicKey,
+            signerPublicKey: createSignerPublicKey(transaction),
             fee: createFee(transaction, networkProperties),
             deadline: createDeadline(transaction, networkProperties),
             transactionsHash: merkleHash,
@@ -121,7 +124,7 @@ export const aggregateTransactionToSymbol = (transaction, networkProperties, cur
     else {
         descriptor = {
             type: 'aggregate_complete_transaction_v2',
-            signerPublicKey: transaction.signerPublicKey,
+            signerPublicKey: createSignerPublicKey(transaction),
             fee: createFee(transaction, networkProperties),
             deadline: createDeadline(transaction, networkProperties),
             transactionsHash: merkleHash,
@@ -135,7 +138,7 @@ export const aggregateTransactionToSymbol = (transaction, networkProperties, cur
 export const transferTransactionToSymbol = (transaction, networkProperties, currentAccount, isEmbedded) => {
     const descriptor = {
         type: 'transfer_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         recipientAddress: transaction.recipientAddress,
@@ -167,7 +170,7 @@ export const namespaceRegistrationTransactionToSymbol = (transaction, networkPro
     if (transaction.registrationType === NamespaceRegistrationTypeMessage[NamespaceRegistrationType.RootNamespace]) {
         descriptor = {
             type: 'namespace_registration_transaction_v1',
-            signerPublicKey: transaction.signerPublicKey,
+            signerPublicKey: createSignerPublicKey(transaction),
             deadline: createDeadline(transaction, networkProperties),
             fee: createFee(transaction, networkProperties),
             parentId: 0n,
@@ -178,7 +181,7 @@ export const namespaceRegistrationTransactionToSymbol = (transaction, networkPro
     } else {
         descriptor = {
             type: 'namespace_registration_transaction_v1',
-            signerPublicKey: transaction.signerPublicKey,
+            signerPublicKey: createSignerPublicKey(transaction),
             deadline: createDeadline(transaction, networkProperties),
             fee: createFee(transaction, networkProperties),
             parentId: createId(transaction.parentId),
@@ -193,7 +196,7 @@ export const namespaceRegistrationTransactionToSymbol = (transaction, networkPro
 export const addressAliasTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'address_alias_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         namespaceId: createId(transaction.namespaceId),
@@ -207,7 +210,7 @@ export const addressAliasTransactionToSymbol = (transaction, networkProperties, 
 export const mosaicAliasTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'mosaic_alias_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         namespaceId: createId(transaction.namespaceId),
@@ -227,7 +230,7 @@ export const mosaicDefinitionTransactionToSymbol = (transaction, networkProperti
 
     const descriptor = {
         type: 'mosaic_definition_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         duration: BigInt(transaction.duration),
@@ -247,7 +250,7 @@ export const mosaicSupplyChangeTransactionToSymbol = (transaction, networkProper
 
     const descriptor = {
         type: 'mosaic_supply_change_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         delta: BigInt(transaction.delta),
@@ -261,7 +264,7 @@ export const mosaicSupplyChangeTransactionToSymbol = (transaction, networkProper
 export const mosaicSupplyRevocationTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'mosaic_supply_revocation_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         mosaic: createMosaic(transaction.mosaic),
@@ -274,7 +277,7 @@ export const mosaicSupplyRevocationTransactionToSymbol = (transaction, networkPr
 export const hashLockTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'hash_lock_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         mosaic: createMosaic({
@@ -292,7 +295,7 @@ export const hashLockTransactionToSymbol = (transaction, networkProperties, isEm
 export const secretLockTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'secret_lock_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         mosaic: createMosaic(transaction.mosaic),
@@ -308,7 +311,7 @@ export const secretLockTransactionToSymbol = (transaction, networkProperties, is
 export const secretProofTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'secret_proof_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         recipientAddress: transaction.recipientAddress,
@@ -323,7 +326,7 @@ export const secretProofTransactionToSymbol = (transaction, networkProperties, i
 export const vrfKeyLinkTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'vrf_key_link_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         linkedPublicKey: transaction.linkedPublicKey,
@@ -336,7 +339,7 @@ export const vrfKeyLinkTransactionToSymbol = (transaction, networkProperties, is
 export const accountKeyLinkTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'account_key_link_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         linkedPublicKey: transaction.linkedPublicKey,
@@ -349,7 +352,7 @@ export const accountKeyLinkTransactionToSymbol = (transaction, networkProperties
 export const nodeKeyLinkTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'node_key_link_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         linkedPublicKey: transaction.linkedPublicKey,
@@ -362,7 +365,7 @@ export const nodeKeyLinkTransactionToSymbol = (transaction, networkProperties, i
 export const votingKeyLinkTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'voting_key_link_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         linkedPublicKey: transaction.linkedPublicKey,
@@ -387,7 +390,7 @@ export const mosaicGlobalRestrictionTransactionToSymbol = (transaction, networkP
 
     const descriptor = {
         type: 'mosaic_global_restriction_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         mosaicId: createId(transaction.referenceMosaicId),
@@ -405,7 +408,7 @@ export const mosaicGlobalRestrictionTransactionToSymbol = (transaction, networkP
 export const mosaicAddressRestrictionTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'mosaic_address_restriction_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         targetAddress: transaction.targetAddress,
@@ -426,7 +429,7 @@ export const accountOperationRestrictionTransactionToSymbol = (transaction, netw
 
     const descriptor = {
         type: 'account_operation_restriction_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         restrictionFlags: restrictionFlagsMap[transaction.restrictionType],
@@ -446,7 +449,7 @@ export const accountAddressRestrictionTransactionToSymbol = (transaction, networ
     }
     const descriptor = {
         type: 'account_address_restriction_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         restrictionFlags: restrictionFlagsMap[transaction.restrictionType],
@@ -462,7 +465,7 @@ export const accountMosaicRestrictionTransactionToSymbol = (transaction, network
 
     const descriptor = {
         type: 'account_mosaic_restriction_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         restrictionFlags: `${restrictionFlag} mosaic_id`,
@@ -476,7 +479,7 @@ export const accountMosaicRestrictionTransactionToSymbol = (transaction, network
 export const multisigAccountModificationTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'multisig_account_modification_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         minApprovalDelta: transaction.minApprovalDelta,
@@ -491,7 +494,7 @@ export const multisigAccountModificationTransactionToSymbol = (transaction, netw
 export const accountMetadataTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'account_metadata_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         targetAddress: transaction.targetAddress,
@@ -506,7 +509,7 @@ export const accountMetadataTransactionToSymbol = (transaction, networkPropertie
 export const mosaicMetadataTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'mosaic_metadata_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         targetAddress: transaction.targetAddress,
@@ -522,7 +525,7 @@ export const mosaicMetadataTransactionToSymbol = (transaction, networkProperties
 export const namespaceMetadataTransactionToSymbol = (transaction, networkProperties, isEmbedded) => {
     const descriptor = {
         type: 'namespace_metadata_transaction_v1',
-        signerPublicKey: transaction.signerPublicKey,
+        signerPublicKey: createSignerPublicKey(transaction),
         fee: createFee(transaction, networkProperties),
         deadline: createDeadline(transaction, networkProperties),
         targetAddress: transaction.targetAddress,

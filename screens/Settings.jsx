@@ -55,12 +55,12 @@ export const Settings = connect((state) => ({
             icon: '/images/icon-settings-currency.png',
             handler: toggleUserCurrencySelector,
         },
-        {
-            title: $t('s_settings_item_about_title'),
-            description: $t('s_settings_item_about_description'),
-            icon: '/images/icon-settings-about.png',
-            handler: () => {}, //router.goToSettingsAbout,
-        },
+        // {
+        //     title: $t('s_settings_item_about_title'),
+        //     description: $t('s_settings_item_about_description'),
+        //     icon: '/images/icon-settings-about.png',
+        //     handler: () => {}, //router.goToSettingsAbout,
+        // },
         {
             title: $t('s_settings_item_logout_title'),
             description: $t('s_settings_item_logout_description'),

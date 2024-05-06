@@ -86,7 +86,7 @@ export const Home = connect((state) => ({
                     ticker={ticker}
                     price={price}
                     networkIdentifier={networkIdentifier}
-                    // onReceivePress={Router.goToReceive}
+                    onReceivePress={router.goToReceive}
                     onSendPress={router.goToSend}
                     onDetailsPress={router.goToAccountDetails}
                     onNameChange={confirmRename}

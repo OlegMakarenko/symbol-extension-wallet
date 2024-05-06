@@ -1,5 +1,5 @@
 export const Alert = (props) => {
-    const { type, title, body } = props;
+    const { type, title, body, className } = props;
 
     const typeAlertMap = {
         warning: {
@@ -15,7 +15,7 @@ export const Alert = (props) => {
     const alert = typeAlertMap[type];
 
     return (
-        <div className={`flex flex-col items-center min-h-32 p-4 bg-main rounded-xl ${alert.className}`}>
+        <div className={`flex flex-col items-center min-h-32 p-4 bg-main rounded-xl ${alert.className} ${className}`}>
             <img className="w-8 h-8" src={alert.icon} />
             <h3 className="text-center">
                 {title}

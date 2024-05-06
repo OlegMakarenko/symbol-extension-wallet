@@ -5,7 +5,7 @@ import transaction from 'store/transaction';
 import { getTransactionFees } from './transaction';
 import { TransactionType } from '@/constants';
 
-export const usePasscode = (onSubmit, onCancel, cancellable = true) => {
+export const usePasscode = (onSubmit, onCancel, type = 'confirm') => {
     const [isVisible, setIsVisible] = useState(false);
     const [args, setArgs] = useState(undefined);
 
@@ -14,11 +14,9 @@ export const usePasscode = (onSubmit, onCancel, cancellable = true) => {
         setArgs([...args]);
     }
     const handleCancel = () => {
-        if (cancellable) {
-            setIsVisible(false);
-            setArgs(undefined);
-            onCancel && onCancel()
-        }
+        setIsVisible(false);
+        setArgs(undefined);
+        onCancel && onCancel()
     };
     const handleSubmit = async (password) => {
         try {
@@ -31,7 +29,7 @@ export const usePasscode = (onSubmit, onCancel, cancellable = true) => {
             showMessage({type: 'danger', message: e.message})
         }
     }
-    const Component = () => isVisible && <Passcode onSubmit={handleSubmit} onCancel={handleCancel} />
+    const Component = () => isVisible && <Passcode onSubmit={handleSubmit} onCancel={handleCancel} type={type} />
 
     return [Component, showPasscode];
 };

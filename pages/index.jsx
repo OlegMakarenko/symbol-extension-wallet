@@ -59,7 +59,7 @@ export default function Main({isReady}) {
         }
     }, []);
 
-    const [Passcode, requestPasscode] = usePasscode(load, null, false);
+    const [Passcode, requestPasscode] = usePasscode(load, null, 'login');
 
     return (
         <>
