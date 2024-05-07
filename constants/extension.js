@@ -19,9 +19,7 @@ export const ExtensionRpcMethods = {
     getPermissions: 'getPermissions',
     requestPermission: 'requestPermission',
     requestTransaction: 'requestTransaction',
-    getNetworkType: 'getNetworkType',
     getAccountInfo: 'getAccountInfo',
-    requestAccountPermission: 'requestAccountPermission',
 }
 
 export const ExtensionPermissions = {

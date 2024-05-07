@@ -6,21 +6,6 @@ import { WalletController } from './WalletController';
 
 let controller;
 
-const registerInPageContentScript = async () => {
-    try {
-        await chrome.scripting.registerContentScripts([
-            {
-                id: 'inpage',
-                matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-                js: ['inpage.js'],
-                runAt: 'document_start',
-                world: 'MAIN',
-            },
-        ]);
-    } catch (err) {
-        console.warn(`Dropped attempt to register inpage content script. ${err}`);
-    }
-};
 
 const sendReadyMessageToTabs = async () => {
     const tabs = await browser.tabs.query({
@@ -52,7 +37,6 @@ const initialize = () => {
 }
 
 const initBackgroundScript = async () => {
-    await registerInPageContentScript();
     initialize();
     await sendReadyMessageToTabs();
 }

@@ -4,8 +4,6 @@
     "description": "Symbol Wallet Extension",
     "version": "0.1.0",
     "permissions": [
-        "activeTab",
-        "scripting",
         "storage"
     ],
     "background": {
@@ -24,9 +22,16 @@
             "all_frames": true
         }
     ],
-    "host_permissions": [
-        "http://*/*",
-        "https://*/*"
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "inpage.js"
+            ],
+            "matches": [
+                "http://*/*",
+                "https://*/*"
+            ]
+        }
     ],
     "icons": {
         "16": "./icon-16.png",

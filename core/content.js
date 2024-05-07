@@ -152,9 +152,18 @@ const initStreams = () => {
     browser.runtime.onMessage.addListener(onMessageSetUpExtensionStreams);
 };
 
+const injectScript = () => {
+    const container = document.head || document.documentElement;
+    const scriptElement = document.createElement('script');
+    scriptElement.setAttribute('type', 'text/javascript');
+    scriptElement.setAttribute('src', browser.runtime.getURL('inpage.js'));
+    container.appendChild(scriptElement);
+}
+
 const initContentScript = () => {
     if (shouldInjectProvider()) {
         initStreams();
+        injectScript();
 
         // https://bugs.chromium.org/p/chromium/issues/detail?id=1457040
         // Temporary workaround for chromium bug that breaks the content script <=> background connection

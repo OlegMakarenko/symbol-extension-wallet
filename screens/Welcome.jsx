@@ -25,8 +25,7 @@ export const Welcome = () => {
     return (
         <Screen>
             <div ref={light} className="absolute w-60 h-60 -translate-x-1/2 -translate-y-1/2 rounded-full gradient-spotlight" />
-            <div className="absolute top-0 left-0 w-full h-full bg-[url('/images/bg-grid.png')] bg-repeat">
-            </div>
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('/images/bg-grid.png')] bg-repeat" />
 
             <div className="w-full h-full flex flex-col z-10 justify-between">
                 <div>
