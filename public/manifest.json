@@ -2,14 +2,11 @@
     "manifest_version": 3,
     "name": "Symbol Wallet",
     "description": "Symbol Wallet Extension",
-    "version": "1.0",
+    "version": "0.1.0",
     "permissions": [
         "activeTab",
         "scripting",
-        "storage",
-
-
-        "tabs"
+        "storage"
     ],
     "background": {
         "service_worker": "background.js"
@@ -17,7 +14,6 @@
     "content_scripts": [
         {
             "matches": [
-                "file://*/*",
                 "http://*/*",
                 "https://*/*"
             ],
@@ -29,14 +25,29 @@
         }
     ],
     "host_permissions": [
-        "http://localhost:8545/",
-        "file://*/*",
         "http://*/*",
         "https://*/*"
     ],
+    "icons": {
+        "16": "./icon-16.png",
+        "19": "./icon-19.png",
+        "32": "./icon-32.png",
+        "38": "./icon-38.png",
+        "48": "./icon-48.png",
+        "64": "./icon-64.png",
+        "128": "./icon-128.png"
+    },
     "action": {
         "default_popup": "index.html",
-        "default_icon": "app.png"
+        "default_icon": {
+            "16": "./icon-16.png",
+            "19": "./icon-19.png",
+            "32": "./icon-32.png",
+            "38": "./icon-38.png",
+            "48": "./icon-48.png",
+            "64": "./icon-64.png",
+            "128": "./icon-128.png"
+        }
     },
     "content_security_policy": {
         "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'none'"
