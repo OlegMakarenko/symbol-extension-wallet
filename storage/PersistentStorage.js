@@ -15,6 +15,7 @@ export class PersistentStorage {
     static USER_CURRENCY_KEY = 'USER_CURRENCY_KEY';
     static REQUEST_KEY = 'REQUEST';
     static PERMISSIONS_KEY = 'PERMISSIONS';
+    static NETWORK_PROPERTIES_KEY = 'NETWORK_PROPERTIES_KEY';
 
     // Data Schema Version
     static getDataSchemaVersion = async () => {
@@ -207,6 +208,22 @@ export class PersistentStorage {
         return this.set(this.PERMISSIONS_KEY, JSON.stringify(payload));
     }
 
+    // Network Properties
+    static async getNetworkProperties() {
+        const value = await this.get(this.NETWORK_PROPERTIES_KEY);
+        const defaultValue = {};
+
+        try {
+            return JSON.parse(value) || defaultValue;
+        } catch {
+            return defaultValue;
+        }
+    }
+
+    static async setNetworkProperties(payload) {
+        return this.set(this.NETWORK_PROPERTIES_KEY, JSON.stringify(payload));
+    }
+
     // API
     static set = async (key, value) => {
         if (chrome?.storage?.local)
@@ -246,6 +263,27 @@ export class PersistentStorage {
             this.remove(this.USER_CURRENCY_KEY),
             this.remove(this.REQUEST_KEY),
             this.remove(this.PERMISSIONS_KEY),
+            this.remove(this.NETWORK_PROPERTIES_KEY),
         ]);
     };
+
+    static listen = (key, onChange) => {
+        const listener = (changes) => {
+            if (changes[key]) {
+                onChange(changes[key].newValue);
+            }
+        }
+
+        PersistentStorage.addListener(listener);
+
+        return listener;
+    }
+
+    static addListener = (callback) => {
+        chrome.storage.onChanged.addListener(callback);
+    }
+
+    static removeListener = (callback) => {
+        chrome.storage.onChanged.removeListener(callback);
+    }
 }

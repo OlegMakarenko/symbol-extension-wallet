@@ -16,10 +16,11 @@ export const DEFAULT_PROVIDER = {
 }
 
 export const ExtensionRpcMethods = {
-    getPermissions: 'getPermissions',
     requestPermission: 'requestPermission',
     requestTransaction: 'requestTransaction',
     getAccountInfo: 'getAccountInfo',
+    getChainInfo: 'getChainInfo',
+    getPermissions: 'getPermissions',
 }
 
 export const ExtensionPermissions = {
@@ -27,7 +28,7 @@ export const ExtensionPermissions = {
 }
 
 export const ProviderEvents = {
-    accountsChanged: 'accountsChanged',
+    accountChanged: 'accountChanged',
     chainChanged: 'chainChanged',
     connect: 'connect',
     disconnect: 'disconnect',

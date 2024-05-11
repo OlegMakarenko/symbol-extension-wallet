@@ -114,7 +114,7 @@ const onDisconnectDestroyStreams = (err) => {
      * once the port and connections are ready. Delay time is arbitrary.
      */
     if (lastErr) {
-        console.warn(`${lastErr} Resetting the streams.`);
+        console.warn('Resetting the streams.');
         setTimeout(setupExtensionStreams, 1000);
     }
 };

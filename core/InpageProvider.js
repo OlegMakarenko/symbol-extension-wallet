@@ -2,17 +2,13 @@ import SafeEventEmitter from '@metamask/safe-event-emitter';
 import { v4 as uuid } from 'uuid';
 import { Duplex, pipeline } from 'readable-stream';
 import ObjectMultiplex from 'obj-multiplex';
-import { StreamName } from '@/constants';
+import { ExtensionRpcMethods, ProviderEvents, StreamName } from '@/constants';
 
 export class InpageProvider extends SafeEventEmitter {
     _log;
     _state;
-    #chainId;
-
-    static _defaultState = {
-        isConnected: false,
-        initialized: false,
-    };
+    _stream;
+    _pendingRequests;
 
     constructor({
         connectionStream,
@@ -23,15 +19,10 @@ export class InpageProvider extends SafeEventEmitter {
         this.setMaxListeners(maxEventListeners);
 
         this._state = {
-            ...InpageProvider._defaultState,
+            isConnected: false,
         };
         this._log = logger;
-        this.#chainId = null;
-
-        // Bind functions to prevent consumers from making unbound calls
-        this._handleStreamDisconnect = this._handleStreamDisconnect.bind(this);
-        this.request = this.request.bind(this);
-        this._onMessage = this._onMessage.bind(this);
+        this._pendingRequests = {};
 
         connectionStream.on('data', this._onMessage);
 
@@ -52,63 +43,103 @@ export class InpageProvider extends SafeEventEmitter {
         });
         pipeline(
             this._stream,
-            mux.createStream(StreamName.PROVIDER),//providerChannel,
+            mux.createStream(StreamName.PROVIDER),
             this._stream,
             this._handleStreamDisconnect.bind(this, 'SymbolWallet RpcProvider'),
         );
+
+        this._initialize();
     }
 
-
-    get chainId() {
-        return this.#chainId;
-    }
-
-    isConnected() {
+    isConnected = () => {
         return this._state.isConnected;
     }
 
-    request(args) {
-        if (!args || typeof args !== 'object' || Array.isArray(args)) {
-            throw Error(JSON.stringify({
-                message: 'Invalid request arguments',
-                data: args,
-            }));
-        }
+    request = (args) => {
+        return new Promise((resolve, reject) => {
+            if (!args || typeof args !== 'object' || Array.isArray(args)) {
+                throw Error(JSON.stringify({
+                    message: 'Invalid request arguments',
+                    data: args,
+                }));
+            }
 
-        const { method, params } = args;
+            const { method, params } = args;
 
-        if (typeof method !== 'string' || method.length === 0) {
-            throw Error(JSON.stringify({
-                message: `Invalid request method`,
-                data: args,
-            }));
-        }
+            if (typeof method !== 'string' || method.length === 0) {
+                throw Error(JSON.stringify({
+                    message: `Invalid request method`,
+                    data: args,
+                }));
+            }
 
-        if (
-            params !== undefined &&
-            !Array.isArray(params) &&
-            (typeof params !== 'object' || params === null)
-        ) {
-            throw Error(JSON.stringify({
-                message: 'Invalid request params',
-                data: args,
-            }));
-        }
+            if (
+                params !== undefined &&
+                !Array.isArray(params) &&
+                (typeof params !== 'object' || params === null)
+            ) {
+                throw Error(JSON.stringify({
+                    message: 'Invalid request params',
+                    data: args,
+                }));
+            }
 
-        const payload = params === undefined || params === null
-            ? { method }
-            : { method, params };
+            const payload = params === undefined || params === null
+                ? { method }
+                : { method, params };
 
-        this._stream.push({ ...payload, id: uuid() });
+            const requestId = uuid();
+            this._stream.push({ ...payload, id: requestId });
+            this._pendingRequests[requestId] = { resolve, reject };
+        })
     }
 
-    _onMessage(event) {
-        const message = event.data;
-        this.emit('message', message)
+    _initialize = async () => {
+        try {
+            const networkInfo = await this.request({ method: ExtensionRpcMethods.getChainInfo });
+            if (networkInfo) {
+                this._state.isConnected = true;
+                this.emit(ProviderEvents.connect);
+            }
+        }
+        catch (error) {
+            this._log.error('SymbolWallet: failed to initialize provider.', error)
+            this._state.isConnected = false;
+        }
     }
 
-    _handleStreamDisconnect(streamName, error) {
+    _onMessage = (payload) => {
+        const message = payload.data;
+        const { id, result, event, error } = message;
+        const pendingRequest = this._pendingRequests[id];
+
+        if (pendingRequest && error) {
+            pendingRequest.reject(error);
+        }
+        else if (pendingRequest) {
+            pendingRequest.resolve(result);
+        }
+
+        if (event?.type === ProviderEvents.chainChanged) {
+            this.emit(ProviderEvents.chainChanged);
+        }
+        else if (event?.type === ProviderEvents.accountChanged) {
+            this.emit(ProviderEvents.accountChanged);
+        }
+
+        delete this._pendingRequests[id];
+
+        this.emit(ProviderEvents.message, message);
+    }
+
+    _handleStreamDisconnect = (streamName, error) => {
         const warningMsg = `SymbolWallet: Lost connection to "${streamName}".`;
-        this._log.warn(warningMsg, error)
+        this._log.warn(warningMsg, error);
+
+        Object.values(this._pendingRequests).forEach(({ reject }) => reject(Error('Connection lost')));
+        this._pendingRequests = {};
+        this._state.isConnected = false;
+
+        this.emit(ProviderEvents.disconnect, error);
     }
 };

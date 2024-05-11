@@ -105,4 +105,23 @@ export class WalletController  {
 
         return permissions[origin].some(includedPermission => includedPermission === permission);
     }
+
+    static setNetworkProperties = async (networkProperties) => {
+        return PersistentStorage.setNetworkProperties(networkProperties);
+    }
+
+    static getNetworkProperties = async () => {
+        return PersistentStorage.getNetworkProperties();
+    }
+
+    static listenNetworkProperties = async (onChange) => {
+        return PersistentStorage.listen(PersistentStorage.NETWORK_PROPERTIES_KEY, onChange);
+    }
+    static listenCurrentAccount = async (onChange) => {
+        return PersistentStorage.listen(PersistentStorage.CURRENT_ACCOUNT_PUBLIC_KEY, onChange);
+    }
+
+    static removeListener = async (listener) => {
+        PersistentStorage.removeListener(listener);
+    }
 }

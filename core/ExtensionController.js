@@ -1,37 +1,29 @@
-import browser from 'webextension-polyfill';
 import ObjectMultiplex from 'obj-multiplex';
-import { EXTENSION_MESSAGES, ExtensionPermissions, ExtensionRpcMethods, StreamName } from '@/constants';
+import { EXTENSION_MESSAGES, ExtensionPermissions, ExtensionRpcMethods, ProviderEvents, StreamName } from '@/constants';
 import pump from 'pump';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import { WalletController } from './WalletController';
+import { networkIdentifierToNetworkType } from '@/utils/network';
 
 const MAX_OPEN_POPUPS = 1;
 export class ExtensionController {
     constructor(ops) {
         this.extension = ops.browser;
         this.openPopupIds = [];
+        this.connections = {};
 
         this.extension.windows.onRemoved.addListener((closedPopupId) => {
             this.openPopupIds = this.openPopupIds.filter(popupId => popupId !== closedPopupId);
         });
+
+        WalletController.listenNetworkProperties(() => {
+            this._notifyProvider(ProviderEvents.chainChanged)
+        })
+        WalletController.listenCurrentAccount(() => {
+            this._notifyProvider(ProviderEvents.accountChanged)
+        })
     }
 
-    setupMultiplex = (connectionStream) => {
-        const mux = new ObjectMultiplex();
-        /**
-         * We are using this streams to send keep alive message between backend/ui without setting up a multiplexer
-         * We need to tell the multiplexer to ignore them, else we get the " orphaned data for stream " warnings
-         * https://github.com/MetaMask/object-multiplex/blob/280385401de84f57ef57054d92cfeb8361ef2680/src/ObjectMultiplex.ts#L63
-         */
-        mux.ignoreStream(EXTENSION_MESSAGES.CONNECTION_READY);
-        pump(connectionStream, mux, connectionStream, (err) => {
-            if (err) {
-                console.error(err);
-            }
-        });
-
-        return mux;
-    }
     /**
      * Used to create a multiplexed stream for connecting to a trusted context,
      * like our own user interfaces, which have the provider APIs, but also
@@ -50,12 +42,25 @@ export class ExtensionController {
         }
 
         // setup multiplexing
-        const mux = this.setupMultiplex(connectionStream);
+        const mux = new ObjectMultiplex();
+        mux.ignoreStream(EXTENSION_MESSAGES.CONNECTION_READY);
+        pump(connectionStream, mux, connectionStream, () => {
+            delete this.connections[sender.documentId];
+        });
 
         // connect features
         const outStream = mux.createStream(StreamName.PROVIDER);
+        this.connections[sender.documentId] = outStream;
 
-        connectionStream.on('data', data => this._handleMessage(data, senderInfo, outStream))
+        connectionStream.on('data', data => this._handleMessage(data, senderInfo, outStream));
+    }
+
+    _notifyProvider = (eventName) => {
+        Object.values(this.connections).forEach(connection => connection.write({
+            event: {
+                type: eventName
+            }
+        }));
     }
 
     _handleMessage = async (message, senderInfo, outStream) => {
@@ -96,7 +101,9 @@ export class ExtensionController {
         return {
             [ExtensionRpcMethods.requestTransaction]: this.requestTransaction,
             [ExtensionRpcMethods.requestPermission]: this.requestPermission,
-            [ExtensionRpcMethods.getAccountInfo]: this.getAccountInfo
+            [ExtensionRpcMethods.getAccountInfo]: this.getAccountInfo,
+            [ExtensionRpcMethods.getChainInfo]: this.getChainInfo,
+            [ExtensionRpcMethods.getPermissions]: this.getPermissions
         };
     }
 
@@ -138,6 +145,32 @@ export class ExtensionController {
         }
 
         return WalletController.getAccountInfo();
+    }
+
+    getPermissions = async (sender) => {
+        const allPermissions = await WalletController.getPermissions();
+        const originPermissions = allPermissions[sender.origin];
+
+        return originPermissions || [];
+    }
+
+    getChainInfo = async () => {
+        const networkProperties = await WalletController.getNetworkProperties();
+        const { networkIdentifier, generationHash } = networkProperties;
+
+        if (!generationHash) {
+            return {
+                networkType: null,
+                networkIdentifier: null,
+                generationHash: null,
+            };
+        }
+
+        return {
+            networkType: networkIdentifierToNetworkType(networkIdentifier),
+            networkIdentifier,
+            generationHash,
+        };
     }
 
     openWalletPopup = async () => {

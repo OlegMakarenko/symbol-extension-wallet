@@ -1,4 +1,5 @@
 import { config } from '@/config';
+import { WalletController } from '@/core/WalletController';
 import { NetworkService } from '@/services';
 import { PersistentStorage } from '@/storage';
 
@@ -87,6 +88,7 @@ export default {
         // Fetch properties from node
         fetchNetworkProperties: async ({ commit }, nodeUrl) => {
             const networkProperties = await NetworkService.fetchNetworkProperties(nodeUrl);
+            await WalletController.setNetworkProperties(networkProperties);
 
             commit({ type: 'network/setNetworkProperties', payload: networkProperties });
             commit({ type: 'network/setChainHeight', payload: networkProperties.chainHeight });
@@ -175,19 +177,9 @@ export default {
         },
         // Cache new network identifier and node url. Reset store. Reconnect
         changeNetwork: async ({ commit, dispatchAction }, { networkIdentifier, nodeUrl = null }) => {
-            // await PersistentStorage.setNetworkIdentifier(networkIdentifier);
-            // // await PersistentStorage.setSelectedNode(nodeUrl);
-
-            // commit({ type: 'network/setStatus', payload: 'initial' });
-            // commit({ type: 'network/setNetworkProperties', payload: defaultNetworkProperties });
-            // commit({ type: 'network/setNetworkIdentifier', payload: networkIdentifier });
-            // commit({ type: 'network/setSelectedNodeUrl', payload: null });
-            // commit({ type: 'wallet/setReady', payload: false });
-
-            // await dispatchAction({ type: 'network/connect' });
-
             await PersistentStorage.setNetworkIdentifier(networkIdentifier);
             await PersistentStorage.setSelectedNode(nodeUrl);
+            await WalletController.setNetworkProperties(defaultNetworkProperties);
 
             commit({ type: 'network/setStatus', payload: 'initial' });
             commit({ type: 'network/setNetworkProperties', payload: defaultNetworkProperties });
