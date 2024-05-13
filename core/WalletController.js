@@ -1,6 +1,6 @@
-import { PersistentStorage } from '@/storage';
+import { PersistentStorage, SecureStorage } from '@/storage';
 import { config } from '@/config';
-import { ExtensionPermissions } from '@/constants';
+import { Events, ExtensionPermissions } from '@/constants';
 import { networkIdentifierToNetworkType } from '@/utils/network';
 import { v4 as uuid } from 'uuid';
 
@@ -123,5 +123,15 @@ export class WalletController  {
 
     static removeListener = async (listener) => {
         PersistentStorage.removeListener(listener);
+    }
+
+    static logoutAndClearStorage = async () => {
+        await SecureStorage.removeAll();
+        await PersistentStorage.removeAll();
+        document.dispatchEvent(new CustomEvent(Events.LOGOUT));
+    }
+
+    static isMnemonicStored = async () => {
+        return !!(await SecureStorage.getMnemonicEncrypted());
     }
 }

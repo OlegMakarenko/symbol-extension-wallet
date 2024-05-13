@@ -1,11 +1,11 @@
 
 import { Card, DialogBox, DropdownModal, FormItem, Screen, TitleBar, useRouter } from '@/components/index';
 import { config } from '@/config';
+import { WalletController } from '@/core/WalletController';
 import { $t, getLanguages, initLocalization, setCurrentLanguage } from '@/localization';
 import store, { connect } from '@/store';
 import { handleError } from '@/utils/helper';
 import { useDataManager, usePasscode, useProp, useToggle } from '@/utils/hooks';
-import { logOut } from '@/utils/secure';
 
 export const Settings = connect((state) => ({
     userCurrency: state.market.userCurrency,
@@ -89,7 +89,7 @@ export const Settings = connect((state) => ({
         store.dispatchAction({ type: 'market/changeUserCurrency', payload: userCurrency });
     };
     const logoutConfirm = async () => {
-        logOut();
+        WalletController.logoutAndClearStorage();
         initLocalization();
         await store.dispatchAction({ type: 'wallet/loadAll' });
         store.dispatchAction({ type: 'network/connect' });

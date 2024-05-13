@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { NextUIProvider } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { PersistentStorage, StorageMigration } from '@/storage';
-import { isMnemonicStored } from '@/utils/secure';
 import { initLocalization } from '@/localization';
 import store from '@/store';
 import { Slide, ToastContainer } from 'react-toastify';
@@ -13,6 +12,7 @@ import { usePasscode } from '@/utils/hooks';
 import { Router, useRouter } from '@/components/Router';
 import { processRequestAction } from '@/utils/helper';
 import { GlobalStoreHandler } from '@/components/index';
+import { WalletController } from '@/core/WalletController';
 
 
 export default function Main({isReady}) {
@@ -37,7 +37,7 @@ export default function Main({isReady}) {
         await StorageMigration.migrate();
         await initLocalization();
 
-        const isWalletStored = await isMnemonicStored();
+        const isWalletStored = await WalletController.isMnemonicStored();
         setIsWalletStored(isWalletStored);
         if (isWalletStored) requestPasscode();
     };

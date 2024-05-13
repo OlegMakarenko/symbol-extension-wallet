@@ -4,6 +4,7 @@ import { PersistentStorage, SecureStorage } from '@/storage';
 import { createWalletAccount } from '@/utils/account';
 import { createNetworkMap } from '@/utils/helper';
 import { getMosaicRelativeAmount, getNativeMosaicAmount } from '@/utils/mosaic';
+import { getWalletAccounts } from '@/utils/secure';
 import { generateSeedAccounts } from '@/utils/wallet';
 
 export default {
@@ -103,18 +104,8 @@ export default {
         },
         // Load accounts into the store
         loadAccounts: async ({ commit }, password) => {
-            const storedAccounts = await SecureStorage.getAccounts(password);
-            const walletAccounts = createNetworkMap((networkIdentifier) => storedAccounts[networkIdentifier]
-                .map(account => createWalletAccount(
-                    account.privateKey,
-                    account.networkIdentifier,
-                    account.name,
-                    account.accountType,
-                    account.index
-                ))
-            );
+            const walletAccounts = await getWalletAccounts(password);
             commit({ type: 'wallet/setAccounts', payload: walletAccounts });
-
         },
         // Set selected account private key
         selectAccount: async ({ commit }, publicKey) => {
