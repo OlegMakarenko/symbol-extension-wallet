@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 import { shouldInjectProvider } from './provider-injection';
 import { WindowPostMessageStream } from '@metamask/post-message-stream';
 import ObjectMultiplex from 'obj-multiplex';
-import { EXTENSION_MESSAGES, StreamName } from '@/constants';
+import { EXTENSION_MESSAGES, ProviderEvents, StreamName } from '@/constants';
 import pump from 'pump';
 import PortStream from 'extension-port-stream';
 
@@ -26,7 +26,7 @@ const setupPageStreams = () => {
     pageMux.setMaxListeners(25);
 
     pump(pageMux, pageStream, pageMux, (err) =>
-        logStreamDisconnectWarning('SymbolWallet Inpage Multiplex', err),
+        logStreamDisconnectWarning('Inpage Multiplex', err),
     );
 
     pageChannel = pageMux.createStream(StreamName.PROVIDER);
@@ -43,7 +43,8 @@ const setupExtensionStreams = () => {
     extensionMux.setMaxListeners(25);
 
     pump(extensionMux, extensionStream, extensionMux, (err) => {
-        logStreamDisconnectWarning('SymbolWallet Background Multiplex', err);
+        logStreamDisconnectWarning('Background Multiplex', err);
+        notifyInpageOfStreamFailure(err);
     });
 
     // forward communication across inpage-background for these channels only
@@ -104,6 +105,7 @@ const checkForLastError = () => {
 const onDisconnectDestroyStreams = (err) => {
     const lastErr = err || checkForLastError();
     extensionPort.onDisconnect.removeListener(onDisconnectDestroyStreams);
+    notifyInpageOfStreamFailure(err);
     destroyExtensionStreams();
 
     /**
@@ -114,7 +116,7 @@ const onDisconnectDestroyStreams = (err) => {
      * once the port and connections are ready. Delay time is arbitrary.
      */
     if (lastErr) {
-        console.warn('Resetting the streams.');
+        console.debug('Resetting the streams.');
         setTimeout(setupExtensionStreams, 1000);
     }
 };
@@ -138,10 +140,33 @@ const destroyExtensionStreams = () => {
  * @param {string} remoteLabel - Remote stream name
  * @param {Error} error - Stream connection error
  */
-function logStreamDisconnectWarning(remoteLabel, error) {
+const logStreamDisconnectWarning = (remoteLabel, error) => {
     console.debug(
         `SymbolWallet: Content script lost connection to "${remoteLabel}".`,
         error,
+    );
+}
+
+/**
+ * Notifies the inpage context that streams have failed, via window.postMessage.
+ * Relies on obj-multiplex and post-message-stream implementation details.
+ */
+const notifyInpageOfStreamFailure = (error) => {
+    window.postMessage(
+        {
+            target: StreamName.INPAGE, // the post-message-stream "target"
+            data: {
+                // this object gets passed to obj-multiplex
+                name: StreamName.PROVIDER, // the obj-multiplex channel name
+                data: {
+                    event: {
+                        type: ProviderEvents.disconnect,
+                        data: error?.message
+                    }
+                },
+            },
+        },
+        window.location.origin,
     );
 }
 
