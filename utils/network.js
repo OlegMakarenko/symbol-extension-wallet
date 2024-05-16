@@ -35,3 +35,21 @@ export const makeRequest = async (url, options) => {
 
     return response.json();
 };
+
+export const networkPropertiesToChainInfo = networkProperties => {
+    const { networkIdentifier, generationHash } = networkProperties;
+
+    if (!generationHash) {
+        return {
+            networkType: null,
+            networkIdentifier: null,
+            generationHash: null,
+        };
+    }
+
+    return {
+        networkType: networkIdentifierToNetworkType(networkIdentifier),
+        networkIdentifier,
+        generationHash,
+    };
+}

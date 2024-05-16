@@ -32,7 +32,7 @@ export class InpageProvider extends SafeEventEmitter {
             connectionStream,
             mux,
             connectionStream,
-            this._handleStreamDisconnect.bind(this, 'SymbolWallet'),
+            this._handleStreamDisconnect,
         );
 
         // Set up RPC connection
@@ -45,7 +45,7 @@ export class InpageProvider extends SafeEventEmitter {
             this._stream,
             mux.createStream(StreamName.PROVIDER),
             this._stream,
-            this._handleStreamDisconnect.bind(this, 'SymbolWallet RpcProvider'),
+            this._handleStreamDisconnect,
         );
 
         this._initialize();
@@ -85,7 +85,7 @@ export class InpageProvider extends SafeEventEmitter {
             }
 
             const payload = params === undefined || params === null
-                ? { method }
+                ? { method, params: [] }
                 : { method, params };
 
             const requestId = uuid();
@@ -103,7 +103,7 @@ export class InpageProvider extends SafeEventEmitter {
             }
         }
         catch (error) {
-            this._log.error('SymbolWallet: failed to initialize provider.', error)
+            this._log.error('SymbolWallet: failed to initialize provider.', error);
             this._state.isConnected = false;
         }
     }
@@ -121,10 +121,13 @@ export class InpageProvider extends SafeEventEmitter {
         }
 
         if (event?.type === ProviderEvents.chainChanged) {
-            this.emit(ProviderEvents.chainChanged);
+            this.emit(ProviderEvents.chainChanged, event.data);
         }
         else if (event?.type === ProviderEvents.accountChanged) {
             this.emit(ProviderEvents.accountChanged);
+        }
+        else if (event?.type === ProviderEvents.disconnect) {
+            this._handleStreamDisconnect(event.data);
         }
 
         delete this._pendingRequests[id];
@@ -132,9 +135,8 @@ export class InpageProvider extends SafeEventEmitter {
         this.emit(ProviderEvents.message, message);
     }
 
-    _handleStreamDisconnect = (streamName, error) => {
-        const warningMsg = `SymbolWallet: Lost connection to "${streamName}".`;
-        this._log.warn(warningMsg, error);
+    _handleStreamDisconnect = (error) => {
+        this._log.warn('SymbolWallet: Connection lost', error);
 
         Object.values(this._pendingRequests).forEach(({ reject }) => reject(Error('Connection lost')));
         this._pendingRequests = {};

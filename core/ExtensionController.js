@@ -3,7 +3,7 @@ import { EXTENSION_MESSAGES, ExtensionPermissions, ExtensionRpcMethods, Provider
 import pump from 'pump';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import { WalletController } from './WalletController';
-import { networkIdentifierToNetworkType } from '@/utils/network';
+import { networkPropertiesToChainInfo } from '@/utils/network';
 
 const MAX_OPEN_POPUPS = 1;
 export class ExtensionController {
@@ -16,11 +16,12 @@ export class ExtensionController {
             this.openPopupIds = this.openPopupIds.filter(popupId => popupId !== closedPopupId);
         });
 
-        WalletController.listenNetworkProperties(() => {
-            this._notifyProvider(ProviderEvents.chainChanged)
+        WalletController.listenNetworkProperties((value) => {
+            const chainInfo = networkPropertiesToChainInfo(value);
+            this._notifyProvider(ProviderEvents.chainChanged, chainInfo);
         })
         WalletController.listenCurrentAccount(() => {
-            this._notifyProvider(ProviderEvents.accountChanged)
+            this._notifyProvider(ProviderEvents.accountChanged);
         })
     }
 
@@ -55,10 +56,11 @@ export class ExtensionController {
         connectionStream.on('data', data => this._handleMessage(data, senderInfo, outStream));
     }
 
-    _notifyProvider = (eventName) => {
+    _notifyProvider = (eventName, data) => {
         Object.values(this.connections).forEach(connection => connection.write({
             event: {
-                type: eventName
+                type: eventName,
+                data
             }
         }));
     }
@@ -156,21 +158,8 @@ export class ExtensionController {
 
     getChainInfo = async () => {
         const networkProperties = await WalletController.getNetworkProperties();
-        const { networkIdentifier, generationHash } = networkProperties;
 
-        if (!generationHash) {
-            return {
-                networkType: null,
-                networkIdentifier: null,
-                generationHash: null,
-            };
-        }
-
-        return {
-            networkType: networkIdentifierToNetworkType(networkIdentifier),
-            networkIdentifier,
-            generationHash,
-        };
+        return networkPropertiesToChainInfo(networkProperties);
     }
 
     openWalletPopup = async () => {

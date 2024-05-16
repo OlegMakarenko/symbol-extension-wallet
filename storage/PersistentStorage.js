@@ -269,8 +269,18 @@ export class PersistentStorage {
 
     static listen = (key, onChange) => {
         const listener = (changes) => {
-            if (changes[key]) {
-                onChange(changes[key].newValue);
+            if (!changes[key]) {
+                return;
+            }
+
+            const { newValue } = changes[key];
+
+            try {
+                const parsedValue = JSON.parse(newValue);
+                onChange(parsedValue);
+            }
+            catch {
+                onChange(newValue);
             }
         }
 
