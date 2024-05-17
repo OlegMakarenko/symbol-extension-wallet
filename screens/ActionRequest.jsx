@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import store, { connect } from '@/store';
-import { useDataManager, useInit, usePasscode, useToggle } from '@/utils/hooks';
+import { useDataManager, useInit, usePasscode } from '@/utils/hooks';
 import { handleError } from '@/utils/helper';
 import { useLocation } from 'react-router-dom';
-import { Button, Screen, FormItem, DialogBox, TitleBar, useRouter, Card } from '@/components/index';
+import { Button, Screen, FormItem, TitleBar, useRouter, Card } from '@/components/index';
 import { $t } from '@/localization';
 import { WalletController } from '@/core/WalletController';
 import { ExtensionRpcMethods } from '@/constants';
@@ -19,26 +19,19 @@ export const ActionRequest = connect((state) => ({
     const { currentAccount, isAccountReady, isWalletReady } = props;
     const router = useRouter();
     const { state } = useLocation();
-    const [isConfirmVisible, toggleConfirm] = useToggle(false);
     const isPermissionRequest = state.method === ExtensionRpcMethods.requestPermission;
     const title = $t(`extensionMethod_${state.method}`);
     const description = $t(`extensionMethod_${state.method}_description`);
 
     const handleAction = async () => {
-        console.log('handleAction', state)
         switch (state.method) {
             case ExtensionRpcMethods.requestPermission:
                 await WalletController.addPermission(state.sender.origin, state.payload)
-
         }
 
         clearAndLeave();
     }
     const [Passcode, confirmAction] = usePasscode(handleAction);
-    const handleConfirmPress = () => {
-        toggleConfirm();
-        confirmAction();
-    };
 
     const [loadState, isStateLoading] = useDataManager(
         async () => {
@@ -63,7 +56,7 @@ export const ActionRequest = connect((state) => ({
             bottomComponent={
                 <>
                     <FormItem>
-                        <Button title={$t('button_accept')} onClick={toggleConfirm} />
+                        <Button title={$t('button_accept')} onClick={confirmAction} />
                     </FormItem>
                     <FormItem>
                         <Button title={$t('button_cancel')} isSecondary onClick={clearAndLeave} />
@@ -88,13 +81,6 @@ export const ActionRequest = connect((state) => ({
                     )}
                 </Card>
             </FormItem>
-            <DialogBox
-                type="confirm"
-                title={$t('transaction_confirm_title')}
-                isVisible={isConfirmVisible}
-                onSuccess={handleConfirmPress}
-                onCancel={toggleConfirm}
-            />
             <Passcode />
         </Screen>
     );
