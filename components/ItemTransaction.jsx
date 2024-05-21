@@ -13,13 +13,14 @@ export const ItemTransaction = connect((state) => ({
     //addressBook: state.addressBook.addressBook,
     ticker: state.network.ticker,
 }))(function ItemTransaction(props) {
-    const { currentAccount, walletAccounts, networkIdentifier, addressBook, group, transaction, ticker, isDateHidden, onPress } =
+    const { currentAccount, walletAccounts, networkIdentifier, addressBook, group, transaction, ticker, onPress } =
         props;
     const accounts = walletAccounts[networkIdentifier];
     const { type, timestamp, amount, signerAddress, recipientAddress } = transaction;
-    const dateText = !isDateHidden
+    const isConfirmed = group === 'confirmed'
+    const dateText = isConfirmed
         ? formatDate(timestamp, $t, true)
-        : '';
+        : $t('transactionStatus_unconfirmed');
     let iconSrc;
     let accountAvatarAddress;
     let action = $t(`transactionDescriptor_${type}`);
@@ -36,7 +37,7 @@ export const ItemTransaction = connect((state) => ({
         styleAmount = 'text-success';
     }
 
-    if (type === TransactionType.TRANSFER && isOutgoingTransaction(transaction, currentAccount)) {
+    if (isConfirmed && type === TransactionType.TRANSFER && isOutgoingTransaction(transaction, currentAccount)) {
         const address = getAddressName(recipientAddress, currentAccount, accounts, addressBook);
         const isAddressName = address !== recipientAddress;
         const addressText = isAddressName ? address : trunc(address, 'address');
@@ -44,7 +45,7 @@ export const ItemTransaction = connect((state) => ({
         action = $t(`transactionDescriptor_${type}_outgoing`);
         description = $t('transactionDescriptionShort_transferTo', { address: addressText });
         iconSrc = '/images/icon-tx-transfer.png';
-    } else if (type === TransactionType.TRANSFER && isIncomingTransaction(transaction, currentAccount)) {
+    } else if (isConfirmed && type === TransactionType.TRANSFER && isIncomingTransaction(transaction, currentAccount)) {
         const address = getAddressName(signerAddress, currentAccount, accounts, addressBook);
         const isAddressName = address !== signerAddress;
         const addressText = isAddressName ? address : trunc(address, 'address');
@@ -134,8 +135,8 @@ export const ItemTransaction = connect((state) => ({
         <Card onPress={onPress} className={cardStyles}>
             <div className="w-full flex flex-row">
                 <div className="flex flex-col justify-center pr-4">
-                    {(group !== 'confirmed' || !accountAvatarAddress) && <img src={iconSrc} className="w-8 h-8" />}
-                    {group === 'confirmed' && !!accountAvatarAddress && (
+                    {(!isConfirmed || !accountAvatarAddress) && <img src={iconSrc} className="w-8 h-8" />}
+                    {isConfirmed && !!accountAvatarAddress && (
                         <div title={accountAvatarAddress}>
                             <AccountAvatar address={accountAvatarAddress} size="sm" />
                         </div>
