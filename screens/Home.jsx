@@ -51,7 +51,7 @@ export const Home = connect((state) => ({
     const [Passcode, confirmRename] = usePasscode(renameAccount);
     const openBlockExplorer = () => window.open(config.explorerURL[networkIdentifier] + '/accounts/' + currentAccount.address, '_blank');
 
-    const accountBalance = currentAccount ? balances[currentAccount.address] : '-';
+    const accountBalance = (currentAccount && balances[currentAccount.address]) ? balances[currentAccount.address] : 0;
     const accountName = currentAccount?.name || '-';
     const accountAddress = currentAccount?.address || '-';
 
