@@ -84,7 +84,7 @@ export default {
             commit({ type: 'wallet/setSelectedAccountId', payload: selectedAccountId || 0 });
         },
         // Save mnemonic to wallet. Generate seed accounts for all networks
-        saveMnemonic: async ({ commit, dispatchAction }, { mnemonic, password }) => {
+        saveMnemonic: async ({ commit, dispatchAction }, { mnemonic, name, password }) => {
             // Save mnemonic and verify it is stored correctly
             let savedMnemonic;
             await SecureStorage.setMnemonic(mnemonic, password);
@@ -95,6 +95,7 @@ export default {
 
             // Generate and save seed accounts
             const accounts = await generateSeedAccounts(mnemonic);
+            accounts.mainnet[0].name = name;
             await SecureStorage.setAccounts(accounts, password);
             commit({ type: 'wallet/setAccounts', payload: accounts });
 
