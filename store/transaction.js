@@ -81,7 +81,6 @@ export default {
             const partialPage = partialDTO.map((transactionDTO) => transactionFromDTO(transactionDTO, transactionOptions));
             const unconfirmedPage = unconfirmedDTO.map((transactionDTO) => transactionFromDTO(transactionDTO, transactionOptions));
             const confirmedPage = confirmedDTO.map((transactionDTO) => transactionFromDTO(transactionDTO, transactionOptions));
-            console.log({confirmedPage})
 
             //Filter allowed
             let filteredPartialPage;
@@ -103,7 +102,7 @@ export default {
             commit({ type: 'transaction/setUnconfirmed', payload: filteredUnconfirmedPage });
 
             if (keepPages) {
-                const updatedConfirmed = _.uniqBy([...filteredConfirmedPage, ...confirmed], 'id');
+                const updatedConfirmed = _.uniqBy([...filteredConfirmedPage, ...confirmed], 'hash');
                 commit({ type: 'transaction/setConfirmed', payload: updatedConfirmed });
             } else {
                 commit({ type: 'transaction/setConfirmed', payload: filteredConfirmedPage });
