@@ -27,6 +27,11 @@ export const AccountSelector = connect((state) => ({
         ? 'bg-secondary-1000 border-secondary'
         : 'bg-background border-card';
     const getAddress = () => trunc(currentAccount.address, 'address');
+    const getBalanceText = (address) => {
+        const balance = balances[address];
+
+        return balance === undefined ? '..' : balance;
+    }
 
     const [selectAccount, isSelectAccountLoading] = useDataManager(
         async (account, selectedNetworkIdentifier) => {
@@ -110,7 +115,7 @@ export const AccountSelector = connect((state) => ({
                                                 <div className="s-text-title">{account.name}</div>
                                                 <div className="mt-4 font-mono uppercase opacity-70 leading-tight">{$t('c_accountCard_title_balance')}</div>
                                                 <div className="flex flex-row items-baseline">
-                                                    <div className="text-4xl">{balances[account.address]}</div>
+                                                    <div className="text-4xl">{getBalanceText(account.address)}</div>
                                                     <div className="text-xl">{' ' + ticker}</div>
                                                 </div>
                                                 <div className="mt-4 font-mono uppercase opacity-70 leading-tight">{$t('c_accountCard_title_address')}</div>
@@ -122,7 +127,7 @@ export const AccountSelector = connect((state) => ({
                             </Tabs>
                         </motion.div>
                         {isSelectAccountLoading && (
-                            <div className="absolute left-0 top-0 h-full w-full animation-fade-in flex justify-center items-center">
+                            <div className="absolute bg-main left-0 top-0 h-full w-full animation-fade-in flex justify-center items-center">
                                 <LoadingIndicator />
                             </div>
                         )}
