@@ -110,6 +110,12 @@ export class InpageProvider extends SafeEventEmitter {
 
     _onMessage = (payload) => {
         const message = payload.data;
+
+        if (!message) {
+            this.emit(ProviderEvents.message, payload);
+            return;
+        }
+
         const { id, result, event, error } = message;
         const pendingRequest = this._pendingRequests[id];
 
