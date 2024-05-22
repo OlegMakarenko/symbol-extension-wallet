@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "build": "npm run build:chrome",
     "build:chrome": "next build && npm run build:scripts:all && bash ./scripts/build.sh",
