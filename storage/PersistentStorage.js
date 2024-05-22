@@ -195,7 +195,7 @@ export class PersistentStorage {
 
     // Request Auto Open
     static getRequestAutoOpen = async () => {
-        const defaultValue = 'home';
+        const defaultValue = 'confirm';
         const value = await this.get(this.REQUEST_AUTO_OPEN_KEY);
 
         return value || defaultValue;
