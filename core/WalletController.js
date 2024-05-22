@@ -134,4 +134,24 @@ export class WalletController  {
     static isMnemonicStored = async () => {
         return !!(await SecureStorage.getMnemonicEncrypted());
     }
+
+    static isRequestAutoOpenEnabled = async () => {
+        const mode = await PersistentStorage.getRequestAutoOpen();
+
+        return mode === 'confirm';
+    }
+
+    static isExternalAppLaunchEnabled = async () => {
+        const mode = await PersistentStorage.getRequestAutoOpen();
+
+        return mode === 'home' || mode === 'confirm';
+    }
+
+    static setRequestAutoOpen = async (value) => {
+        return PersistentStorage.setRequestAutoOpen(value);
+    }
+
+    static getRequestAutoOpen = async () => {
+        return PersistentStorage.getRequestAutoOpen();
+    }
 }

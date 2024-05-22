@@ -145,3 +145,33 @@ export const useTransactionFees = (transaction, networkProperties) => {
 
     return useMemo(() => networkProperties.networkIdentifier ? getTransactionFees(transaction, networkProperties) : defaultTransactionFees, deps);
 }
+
+export const useAsyncState = (getDataSource, setDataSource, initialValue, deps = []) => {
+    const [data, setData] = useState(initialValue);
+    const [isLoading, setIsLoading] = useState(initialValue);
+
+    const getDataFromSource = async () => {
+        const data = await getDataSource();
+
+        setData(data);
+    }
+
+    const setDataToSource = async (data) => {
+        await setDataSource(data);
+        await getDataFromSource();
+    }
+
+    const updateData = (data) => {
+        setIsLoading(true)
+        setData(data);
+        setDataToSource(data)
+            .then(() => setIsLoading(false))
+            .catch(() => setIsLoading(false));
+    }
+
+    useEffect(() => {
+        getDataFromSource();
+    }, deps);
+
+    return [data, updateData, isLoading]
+}

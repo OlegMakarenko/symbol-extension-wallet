@@ -167,6 +167,12 @@ export class ExtensionController {
             return;
         }
 
+        const isAppLaunchAllowed = await WalletController.isExternalAppLaunchEnabled();
+
+        if (!isAppLaunchAllowed) {
+            return;
+        }
+
         const walletPopup = await this.extension.windows.create({
             url: '/index.html',
             type: 'popup',

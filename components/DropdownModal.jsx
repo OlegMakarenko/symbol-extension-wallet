@@ -8,7 +8,7 @@ export const DropdownModal = (props) => {
         onChange(value);
         onClose();
     };
-console.log({isOpen})
+
     return (
         <Modal shouldBlockScroll placement="center" className="bg-main" radius="lg" isOpen={isOpen} onOpenChange={onClose}>
             <ModalContent>

@@ -33,7 +33,6 @@ export const ItemRequestAction = connect((state) => ({
                                 <p className="font-mono leading-tight truncate ...">{sender.title}</p>
                                 <p className="font-mono opacity-70 leading-tight truncate ...">{sender.origin}</p>
                             </div>
-
                         </div>
                     </div>
                     <div className="h-12 mb-4" />

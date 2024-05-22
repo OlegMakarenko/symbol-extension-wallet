@@ -1,11 +1,12 @@
 
-import { Card, DialogBox, DropdownModal, FormItem, Screen, TitleBar, useRouter } from '@/components/index';
+import { Card, DialogBox, DropdownModal, FormItem, Screen, TableView, TitleBar, useRouter } from '@/components/index';
 import { config } from '@/config';
 import { WalletController } from '@/core/WalletController';
 import { $t, getLanguages, initLocalization, setCurrentLanguage } from '@/localization';
 import store, { connect } from '@/store';
 import { handleError } from '@/utils/helper';
-import { useDataManager, usePasscode, useProp, useToggle } from '@/utils/hooks';
+import { useAsyncState, useDataManager, usePasscode, useProp, useToggle } from '@/utils/hooks';
+import packageJSON from '../package.json';
 
 export const Settings = connect((state) => ({
     userCurrency: state.market.userCurrency,
@@ -18,6 +19,8 @@ export const Settings = connect((state) => ({
     const [isNetworkSelectorVisible, toggleNetworkSelector] = useToggle(false);
     const [isLanguageSelectorVisible, toggleLanguageSelector] = useToggle(false);
     const [isUserCurrencySelectorVisible, toggleUserCurrencySelector] = useToggle(false);
+    const [isRequestSelectorVisible, toggleRequestSelector] = useToggle(false);
+    const [isAboutSelectorVisible, toggleAboutSelector] = useToggle(false);
     const languageList = Object.entries(getLanguages()).map(([value, label]) => ({ value, label }));
     const currencyList = config.marketCurrencies.map((currency) => ({ value: currency, label: currency }));
     const networkIdentifiers = [
@@ -30,6 +33,24 @@ export const Settings = connect((state) => ({
             value: 'testnet',
         },
     ];
+    const requestOptionList = [
+        {
+            label: $t('s_settings_request_autoOpen_confirm'),
+            value: 'confirm',
+        },
+        {
+            label: $t('s_settings_request_autoOpen_home'),
+            value: 'home',
+        },
+        {
+            label: $t('s_settings_request_autoOpen_off'),
+            value: 'off',
+        },
+    ]
+    const aboutTable = {
+        appVersion: packageJSON.version,
+        symbolSdkVersion: packageJSON.dependencies['symbol-sdk']
+    };
     const settingsList = [
         {
             title: $t('s_settings_item_network_title'),
@@ -44,23 +65,29 @@ export const Settings = connect((state) => ({
             handler: toggleLanguageSelector,
         },
         {
+            title: $t('s_settings_item_currency_title'),
+            description: $t('s_settings_item_currency_description'),
+            icon: '/images/icon-settings-currency.png',
+            handler: toggleUserCurrencySelector,
+        },
+        {
             title: $t('s_settings_item_permission_title'),
             description: $t('s_settings_item_permission_description'),
             icon: '/images/icon-settings-security.png',
             handler: router.goToSettingsPermissions,
         },
         {
-            title: $t('s_settings_item_currency_title'),
-            description: $t('s_settings_item_currency_description'),
-            icon: '/images/icon-settings-currency.png',
-            handler: toggleUserCurrencySelector,
+            title: $t('s_settings_item_request_title'),
+            description: $t('s_settings_item_request_description'),
+            icon: '/images/icon-settings-request.png',
+            handler: toggleRequestSelector,
         },
-        // {
-        //     title: $t('s_settings_item_about_title'),
-        //     description: $t('s_settings_item_about_description'),
-        //     icon: '/images/icon-settings-about.png',
-        //     handler: () => {}, //router.goToSettingsAbout,
-        // },
+        {
+            title: $t('s_settings_item_about_title'),
+            description: $t('s_settings_item_about_description'),
+            icon: '/images/icon-settings-about.png',
+            handler: toggleAboutSelector,
+        },
         {
             title: $t('s_settings_item_logout_title'),
             description: $t('s_settings_item_logout_description'),
@@ -81,6 +108,7 @@ export const Settings = connect((state) => ({
         null,
         handleError
     );
+    const [requestOption, setRequestOption] = useAsyncState(WalletController.getRequestAutoOpen,WalletController.setRequestAutoOpen);
     const changeLanguage = (language) => {
         setCurrentLanguage(language);
         router.goToHome();
@@ -102,13 +130,13 @@ export const Settings = connect((state) => ({
 
     return (
         <Screen isLoading={isNetworkLoading} titleBar={<TitleBar hasBackButton />}>
-            <FormItem clear="vertical">
+            <div>
                 {settingsList.map((item, index) => (
                     <button key={'settings' + index} className="w-full" onClick={item.handler}>
                         <FormItem>
                             <Card>
                                 <div className="w-full flex flex-row text-left gap-2">
-                                    <img src={item.icon} className="w-12 h-12"  />
+                                    <img src={item.icon} className="w-12 h-12 flex-shrink-0" />
                                     <div>
                                         <h3>{item.title}</h3>
                                         <p>{item.description}</p>
@@ -118,7 +146,7 @@ export const Settings = connect((state) => ({
                         </FormItem>
                     </button>
                 ))}
-            </FormItem>
+            </div>
             <DropdownModal
                 title={$t('s_settings_networkType_modal_title')}
                 list={networkIdentifiers}
@@ -141,6 +169,22 @@ export const Settings = connect((state) => ({
                 isOpen={isUserCurrencySelectorVisible}
                 onChange={changeUserCurrency}
                 onClose={toggleUserCurrencySelector}
+            />
+            <DropdownModal
+                title={$t('s_settings_item_request_title')}
+                list={requestOptionList}
+                value={requestOption}
+                isOpen={isRequestSelectorVisible}
+                onChange={setRequestOption}
+                onClose={toggleRequestSelector}
+            />
+            <DialogBox
+                type="alert"
+                title={$t('s_settings_item_about_title')}
+                body={<TableView data={aboutTable} />}
+                isVisible={isAboutSelectorVisible}
+                onSuccess={toggleAboutSelector}
+                onCancel={toggleAboutSelector}
             />
             <DialogBox
                 type="confirm"

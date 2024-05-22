@@ -5,17 +5,18 @@ export class PersistentStorage {
     static DATA_SCHEMA_VERSION = 'DATA_SCHEMA_VERSION';
     static NETWORK_IDENTIFIER_KEY = 'NETWORK_IDENTIFIER';
     static SELECTED_NODE_KEY = 'selectedNode';
-    static CURRENT_ACCOUNT_PUBLIC_KEY = 'CURRENT_ACCOUNT_PUBLIC_KEY';
+    static CURRENT_ACCOUNT_PUBLIC_KEY = 'CURRENT_ACCOUNT_PUBLIC';
     static SELECTED_LANGUAGE_KEY = 'SELECTED_LANGUAGE';
-    static SEED_ADDRESSES_KEY = 'seedAddresses';
-    static BALANCES_KEY = 'balances';
-    static LATEST_TRANSACTIONS_KEY = 'latestTransactions';
-    static MOSAIC_INFOS_KEY = 'mosaicInfos';
-    static ACCOUNT_INFOS_KEY = 'accountInfos';
-    static USER_CURRENCY_KEY = 'USER_CURRENCY_KEY';
-    static REQUEST_KEY = 'REQUEST';
+    static SEED_ADDRESSES_KEY = 'SEED_ADDRESSES';
+    static BALANCES_KEY = 'BALANCES';
+    static LATEST_TRANSACTIONS_KEY = 'LATEST_TRANSACTIONS';
+    static MOSAIC_INFOS_KEY = 'MOSAIC_INFOS';
+    static ACCOUNT_INFOS_KEY = 'ACCOUNT_INFOS';
+    static USER_CURRENCY_KEY = 'USER_CURRENCY';
+    static REQUEST_LIST_KEY = 'REQUEST_LIST';
+    static REQUEST_AUTO_OPEN_KEY = 'REQUEST_AUTO_OPEN';
     static PERMISSIONS_KEY = 'PERMISSIONS';
-    static NETWORK_PROPERTIES_KEY = 'NETWORK_PROPERTIES_KEY';
+    static NETWORK_PROPERTIES_KEY = 'NETWORK_PROPERTIES';
 
     // Data Schema Version
     static getDataSchemaVersion = async () => {
@@ -177,7 +178,7 @@ export class PersistentStorage {
 
     // Request Action
     static async getRequestQueue() {
-        const value = await this.get(this.REQUEST_KEY);
+        const value = await this.get(this.REQUEST_LIST_KEY);
         const defaultValue = [];
 
         try {
@@ -189,8 +190,20 @@ export class PersistentStorage {
     }
 
     static async setRequestQueue(payload) {
-        return this.set(this.REQUEST_KEY, JSON.stringify(payload));
+        return this.set(this.REQUEST_LIST_KEY, JSON.stringify(payload));
     }
+
+    // Request Auto Open
+    static getRequestAutoOpen = async () => {
+        const defaultValue = 'home';
+        const value = await this.get(this.REQUEST_AUTO_OPEN_KEY);
+
+        return value || defaultValue;
+    };
+
+    static setRequestAutoOpen = (payload) => {
+        return this.set(this.REQUEST_AUTO_OPEN_KEY, payload);
+    };
 
     // Permissions
     static async getPermissions() {
@@ -261,7 +274,7 @@ export class PersistentStorage {
             this.remove(this.MOSAIC_INFOS_KEY),
             this.remove(this.ACCOUNT_INFOS_KEY),
             this.remove(this.USER_CURRENCY_KEY),
-            this.remove(this.REQUEST_KEY),
+            this.remove(this.REQUEST_LIST_KEY),
             this.remove(this.PERMISSIONS_KEY),
             this.remove(this.NETWORK_PROPERTIES_KEY),
         ]);
