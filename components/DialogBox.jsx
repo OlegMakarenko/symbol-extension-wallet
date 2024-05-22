@@ -57,7 +57,7 @@ export const DialogBox = (props) => {
     useEffect(() => setPromptValue(''), [isVisible]);
 
     return (
-        <Modal hideCloseButton shouldBlockScroll placement="center" className="bg-main" radius="lg" isOpen={isVisible} onOpenChange={onCancel}>
+        <Modal hideCloseButton shouldBlockScroll scrollBehavior="inside" placement="center" className="bg-main" radius="lg" isOpen={isVisible} onOpenChange={onCancel}>
             <ModalContent>
                 <ModalBody>
                     <h2>{title}</h2>
@@ -67,7 +67,7 @@ export const DialogBox = (props) => {
                         <TextBox title={text} errorMessage={promptErrorMessage} value={promptValue} onChange={setPromptValue} />
                     )}
                 </ModalBody>
-                <div className="flex flex-row overflow-hidden rounded-b-xl">
+                <div className="flex flex-shrink-0 flex-row overflow-hidden rounded-b-xl">
                     {buttons.map((button, index) => (
                         <Button
                             disableAnimation
@@ -79,7 +79,7 @@ export const DialogBox = (props) => {
                             {button.text}
                         </Button>
                     ))}
-            </div>
+                </div>
             </ModalContent>
         </Modal>
     );
