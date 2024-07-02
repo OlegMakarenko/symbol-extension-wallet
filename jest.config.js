@@ -28,7 +28,6 @@ const config = {
     '^@/services': '<rootDir>/services/index.js',
     '^@/styles/(.*)$': '<rootDir>/styles/$1',
     '^@/storage': '<rootDir>/storage/index.js',
-    '^@/store': '<rootDir>/store/index.js',
     '^@/utils/(.*)$': '<rootDir>/utils/$1',
   },
   transform: {},

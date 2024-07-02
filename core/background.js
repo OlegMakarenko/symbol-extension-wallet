@@ -1,4 +1,4 @@
-import { EXTENSION_MESSAGES } from '@/constants';
+import { ExtensionMessages } from '@/constants';
 import PortStream from 'extension-port-stream'
 import browser from 'webextension-polyfill';
 import { ExtensionController } from './ExtensionController';
@@ -15,7 +15,7 @@ const sendReadyMessageToTabs = async () => {
 
     await Promise.allSettled(tabs.map(tab =>
         browser.tabs.sendMessage(tab.id, {
-            name: EXTENSION_MESSAGES.READY,
+            name: ExtensionMessages.READY,
         })
     ));
 };

@@ -1,3 +1,5 @@
+import { config } from '@/config';
+import { createNetworkMap } from '@/utils/helper';
 import _ from 'lodash';
 
 export class PersistentStorage {
@@ -8,7 +10,6 @@ export class PersistentStorage {
     static CURRENT_ACCOUNT_PUBLIC_KEY = 'CURRENT_ACCOUNT_PUBLIC';
     static SELECTED_LANGUAGE_KEY = 'SELECTED_LANGUAGE';
     static SEED_ADDRESSES_KEY = 'SEED_ADDRESSES';
-    static BALANCES_KEY = 'BALANCES';
     static LATEST_TRANSACTIONS_KEY = 'LATEST_TRANSACTIONS';
     static MOSAIC_INFOS_KEY = 'MOSAIC_INFOS';
     static ACCOUNT_INFOS_KEY = 'ACCOUNT_INFOS';
@@ -35,12 +36,12 @@ export class PersistentStorage {
 
     // Network Identifier
     static getNetworkIdentifier = async () => {
-        const networkIdentifier = (await this.get(this.NETWORK_IDENTIFIER_KEY)) || 'mainnet';
+        const networkIdentifier = (await this.get(this.NETWORK_IDENTIFIER_KEY)) || config.defaultNetworkIdentifier;
 
         try {
             return JSON.parse(networkIdentifier);
         } catch {
-            return 'mainnet';
+            return config.defaultNetworkIdentifier;
         }
     };
 
@@ -81,10 +82,7 @@ export class PersistentStorage {
         // Seed Addresses
         static async getSeedAddresses() {
             const addresses = await this.get(this.SEED_ADDRESSES_KEY);
-            const defaultAccounts = {
-                mainnet: [],
-                testnet: [],
-            };
+            const defaultAccounts = createNetworkMap(() => []);
 
             try {
                 return JSON.parse(addresses) || defaultAccounts;
@@ -97,26 +95,10 @@ export class PersistentStorage {
             return this.set(this.SEED_ADDRESSES_KEY, JSON.stringify(payload));
         }
 
-        // Balances
-        static async getBalances() {
-            const balances = await this.get(this.BALANCES_KEY);
-            const defaultBalances = {};
-
-            try {
-                return JSON.parse(balances) || defaultBalances;
-            } catch {
-                return defaultBalances;
-            }
-        }
-
-        static async setBalances(payload) {
-            return this.set(this.BALANCES_KEY, JSON.stringify(payload));
-        }
-
         // Transactions
         static async getLatestTransactions() {
             const latestTransactions = await this.get(this.LATEST_TRANSACTIONS_KEY);
-            const defaultLatestTransactions = {};
+            const defaultLatestTransactions = createNetworkMap(() => ({}));
 
             try {
                 return JSON.parse(latestTransactions) || defaultLatestTransactions;
@@ -132,10 +114,7 @@ export class PersistentStorage {
         // Mosaic Infos
         static async getMosaicInfos() {
             const mosaicInfos = await this.get(this.MOSAIC_INFOS_KEY);
-            const defaultMosaicInfos = {
-                mainnet: {},
-                testnet: {},
-            };
+            const defaultMosaicInfos = createNetworkMap(() => ({}));
 
             try {
                 return JSON.parse(mosaicInfos) || defaultMosaicInfos;
@@ -151,7 +130,7 @@ export class PersistentStorage {
         // Account Infos
         static async getAccountInfos() {
             const accountInfos = await this.get(this.ACCOUNT_INFOS_KEY);
-            const defaultAccountInfos = {};
+            const defaultAccountInfos = createNetworkMap(() => ({}));
 
             try {
                 return JSON.parse(accountInfos) || defaultAccountInfos;
@@ -247,7 +226,9 @@ export class PersistentStorage {
 
     static get = async (key) => {
         if (chrome?.storage?.local) {
-            return (await chrome.storage.local.get(key))[key];
+            const value = (await chrome.storage.local.get(key))[key];
+
+            return value === undefined ? null : value;
         }
         else
             return localStorage.getItem(key);
@@ -269,7 +250,6 @@ export class PersistentStorage {
             this.remove(this.SELECTED_NODE_KEY),
             this.remove(this.SELECTED_LANGUAGE_KEY),
             this.remove(this.SEED_ADDRESSES_KEY),
-            this.remove(this.BALANCES_KEY),
             this.remove(this.LATEST_TRANSACTIONS_KEY),
             this.remove(this.MOSAIC_INFOS_KEY),
             this.remove(this.ACCOUNT_INFOS_KEY),
@@ -286,15 +266,30 @@ export class PersistentStorage {
                 return;
             }
 
-            const { newValue } = changes[key];
+            const { newValue, oldValue } = changes[key];
+
+            if (newValue === oldValue) {
+                return;
+            }
+
+            let newParsedValue;
+            let oldParsedValue;
 
             try {
-                const parsedValue = JSON.parse(newValue);
-                onChange(parsedValue);
+                newParsedValue = JSON.parse(newValue);
             }
             catch {
-                onChange(newValue);
+                newParsedValue = newValue;
             }
+
+            try {
+                oldParsedValue = JSON.parse(oldValue);
+            }
+            catch {
+                oldParsedValue = oldValue;
+            }
+
+            onChange(newParsedValue, oldParsedValue);
         }
 
         PersistentStorage.addListener(listener);
@@ -303,10 +298,14 @@ export class PersistentStorage {
     }
 
     static addListener = (callback) => {
-        chrome.storage.onChanged.addListener(callback);
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.onChanged.addListener(callback);
+        }
     }
 
     static removeListener = (callback) => {
-        chrome.storage.onChanged.removeListener(callback);
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            chrome.storage.onChanged.removeListener(callback);
+        }
     }
 }

@@ -2,14 +2,12 @@
 import { Button, Card, FormItem, Screen, TitleBar } from '@/components/index';
 import { WalletController } from '@/core/WalletController';
 import { $t } from '@/localization';
-import { connect } from '@/store';
 import { handleError } from '@/utils/helper';
 import { useDataManager } from '@/utils/hooks';
 import { Accordion, AccordionItem } from '@nextui-org/react';
 import { useEffect } from 'react';
 
-export const SettingsPermissions = connect((state) => ({
-}))(function SettingsPermissions(props) {
+export const SettingsPermissions = () => {
     const [loadState, isLoading, permissions] = useDataManager(
         async () => WalletController.getPermissions(),
         [],
@@ -58,4 +56,4 @@ export const SettingsPermissions = connect((state) => ({
 
         </Screen>
     );
-});
+};

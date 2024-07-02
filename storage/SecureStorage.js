@@ -34,6 +34,10 @@ export class SecureStorage {
         }
     }
 
+    static getAccountsEncrypted() {
+        return this.getEncrypted(this.ACCOUNTS_KEY);
+    }
+
     static async setAccounts(payload, password) {
         return this.set(this.ACCOUNTS_KEY, JSON.stringify(payload), password);
     }

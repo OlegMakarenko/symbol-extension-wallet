@@ -3,18 +3,15 @@ import { Card, DialogBox, DropdownModal, FormItem, Screen, TableView, TitleBar, 
 import { config } from '@/config';
 import { WalletController } from '@/core/WalletController';
 import { $t, getLanguages, initLocalization, setCurrentLanguage } from '@/localization';
-import store, { connect } from '@/store';
 import { handleError } from '@/utils/helper';
-import { useAsyncState, useDataManager, usePasscode, useProp, useToggle } from '@/utils/hooks';
+import { useAsyncState, useDataManager, usePasscode, useToggle } from '@/utils/hooks';
 import packageJSON from '../package.json';
+import Controller from '@/core/Controller';
+import { observer } from 'mobx-react-lite';
 
-export const Settings = connect((state) => ({
-    userCurrency: state.market.userCurrency,
-    networkIdentifier: state.network.networkIdentifier,
-}))(function Settings(props) {
+export const Settings = observer(function Settings() {
     const router = useRouter();
-    const { userCurrency, networkIdentifier } = props;
-    const [selectedNetworkIdentifier, setSelectedNetworkIdentifier] = useProp(networkIdentifier, networkIdentifier);
+    const { userCurrency, networkIdentifier } = Controller;
     const [isLogoutConfirmVisible, toggleLogoutConfirm] = useToggle(false);
     const [isNetworkSelectorVisible, toggleNetworkSelector] = useToggle(false);
     const [isLanguageSelectorVisible, toggleLanguageSelector] = useToggle(false);
@@ -97,12 +94,8 @@ export const Settings = connect((state) => ({
     ];
 
     const [selectNetwork, isNetworkLoading] = useDataManager(
-        async (networkIdentifier) => {
-            await store.dispatchAction({ type: 'network/changeNetwork', payload: { networkIdentifier } });
-            await store.dispatchAction({ type: 'wallet/loadAll' });
-            await store.dispatchAction({ type: 'network/fetchData' });
-            await store.dispatchAction({ type: 'account/fetchData' });
-            setSelectedNetworkIdentifier(networkIdentifier);
+        async () => {
+            await Controller.selectNetwork(networkIdentifier);
             router.goBack();
         },
         null,
@@ -114,13 +107,11 @@ export const Settings = connect((state) => ({
         router.goToHome();
     };
     const changeUserCurrency = (userCurrency) => {
-        store.dispatchAction({ type: 'market/changeUserCurrency', payload: userCurrency });
+        Controller.selectUserCurrency(userCurrency);
     };
     const logoutConfirm = async () => {
-        WalletController.logoutAndClearStorage();
+        Controller.logoutAndClearStorage();
         initLocalization();
-        await store.dispatchAction({ type: 'wallet/loadAll' });
-        store.dispatchAction({ type: 'network/connect' });
     };
     const [Passcode, showLogoutPasscode] = usePasscode(logoutConfirm);
     const handleLogoutPress = () => {
@@ -150,7 +141,7 @@ export const Settings = connect((state) => ({
             <DropdownModal
                 title={$t('s_settings_networkType_modal_title')}
                 list={networkIdentifiers}
-                value={selectedNetworkIdentifier}
+                value={networkIdentifier}
                 isOpen={isNetworkSelectorVisible}
                 onChange={selectNetwork}
                 onClose={toggleNetworkSelector}

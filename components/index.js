@@ -6,6 +6,7 @@ export * from './Button.jsx';
 export * from './ButtonClose.jsx';
 export * from './ButtonCopy.jsx';
 export * from './Card.jsx';
+export * from './ConnectionStatus.jsx';
 export * from './DialogBox.jsx';
 export * from './Dropdown.jsx';
 export * from './DropdownModal.jsx';

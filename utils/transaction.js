@@ -264,3 +264,23 @@ export const isHarvestingServiceTransaction = (transaction) => {
 
     return true;
 };
+
+export const signTransaction = async (networkProperties, transaction, privateAccount) => {
+    // Map transaction
+    const transactionObject = transactionToSymbol(transaction, networkProperties, privateAccount);
+
+    // Get signature
+    const facade = new SymbolFacade(networkProperties.networkIdentifier);
+    const privateKey = new PrivateKey(privateAccount.privateKey);
+    const keyPair = new SymbolFacade.KeyPair(privateKey);
+    const signature = facade.signTransaction(keyPair, transactionObject);
+
+    // Attach signature
+    const jsonString = facade.transactionFactory.constructor.attachSignature(transactionObject, signature);
+    const hash = facade.hashTransaction(transactionObject).toString();
+
+    return {
+        payload: JSON.parse(jsonString).payload,
+        hash
+    }
+};

@@ -2,6 +2,7 @@ import { ExtensionRpcMethods, NetworkIdentifier } from '@/constants';
 import { $t } from '@/localization';
 import { toast } from 'react-toastify';
 import makeBlockie from 'ethereum-blockies-base64';
+import { config } from '@/config';
 
 export const showMessage = ({ message, type }) => {
     const toastTypeMap = {
@@ -47,7 +48,7 @@ export const copyToClipboard = async text => {
 };
 
 export const createNetworkMap = (callback) => {
-    const networkIdentifiers = [NetworkIdentifier.TEST_NET, NetworkIdentifier.MAIN_NET];
+    const networkIdentifiers = [...config.networkIdentifiers];
     const maps = networkIdentifiers.map((networkIdentifier) => [networkIdentifier, callback(networkIdentifier)]);
 
     return Object.fromEntries(maps);

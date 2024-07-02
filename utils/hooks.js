@@ -1,7 +1,6 @@
 import { Passcode } from '@/components/Passcode';
 import { useEffect, useMemo, useState } from 'react';
 import { showMessage } from './helper';
-import transaction from 'store/transaction';
 import { getTransactionFees } from './transaction';
 import { TransactionType } from '@/constants';
 
@@ -80,7 +79,7 @@ export const usePromises = (initialPromiseMap, errorHandler) => {
     return [promiseMap, setPromiseMap];
 };
 
-export const useDataManager = (callback, defaultData, onError) => {
+export const useDataManager = (callback, defaultData, onError, resetKey) => {
     const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState(defaultData);
 
@@ -98,6 +97,10 @@ export const useDataManager = (callback, defaultData, onError) => {
             setIsLoading(false);
         });
     };
+
+    useEffect(() => {
+        setData(defaultData);
+    }, [defaultData]);
 
     return [call, isLoading, data];
 };

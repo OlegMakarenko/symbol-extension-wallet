@@ -1,57 +1,59 @@
 import { $t } from 'localization';
-import { useDataManager, usePasscode } from '@/utils/hooks';
+import { useDataManager, useInit, usePasscode } from '@/utils/hooks';
 import { handleError, processRequestAction } from '@/utils/helper';
-import store, { connect } from '@/store';
 import { AccountCardWidget, Alert, Button, FormItem, ItemRequestAction, ItemTransaction, Screen, TitleBar, useRouter } from '@/components/index';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { config } from '@/config';
 import { ScrollShadow, Spacer } from '@nextui-org/react';
 import { PersistentStorage } from '@/storage';
 import { WalletController } from '@/core/WalletController';
 
-export const Home = connect((state) => ({
-    balances: state.wallet.balances,
-    isMultisigAccount: state.account.isMultisig,
-    currentAccount: state.account.current,
-    networkIdentifier: state.network.networkIdentifier,
-    ticker: state.network.ticker,
-    price: state.market.price,
-    isWalletReady: state.wallet.isReady,
-    unconfirmedTransactions: state.transaction.unconfirmed,
-    confirmedTransactions: state.transaction.confirmed,
-}))(function Home(props) {
+import Controller from '@/core/Controller';
+import { observer } from 'mobx-react-lite';
+import { ControllerEventName } from '@/constants';
+
+export const Home = observer(function Home() {
     const {
-        balances,
-        currentAccount,
-        isMultisigAccount,
-        networkIdentifier,
-        ticker, price,
         isWalletReady,
-        unconfirmedTransactions,
-        confirmedTransactions
-    } = props;
+        currentAccount,
+        currentAccountInfo,
+        networkIdentifier,
+        ticker,
+        price,
+    } = Controller;
     const router = useRouter();
-    const isLoading = !isWalletReady;
-    const [renameAccount] = useDataManager(
-        async (password, name) => {
-            await store.dispatchAction({
-                type: 'wallet/renameAccount',
-                payload: {
-                    publicKey: currentAccount.publicKey,
-                    networkIdentifier,
-                    name,
-                    password
-                },
-            });
-            store.dispatchAction({ type: 'account/loadState' });
+    const defaultUnconfirmedTransactions = useMemo(() => [], []);
+    const [fetchConfirmedTransactions, isConfirmedTransactionsLoading, confirmedTransactions] = useDataManager(
+        async () => {
+            const transactions = await Controller.fetchAccountTransactions(currentAccount.publicKey);
+            return transactions.data;
         },
+        Controller.currentAccountLatestTransactions,
+        handleError,
+        currentAccount
+    );
+    const [fetchUnconfirmedTransactions, isUnconfirmedTransactionsLoading, unconfirmedTransactions] = useDataManager(
+        async () => {
+            const transactions = await Controller.fetchAccountTransactions(currentAccount.publicKey, { group: 'unconfirmed' });
+            return transactions.data;
+        },
+        defaultUnconfirmedTransactions,
+        handleError,
+        currentAccount
+    );
+    const [renameAccount] = useDataManager(
+        (password, name) => Controller.renameAccount({
+            publicKey: currentAccount.publicKey,
+            name,
+            networkIdentifier
+        }, password),
         null,
         handleError
     );
     const [Passcode, confirmRename] = usePasscode(renameAccount);
     const openBlockExplorer = () => window.open(config.explorerURL[networkIdentifier] + '/accounts/' + currentAccount.address, '_blank');
 
-    const accountBalance = (currentAccount && balances[currentAccount.address]) ? balances[currentAccount.address] : 0;
+    const accountBalance = currentAccountInfo.balance;
     const accountName = currentAccount?.name || '-';
     const accountAddress = currentAccount?.address || '-';
 
@@ -69,9 +71,22 @@ export const Home = connect((state) => ({
     const handleActionRequest = (request) => {
         processRequestAction(request, router);
     }
-    useEffect(() => {
-        refreshActionRequests()
-    }, []);
+    const refreshTransactions = () => {
+        fetchConfirmedTransactions();
+        fetchUnconfirmedTransactions();
+    };
+    useInit(() => {
+        refreshActionRequests();
+        refreshTransactions();
+        Controller.on(ControllerEventName.NEW_TRANSACTION_CONFIRMED, refreshTransactions);
+
+        return () => {
+            Controller.removeListener(ControllerEventName.NEW_TRANSACTION_CONFIRMED, refreshTransactions);
+        };
+    }, isWalletReady, [currentAccount]);
+
+    const isTransactionsEmpty = confirmedTransactions.length === 0 && unconfirmedTransactions.length === 0;
+    const isLoading = !currentAccountInfo.isLoaded || isConfirmedTransactionsLoading || isUnconfirmedTransactionsLoading;
 
     return (
         <Screen
@@ -92,7 +107,7 @@ export const Home = connect((state) => ({
                     onNameChange={confirmRename}
                 />
             </FormItem>
-            {isMultisigAccount && (
+            {currentAccountInfo?.isMultisigAccount && (
                 <FormItem>
                     <Alert
                         type="warning"
@@ -107,7 +122,7 @@ export const Home = connect((state) => ({
                     <FormItem>
                         <h2>Request Action</h2>
                         {requests.map((item) => (
-                            <FormItem key={'unconfirmed' + item.hash}>
+                            <FormItem key={'request' + item.id}>
                                 <ItemRequestAction
                                     request={item}
                                     router={router}
@@ -119,29 +134,31 @@ export const Home = connect((state) => ({
                     </FormItem>
                 </>
             )}
-            {confirmedTransactions.length > 0 && (
-                <>
-                    <Spacer y={4} />
-                    <FormItem>
-                        <h2>{$t('screen_History')}</h2>
-                        <ScrollShadow visibility={confirmedTransactions.length > 5 ? 'bottom' : 'none'} size={100}>
-                            {unconfirmedTransactions.map((item) => (
-                                <FormItem key={'unconfirmed' + item.hash}>
-                                    <ItemTransaction group="unconfirmed" transaction={item} />
-                                </FormItem>
-                            ))}
-                            {limitedTransactions.map((item) => (
-                                <FormItem key={'confirmed' + item.hash}>
-                                    <ItemTransaction group="confirmed" transaction={item} />
-                                </FormItem>
-                            ))}
-                        </ScrollShadow>
-                        {confirmedTransactions.length > 5 && (
-                            <Button title={$t('button_openTransactionInExplorer')} onClick={openBlockExplorer} />
-                        )}
-                    </FormItem>
-                </>
-            )}
+            <Spacer y={4} />
+            <FormItem>
+                <h2>{$t('screen_History')}</h2>
+                <ScrollShadow visibility={confirmedTransactions.length > 5 ? 'bottom' : 'none'} size={100}>
+                    {unconfirmedTransactions.map((item) => (
+                        <FormItem key={'unconfirmed' + item.hash}>
+                            <ItemTransaction group="unconfirmed" transaction={item} />
+                        </FormItem>
+                    ))}
+                    {limitedTransactions.map((item) => (
+                        <FormItem key={'confirmed' + item.hash}>
+                            <ItemTransaction
+                                group="confirmed"
+                                transaction={item}
+                            />
+                        </FormItem>
+                    ))}
+                </ScrollShadow>
+                {confirmedTransactions.length > 5 && (
+                    <Button title={$t('button_openTransactionInExplorer')} onClick={openBlockExplorer} />
+                )}
+                {isTransactionsEmpty && (
+                    <p className='w-full text-center font-mono font-bold uppercase opacity-30'>{$t('message_emptyList')}</p>
+                )}
+            </FormItem>
             <Passcode />
         </Screen>
     );

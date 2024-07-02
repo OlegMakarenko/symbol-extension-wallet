@@ -1,17 +1,15 @@
 import { useInit } from '@/utils/hooks';
-import store, { connect } from '@/store';
 import makeCancellablePromise from 'make-cancellable-promise';
 import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import Controller from '@/core/Controller';
 
-export const GlobalStoreHandler = connect((state) => ({
-    currentAccount: state.account.current,
-    isWalletReady: state.wallet.isReady,
-}))(function GlobalStoreHandler(props) {
-    const { currentAccount, isWalletReady } = props;
+export const GlobalStoreHandler = observer(() => {
+    const { currentAccount, isWalletReady } = Controller;
     const [fetchPromise, setFetchPromise] = useState(null);
 
     const fetchAllData = async () => {
-        await store.dispatchAction({ type: 'wallet/fetchAll' });
+        await Controller.fetchAccountInfo(currentAccount.publicKey);
     };
 
     const handleInit = () => {

@@ -1,17 +1,11 @@
 import { config } from '@/config';
 import { Button, Card } from '@/components/index';
 import { $t } from '@/localization';
-import { connect } from '@/store';
 import { validateRequestAction } from '@/utils/validators';
 import { Divider } from '@nextui-org/react';
 import Countdown from 'react-countdown';
 
-export const ItemRequestAction = connect((state) => ({
-    currentAccount: state.account.current,
-    walletAccounts: state.wallet.accounts,
-    networkIdentifier: state.network.networkIdentifier,
-    ticker: state.network.ticker,
-}))(function ItemRequestAction(props) {
+export const ItemRequestAction = (props) => {
     const { request, onDetailsClick, onCancelClick } = props;
     const { sender, method, timestamp } = request;
     const errorMessage = validateRequestAction()(request);
@@ -57,4 +51,4 @@ export const ItemRequestAction = connect((state) => ({
             )}
         </Card>
     );
-});
+};

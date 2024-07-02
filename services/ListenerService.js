@@ -152,4 +152,10 @@ export class ListenerService {
         this.subscribeTo(ListenerChannelName.block);
         this.handlers[ListenerChannelName.block] = callback;
     }
+
+    listenTransactionError(callback) {
+        const channel = ListenerChannelName.status;
+        this.subscribeTo(`${channel}/${this.currentAccount.address}`);
+        this.handlers[channel] = callback;
+    }
 }

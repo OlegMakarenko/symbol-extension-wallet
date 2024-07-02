@@ -1,20 +1,21 @@
 
 import { AccountAvatar, Card } from '@/components/index';
 import { TransactionType } from '@/constants';
+import Controller from '@/core/Controller';
 import { $t } from '@/localization';
-import { connect } from '@/store';
 import { formatDate, getAddressName, trunc } from '@/utils/helper';
 import { isAggregateTransaction, isHarvestingServiceTransaction, isIncomingTransaction, isOutgoingTransaction } from '@/utils/transaction';
+import { observer } from 'mobx-react-lite';
 
-export const ItemTransaction = connect((state) => ({
-    currentAccount: state.account.current,
-    walletAccounts: state.wallet.accounts,
-    networkIdentifier: state.network.networkIdentifier,
-    //addressBook: state.addressBook.addressBook,
-    ticker: state.network.ticker,
-}))(function ItemTransaction(props) {
-    const { currentAccount, walletAccounts, networkIdentifier, addressBook, group, transaction, ticker, onPress } =
-        props;
+export const ItemTransaction = observer(function ItemTransaction(props) {
+    const { group, transaction, onPress } = props;
+    const {
+        currentAccount,
+        walletAccounts,
+        networkIdentifier,
+        addressBook = [],
+        ticker,
+    } = Controller;
     const accounts = walletAccounts[networkIdentifier];
     const { type, timestamp, amount, signerAddress, recipientAddress } = transaction;
     const isConfirmed = group === 'confirmed'

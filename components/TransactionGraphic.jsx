@@ -1,22 +1,16 @@
 /* eslint-disable react/display-name */
 import _ from 'lodash';
-import { connect } from '@/store';
 import { getAddressName, getColorFromHash, trunc } from '@/utils/helper';
 import { AccountAvatar } from './AccountAvatar';
 import { TableView } from './TableView';
 import { TransactionType } from '@/constants';
 import { $t } from '@/localization';
 import { filterCustomMosaics, getNativeMosaicAmount } from '@/utils/mosaic';
+import Controller from '@/core/Controller';
 
-export const TransactionGraphic = connect((state) => ({
-    //addressBook: state.addressBook.addressBook,
-    walletAccounts: state.wallet.accounts,
-    currentAccount: state.account.current,
-    networkIdentifier: state.network.networkIdentifier,
-    networkProperties: state.network.networkProperties,
-    ticker: state.network.ticker,
-}))(function TransactionGraphic(props) {
-    const { transaction, ticker, addressBook, currentAccount, networkIdentifier, networkProperties, walletAccounts } = props;
+export const TransactionGraphic = (props) => {
+    const { transaction } = props;
+    const { ticker, addressBook, currentAccount, networkIdentifier, networkProperties, walletAccounts } = Controller;
     const accounts = walletAccounts[networkIdentifier];
     const signerName = getAddressName(transaction.signerAddress, currentAccount, accounts, addressBook);
     const signerNameColorStyle = {
@@ -217,4 +211,4 @@ export const TransactionGraphic = connect((state) => ({
             <TableView data={getTableData()} />
         </div>
     );
-});
+};

@@ -1,18 +1,17 @@
 'use client'
 import Head from 'next/head';
-import { Provider } from 'react-redux';
 import { NextUIProvider } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { PersistentStorage, StorageMigration } from '@/storage';
 import { initLocalization } from '@/localization';
-import store from '@/store';
 import { Slide, ToastContainer } from 'react-toastify';
-import { Events } from '@/constants';
+import { ControllerEventName } from '@/constants';
 import { usePasscode } from '@/utils/hooks';
 import { Router, useRouter } from '@/components/Router';
 import { processRequestAction } from '@/utils/helper';
-import { GlobalStoreHandler } from '@/components/index';
+import { ConnectionStatus, GlobalStoreHandler } from '@/components/index';
 import { WalletController } from '@/core/WalletController';
+import Controller from '@/core/Controller';
 
 
 export default function Main({isReady}) {
@@ -22,12 +21,11 @@ export default function Main({isReady}) {
     const isMainFlowRendered = isWalletLoaded;
     const isWelcomeFlowRendered = !isMainFlowRendered && !isWalletStored;
 
-
     const load = async (password) => {
-        await store.dispatchAction({ type: 'wallet/loadAccounts', payload: password});
-        await store.dispatchAction({ type: 'wallet/loadAll' });
+        await Controller.loadCache(password);
         setIsWalletLoaded(true);
-        store.dispatchAction({ type: 'network/connect' });
+        Controller.runConnectionJob();
+        Controller.fetchMarketData();
 
         if (await WalletController.isRequestAutoOpenEnabled()) {
             const [requestAction] = await PersistentStorage.getRequestQueue();
@@ -40,11 +38,11 @@ export default function Main({isReady}) {
         await StorageMigration.migrate();
         await initLocalization();
 
-        const isWalletStored = await WalletController.isMnemonicStored();
+        const isWalletStored = await Controller.isWalletCreated();
         setIsWalletStored(isWalletStored);
         if (isWalletStored) requestPasscode();
     };
-    const onWalletStateChange = () => {
+    const onWalletLoginChange = () => {
         router.goToHome();
         init();
     }
@@ -53,12 +51,14 @@ export default function Main({isReady}) {
         // Initialize wallet and load data from cache
         init();
 
-        document.addEventListener(Events.LOGIN, onWalletStateChange);
-        document.addEventListener(Events.LOGOUT, onWalletStateChange);
+        Controller.on(ControllerEventName.LOGIN, onWalletLoginChange);
+        Controller.on(ControllerEventName.LOGOUT, onWalletLoginChange);
+        Controller.on(ControllerEventName.NETWORK_CHANGE, Controller.runConnectionJob)
 
         return () => {
-            document.removeEventListener(Events.LOGIN, onWalletStateChange);
-            document.removeEventListener(Events.LOGOUT, onWalletStateChange);
+            Controller.removeListener(ControllerEventName.LOGIN, onWalletLoginChange);
+            Controller.removeListener(ControllerEventName.LOGOUT, onWalletLoginChange);
+            Controller.removeListener(ControllerEventName.NETWORK_CHANGE, Controller.runConnectionJob)
         }
     }, []);
 
@@ -69,6 +69,7 @@ export default function Main({isReady}) {
             <Head>
                 <title>Symbol Wallet</title>
             </Head>
+            <ConnectionStatus />
             <ToastContainer
                 stacked
                 autoClose={1000}
@@ -82,20 +83,18 @@ export default function Main({isReady}) {
                 icon={false}
             />
             <NextUIProvider>
-                <Provider store={store}>
-                    <main className="dark text-foreground bg-background">
-                        {isReady && (
-                            <>
-                                <GlobalStoreHandler />
-                                <Router
-                                    isMainFlowRendered={isMainFlowRendered}
-                                    isWelcomeFlowRendered={isWelcomeFlowRendered}
-                                />
-                            </>
-                        )}
-                        <Passcode />
-                    </main>
-                </Provider>
+                <main className="dark text-foreground bg-background">
+                    {isReady && (
+                        <>
+                            <GlobalStoreHandler />
+                            <Router
+                                isMainFlowRendered={isMainFlowRendered}
+                                isWelcomeFlowRendered={isWelcomeFlowRendered}
+                            />
+                        </>
+                    )}
+                    <Passcode />
+                </main>
             </NextUIProvider>
         </>
     );

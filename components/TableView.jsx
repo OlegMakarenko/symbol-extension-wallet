@@ -5,6 +5,8 @@ import { $t } from '@/localization';
 import { connect } from 'react-redux';
 import { getAddressName } from '@/utils/helper';
 import { FormItem } from './FormItem';
+import Controller from '@/core/Controller';
+import { observer } from 'mobx-react-lite';
 
 const renderTypeMap = {
     address: [
@@ -73,13 +75,9 @@ const getMosaicIconSrc = (mosaic) =>
         : '/images/icon-select-mosaic-custom.png';
 const getMosaicStyle = (index) => `flex flex-row items-center ${index > 0 && 'mt-4'}`
 
-export const TableView = connect((state) => ({
-    currentAccount: state.account.current,
-    walletAccounts: state.wallet.accounts,
-    networkIdentifier: state.network.networkIdentifier,
-    ticker: state.network.ticker,
-}))(function TableView(props) {
-    const { currentAccount, walletAccounts, networkIdentifier, addressBook, data, ticker, showEmptyArrays, rawAddresses } = props;
+export const TableView = observer(function TableView(props) {
+    const { data, showEmptyArrays, rawAddresses } = props;
+    const { currentAccount, accounts: walletAccounts, networkIdentifier, addressBook, ticker} = Controller;
     const accounts = walletAccounts[networkIdentifier];
 
     if (!data || typeof data !== 'object') {

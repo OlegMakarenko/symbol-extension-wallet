@@ -1,9 +1,7 @@
-import { Checkbox, Input, Progress, ScrollShadow } from '@nextui-org/react';
+import { Checkbox, Progress } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { generateMnemonic } from '@/utils/wallet';
 import { $t } from '@/localization';
-import store from '@/store';
-import { Events } from '@/constants';
 import { useDataManager, usePasscode, useToggle, useValidation } from '@/utils/hooks';
 import { validateAccountName, validateRequired } from '@/utils/validators';
 import { TextBox } from '@/components/TextBox';
@@ -15,6 +13,7 @@ import { ButtonClose } from '@/components/ButtonClose';
 import { handleError } from '@/utils/helper';
 import { useRouter } from '@/components/Router';
 import { Button } from '@/components/index';
+import Controller from '@/core/Controller';
 
 
 export const CreateWallet = () => {
@@ -44,19 +43,11 @@ export const CreateWallet = () => {
         setTimeout(() => saveMnemonic(password), 1500);
     };
     const completeLoading = async () => {
-        document.dispatchEvent(new CustomEvent(Events.LOGIN));
+        Controller.notifyLoginCompleted();
     };
     const [saveMnemonic] = useDataManager(
         async (password) => {
-            await store.dispatchAction({
-                type: 'wallet/saveMnemonic',
-                payload: {
-                    mnemonic,
-                    name,
-                    password
-                },
-            });
-            await store.dispatchAction({ type: 'wallet/loadAll' });
+            await Controller.saveMnemonicAndGenerateAccounts({ mnemonic, name }, password);
             setLoadingStep(4);
             setTimeout(completeLoading, 500);
         },

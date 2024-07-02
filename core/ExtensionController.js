@@ -1,5 +1,5 @@
 import ObjectMultiplex from 'obj-multiplex';
-import { EXTENSION_MESSAGES, ExtensionPermissions, ExtensionRpcMethods, ProviderEvents, StreamName } from '@/constants';
+import { ExtensionMessages, ExtensionPermissions, ExtensionRpcMethods, ProviderEventNames, StreamName } from '@/constants';
 import pump from 'pump';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import { WalletController } from './WalletController';
@@ -18,10 +18,10 @@ export class ExtensionController {
 
         WalletController.listenNetworkProperties((value) => {
             const chainInfo = networkPropertiesToChainInfo(value);
-            this._notifyProvider(ProviderEvents.chainChanged, chainInfo);
+            this._notifyProvider(ProviderEventNames.chainChanged, chainInfo);
         })
         WalletController.listenCurrentAccount(() => {
-            this._notifyProvider(ProviderEvents.accountChanged);
+            this._notifyProvider(ProviderEventNames.accountChanged);
         })
     }
 
@@ -44,7 +44,7 @@ export class ExtensionController {
 
         // setup multiplexing
         const mux = new ObjectMultiplex();
-        mux.ignoreStream(EXTENSION_MESSAGES.CONNECTION_READY);
+        mux.ignoreStream(ExtensionMessages.CONNECTION_READY);
         pump(connectionStream, mux, connectionStream, () => {
             delete this.connections[sender.documentId];
         });

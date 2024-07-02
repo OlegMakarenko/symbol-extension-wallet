@@ -1,4 +1,4 @@
-import { Events } from '@/constants';
+import { WalletEventNames } from '@/constants';
 import { InpageProvider } from './InpageProvider';
 import {
     isDomainBlocked,
@@ -47,7 +47,7 @@ export const initializeProvider = ({ connectionStream, providerInfo }) => {
 
 const setGlobalProvider = (providerInstance) => {
     window.SymbolWallet = providerInstance;
-    window.dispatchEvent(new Event(Events.PROVIDER_INITIALIZED));
+    window.dispatchEvent(new Event(WalletEventNames.PROVIDER_INITIALIZED));
 }
 
 /**
@@ -68,16 +68,16 @@ const announceProvider = (providerDetail) => {
 
     const _announceProvider = () =>
         window.dispatchEvent(
-            new CustomEvent(Events.PROVIDER_ANNOUNCE, {
+            new CustomEvent(WalletEventNames.PROVIDER_ANNOUNCE, {
                 detail: Object.freeze({ info: { ...info }, provider }),
             }),
         );
 
     _announceProvider();
-    window.addEventListener(Events.PROVIDER_REQUEST, event => {
+    window.addEventListener(WalletEventNames.PROVIDER_REQUEST, event => {
         if (!isValidRequestProviderEvent(event)) {
             throwError(
-                `Invalid RequestProviderEvent object received from ${Events.PROVIDER_REQUEST} event.`,
+                `Invalid RequestProviderEvent object received from ${WalletEventNames.PROVIDER_REQUEST} event.`,
             );
         }
         _announceProvider();
@@ -92,16 +92,16 @@ const announceProvider = (providerDetail) => {
  * @param handleProvider - A function that handles an announced provider.
  */
 export const requestProvider = (handleProvider) => {
-    window.addEventListener(Events.PROVIDER_ANNOUNCE, (event) => {
+    window.addEventListener(WalletEventNames.PROVIDER_ANNOUNCE, (event) => {
         if (!isValidAnnounceProviderEvent(event)) {
             throwError(
-                `Invalid AnnounceProviderEvent object received from ${Events.PROVIDER_ANNOUNCE} event.`,
+                `Invalid AnnounceProviderEvent object received from ${WalletEventNames.PROVIDER_ANNOUNCE} event.`,
             );
         }
         handleProvider(event.detail);
     });
 
-    window.dispatchEvent(new Event(Events.PROVIDER_REQUEST));
+    window.dispatchEvent(new Event(WalletEventNames.PROVIDER_REQUEST));
 }
 
 /**

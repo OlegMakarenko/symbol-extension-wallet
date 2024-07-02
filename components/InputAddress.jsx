@@ -1,18 +1,16 @@
 import { useEffect, useMemo } from 'react';
-import { connect } from '@/store';
 import { AccountAvatar } from '@/components/index';
 import { $t } from '@/localization';
 import { classNames } from '@/styles/class-names';
 import { Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import { useValidation } from '@/utils/hooks';
 import { validateRequired, validateUnresolvedAddress } from '@/utils/validators';
+import { observer } from 'mobx-react-lite';
+import Controller from '@/core/Controller';
 
-export const InputAddress = connect((state) => ({
-    addressBookWhiteList: [],//state.addressBook.whiteList,
-    accounts: state.wallet.accounts,
-    networkIdentifier: state.network.networkIdentifier,
-}))(function InputAddress(props) {
-    const { addressBookWhiteList, accounts, networkIdentifier, title, value, onChange, onValidityChange } = props;
+export const InputAddress = observer(function InputAddress(props) {
+    const { title, value, onChange, onValidityChange } = props;
+    const { addressBookWhiteList = [], accounts, networkIdentifier } = Controller;
     const errorMessage = useValidation(value, [validateRequired(), validateUnresolvedAddress()], $t);
 
     const networkAccounts = accounts[networkIdentifier];

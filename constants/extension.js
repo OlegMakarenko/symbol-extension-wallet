@@ -4,7 +4,7 @@ export const StreamName = {
     PROVIDER: 'symbol-provider',
 }
 
-export const EXTENSION_MESSAGES = {
+export const ExtensionMessages = {
     CONNECTION_READY: 'CONNECTION_READY',
     READY: 'METAMASK_EXTENSION_READY',
 }
@@ -27,7 +27,7 @@ export const ExtensionPermissions = {
     accountInfo: 'accountInfo',
 }
 
-export const ProviderEvents = {
+export const ProviderEventNames = {
     accountChanged: 'accountChanged',
     chainChanged: 'chainChanged',
     connect: 'connect',

@@ -14,7 +14,6 @@
             "@/services": ["services/index.js"],
             "@/styles/*": ["styles/*"],
             "@/storage": ["storage/index.js"],
-            "@/store": ["store/index.js"],
             "@/utils/*": ["utils/*"]
         }
     },

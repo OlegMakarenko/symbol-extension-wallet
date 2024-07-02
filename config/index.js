@@ -20,6 +20,7 @@ export const config = {
     optInPayoutSigner: configFile.optInPayoutSigner,
     networkIdentifiers: configFile.networkIdentifiers,
     defaultNetworkIdentifier: configFile.defaultNetworkIdentifier,
+    ticker: configFile.ticker,
     maxSeedAccounts: configFile.maxSeedAccounts,
     connectionInterval: configFile.connectionInterval,
     allowedMarkedDataCallInterval: configFile.allowedMarkedDataCallInterval,

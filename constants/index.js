@@ -4,7 +4,7 @@ export const DEFAULT_ACCOUNT_NAME = 'My Account';
 
 export const MAX_SEED_ACCOUNTS_PER_NETWORK = 10;
 
-export const Events = {
+export const WalletEventNames = {
     CONFIRMED_TRANSACTION: 'event.listener.confirmed',
     PARTIAL_TRANSACTION: 'event.listener.partial',
     LOGOUT: 'event.app.logout',
@@ -12,6 +12,18 @@ export const Events = {
     PROVIDER_ANNOUNCE: 'symbol:announceProvider',
     PROVIDER_REQUEST: 'symbol:requestProvider',
     PROVIDER_INITIALIZED: 'symbol:initialized'
+};
+
+export const ControllerEventName = {
+    LOGOUT: 'symbol:app.logout',
+    LOGIN: 'symbol:app.login',
+    NEW_TRANSACTION_CONFIRMED: 'symbol:transaction.confirmed',
+    NEW_TRANSACTION_UNCONFIRMED: 'symbol:transaction.unconfirmed',
+    NEW_TRANSACTION_PARTIAL: 'symbol:transaction.partial',
+    TRANSACTION_ERROR: 'symbol:transaction.error',
+    ACCOUNT_CHANGE: 'symbol:account.change',
+    NETWORK_CHANGE: 'symbol:network.change',
+    ERROR: 'symbol:app.error',
 };
 
 export const WalletAccountType = {

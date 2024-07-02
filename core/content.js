@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 import { shouldInjectProvider } from './provider-injection';
 import { WindowPostMessageStream } from '@metamask/post-message-stream';
 import ObjectMultiplex from 'obj-multiplex';
-import { EXTENSION_MESSAGES, ProviderEvents, StreamName } from '@/constants';
+import { ExtensionMessages, ProviderEventNames, StreamName } from '@/constants';
 import pump from 'pump';
 import PortStream from 'extension-port-stream';
 
@@ -61,7 +61,7 @@ const setupExtensionStreams = () => {
 };
 
 /**
- * When the extension background is loaded it sends the EXTENSION_MESSAGES.READY message to the browser tabs.
+ * When the extension background is loaded it sends the ExtensionMessages.READY message to the browser tabs.
  * This listener/callback receives the message to set up the streams after service worker in-activity.
  *
  * @param {object} msg
@@ -69,12 +69,12 @@ const setupExtensionStreams = () => {
  * @returns {Promise|undefined}
  */
 const onMessageSetUpExtensionStreams = (msg) => {
-    if (msg.name === EXTENSION_MESSAGES.READY) {
+    if (msg.name === ExtensionMessages.READY) {
         if (!extensionStream) {
             setupExtensionStreams();
         }
 
-        return Promise.resolve(`SymbolWallet: handled ${EXTENSION_MESSAGES.READY}`);
+        return Promise.resolve(`SymbolWallet: handled ${ExtensionMessages.READY}`);
     }
 
     return undefined;
@@ -160,7 +160,7 @@ const notifyInpageOfStreamFailure = (error) => {
                 name: StreamName.PROVIDER, // the obj-multiplex channel name
                 data: {
                     event: {
-                        type: ProviderEvents.disconnect,
+                        type: ProviderEventNames.disconnect,
                         data: error?.message
                     }
                 },

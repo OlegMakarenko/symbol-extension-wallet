@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { createOptInPrivateKeyFromMnemonic } from '@/utils/wallet';
 import { $t } from '@/localization';
-import store from '@/store';
-import { Events } from '@/constants';
 import { useDataManager, usePasscode, useValidation } from '@/utils/hooks';
 import { validateMnemonic, validateRequired } from '@/utils/validators';
 import { TextBox } from '@/components/TextBox';
@@ -13,6 +11,7 @@ import { ButtonClose } from '@/components/ButtonClose';
 import { handleError } from '@/utils/helper';
 import { useRouter } from '@/components/Router';
 import { Button } from '@/components/index';
+import Controller from '@/core/Controller';
 
 export const ImportWallet = () => {
     const router = useRouter();
@@ -50,15 +49,11 @@ export const ImportWallet = () => {
     );
     const [saveMnemonic] = useDataManager(
         async (password, optInPrivateKey) => {
-            await store.dispatchAction({
-                type: 'wallet/saveMnemonic',
-                payload: {
-                    mnemonic: mnemonic.trim(),
-                    name,
-                    optInPrivateKey,
-                    password
-                },
-            });
+            await Controller.saveMnemonicAndGenerateAccounts({
+                mnemonic: mnemonic.trim(),
+                name,
+                optInPrivateKey
+            }, password);
             setLoadingStep(5);
             setTimeout(completeLoading, 500);
         },
@@ -72,7 +67,7 @@ export const ImportWallet = () => {
         setTimeout(() => checkOptInAccounts(password), 1500);
     };
     const completeLoading = async () => {
-        document.dispatchEvent(new CustomEvent(Events.LOGIN));
+        Controller.notifyLoginCompleted();
     };
     const [Passcode, createPasscode] = usePasscode(startLoading);
 

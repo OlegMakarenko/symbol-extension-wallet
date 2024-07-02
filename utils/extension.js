@@ -1,5 +1,5 @@
 import { config } from '@/config';
-import { Events } from '@/constants';
+import { WalletEventNames } from '@/constants';
 import { isObject } from '@metamask/utils';
 
 
@@ -114,7 +114,7 @@ export const isValidProviderDetail = (providerDetail) => {
  * @returns Whether the RequestProviderEvent is valid.
  */
 export const isValidRequestProviderEvent = (event) =>
-    event instanceof Event && event.type === Events.PROVIDER_REQUEST;
+    event instanceof Event && event.type === WalletEventNames.PROVIDER_REQUEST;
 
 /**
  * Validates an AnnounceProviderEvent object.
@@ -124,7 +124,7 @@ export const isValidRequestProviderEvent = (event) =>
  */
 export const isValidAnnounceProviderEvent = (event) => (
     event instanceof CustomEvent &&
-    event.type === Events.PROVIDER_ANNOUNCE &&
+    event.type === WalletEventNames.PROVIDER_ANNOUNCE &&
     Object.isFrozen(event.detail) &&
     isValidProviderDetail(event.detail)
 );

@@ -4,17 +4,14 @@ import { Screen } from '@/components/Screen';
 import { TableView } from '@/components/TableView';
 import { TitleBar } from '@/components/TitleBar';
 import { config } from '@/config';
+import Controller from '@/core/Controller';
 import { $t } from '@/localization';
 import { Button } from '@nextui-org/react';
-import { connect } from 'react-redux';
+import { observer } from 'mobx-react-lite';
 
-
-export const AccountDetails = connect((state) => ({
-    currentAccount: state.account.current,
-    multisigAddresses: state.account.multisigAddresses,
-    networkIdentifier: state.network.networkIdentifier,
-}))(function AccountDetails(props) {
-    const { currentAccount, multisigAddresses, networkIdentifier } = props;
+export const AccountDetails = observer(function AccountDetails() {
+    const { currentAccount, currentAccountInfo, networkIdentifier } = Controller;
+    const { multisigAddresses } = currentAccountInfo;
     const { index, ...restAccountInfo } = currentAccount;
     const tableData = {
         ...restAccountInfo,

@@ -2,7 +2,7 @@ import SafeEventEmitter from '@metamask/safe-event-emitter';
 import { v4 as uuid } from 'uuid';
 import { Duplex, pipeline } from 'readable-stream';
 import ObjectMultiplex from 'obj-multiplex';
-import { ExtensionRpcMethods, ProviderEvents, StreamName } from '@/constants';
+import { ExtensionRpcMethods, ProviderEventNames, StreamName } from '@/constants';
 
 export class InpageProvider extends SafeEventEmitter {
     _log;
@@ -99,7 +99,7 @@ export class InpageProvider extends SafeEventEmitter {
             const networkInfo = await this.request({ method: ExtensionRpcMethods.getChainInfo });
             if (networkInfo) {
                 this._state.isConnected = true;
-                this.emit(ProviderEvents.connect);
+                this.emit(ProviderEventNames.connect);
             }
         }
         catch (error) {
@@ -112,7 +112,7 @@ export class InpageProvider extends SafeEventEmitter {
         const message = payload.data;
 
         if (!message) {
-            this.emit(ProviderEvents.message, payload);
+            this.emit(ProviderEventNames.message, payload);
             return;
         }
 
@@ -126,19 +126,19 @@ export class InpageProvider extends SafeEventEmitter {
             pendingRequest.resolve(result);
         }
 
-        if (event?.type === ProviderEvents.chainChanged) {
-            this.emit(ProviderEvents.chainChanged, event.data);
+        if (event?.type === ProviderEventNames.chainChanged) {
+            this.emit(ProviderEventNames.chainChanged, event.data);
         }
-        else if (event?.type === ProviderEvents.accountChanged) {
-            this.emit(ProviderEvents.accountChanged);
+        else if (event?.type === ProviderEventNames.accountChanged) {
+            this.emit(ProviderEventNames.accountChanged);
         }
-        else if (event?.type === ProviderEvents.disconnect) {
+        else if (event?.type === ProviderEventNames.disconnect) {
             this._handleStreamDisconnect(event.data);
         }
 
         delete this._pendingRequests[id];
 
-        this.emit(ProviderEvents.message, message);
+        this.emit(ProviderEventNames.message, message);
     }
 
     _handleStreamDisconnect = (error) => {
@@ -148,6 +148,6 @@ export class InpageProvider extends SafeEventEmitter {
         this._pendingRequests = {};
         this._state.isConnected = false;
 
-        this.emit(ProviderEvents.disconnect, error);
+        this.emit(ProviderEventNames.disconnect, error);
     }
 };

@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import store, { connect } from '@/store';
 import { useDataManager, useInit, usePasscode, useToggle } from '@/utils/hooks';
 import { MosaicService, NamespaceService, TransactionService } from '@/services';
 import { Divider, Spacer } from '@nextui-org/react';
@@ -12,19 +11,12 @@ import { Button, Screen, FormItem, TableView, Alert, DialogBox, TitleBar, FeeSel
 import { $t } from '@/localization';
 import { networkIdentifierToNetworkType } from '@/utils/network';
 import { WalletController } from '@/core/WalletController';
+import { observer } from 'mobx-react-lite';
 
-export const TransactionRequest = connect((state) => ({
-    currentAccount: state.account.current,
-    cosignatories: state.account.cosignatories,
-    isMultisigAccount: state.account.isMultisig,
-    isAccountReady: state.account.isReady,
-    isWalletReady: state.wallet.isReady,
-    networkProperties: state.network.networkProperties,
-    ticker: state.network.ticker,
-    price: state.market.price,
-}))(function TransactionRequest(props) {
-    const { currentAccount, cosignatories, isMultisigAccount, isAccountReady, isWalletReady, networkProperties, ticker, price } =
+export const TransactionRequest = observer(function TransactionRequest(props) {
+    const { currentAccount, currentAccountInfo, isWalletReady, networkProperties, ticker, price } =
         props;
+    const { cosignatories, isMultisigAccount } = currentAccountInfo;
     const router = useRouter();
     const { state } = useLocation();
     const [transaction, setTransaction] = useState(null);
@@ -119,18 +111,9 @@ export const TransactionRequest = connect((state) => ({
         }
     }, [transactionFees, speed, transaction]);
 
-    useEffect(() => {
-        if (isAccountReady) loadTransaction(state.transactionPayload, state.generationHash);
-    }, [state, currentAccount, isAccountReady]);
-
-    const [loadState, isStateLoading] = useDataManager(
-        async () => {
-            await store.dispatchAction({ type: 'wallet/fetchAll' });
-        },
-        null,
-        handleError
-    );
-    useInit(loadState, isWalletReady, [currentAccount]);
+    useInit(() => {
+        loadTransaction(state.transactionPayload, state.generationHash);
+    }, isWalletReady, [state, currentAccount]);
 
     const clearAndLeave = async () => {
         await WalletController.removeRequests([state.id]);
@@ -138,7 +121,7 @@ export const TransactionRequest = connect((state) => ({
     }
 
     const isButtonDisabled = !isTransactionLoaded || !isNetworkSupported || isMultisigAccount;
-    const isLoading = !isAccountReady || isTransactionLoading || isSending || isStateLoading;
+    const isLoading = !isWalletReady || isTransactionLoading || isSending || isStateLoading;
 
     return (
         <Screen
