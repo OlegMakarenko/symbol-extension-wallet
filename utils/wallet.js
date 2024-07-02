@@ -1,30 +1,35 @@
-import { ExtendedKey, MnemonicPassPhrase, Network, Wallet } from 'symbol-hd-wallets';
 import { createNetworkMap } from './helper';
 import { createWalletStorageAccount, publicAccountFromPrivateKey } from './account';
 import { DEFAULT_ACCOUNT_NAME, MAX_SEED_ACCOUNTS_PER_NETWORK, WalletAccountType } from '@/constants';
 import { optInWhiteList } from '@/config';
+import { Bip32 } from 'symbol-sdk';
+import { SymbolFacade } from 'symbol-sdk/symbol';
 
 export const generateMnemonic = () => {
-    return MnemonicPassPhrase.createRandom().plain;
+    const bip = new Bip32();
+    const mnemonic = bip.random();
+
+    return mnemonic.toString();
 };
 
-export const createPrivateKeysFromMnemonic = (mnemonic, indexes, networkIdentifier, curveType) => {
-    const mnemonicPassPhrase = new MnemonicPassPhrase(mnemonic);
-    const seed = mnemonicPassPhrase.toSeed().toString('hex');
-    const curve = curveType === 'optin' ? Network.BITCOIN : Network.SYMBOL;
-    const extendedKey = ExtendedKey.createFromSeed(seed, curve);
-    const wallet = new Wallet(extendedKey);
+export const createPrivateKeysFromMnemonic = (mnemonic, indexes, networkIdentifier, isOptInCurve) => {
+    const facade = new SymbolFacade(networkIdentifier);
+    const symbolCurve = facade.static.BIP32_CURVE_NAME;
+    const optInCurve = 'secp256k1';
+    const curve = isOptInCurve ? optInCurve : symbolCurve;
+    const bip = new Bip32(curve);
+	const rootNode = bip.fromMnemonic(mnemonic, '');
 
     const privateKeys = indexes.map((index) => {
-        const pathTestnet = `m/44'/1'/${index}'/0'/0'`;
-        const pathMainnet = `m/44'/4343'/${index}'/0'/0'`;
-        const path = networkIdentifier === 'mainnet' ? pathMainnet : pathTestnet;
+        const path = facade.bip32Path(index);
+        const childNode = rootNode.derivePath(path);
+        const childKeyPair = facade.constructor.bip32NodeToKeyPair(childNode);
 
-        return wallet.getChildAccountPrivateKey(path);
+        return childKeyPair.privateKey.toString();
     });
 
     return privateKeys;
-};
+}
 
 export const createOptInPrivateKeyFromMnemonic = (mnemonic) => {
     const [optInPrivateKey] = createPrivateKeysFromMnemonic(mnemonic.trim(), [0], 'mainnet', 'optin');

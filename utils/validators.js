@@ -1,7 +1,7 @@
-import { MnemonicPassPhrase } from 'symbol-hd-wallets';
 import { isSymbolAddress } from './account';
 import { ExtensionRpcMethods } from '@/constants';
 import { isInteger } from 'lodash';
+import { Bip32 } from 'symbol-sdk';
 
 export const validateRequired =
     (isRequired = true) =>
@@ -24,8 +24,16 @@ export const validateKey = () => (str) => {
 };
 
 export const validateMnemonic = () => (str) => {
-    const mnemonicPassPhrase = new MnemonicPassPhrase(str.trim());
-    const isValidMnemonic = mnemonicPassPhrase.isValid();
+    let isValidMnemonic;
+    const bip = new Bip32();
+
+    try {
+        bip.fromMnemonic(str.trim(), '');
+        isValidMnemonic = true;
+    }
+    catch {
+        isValidMnemonic = false;
+    }
 
     if (!isValidMnemonic) {
         return 'validation_error_mnemonic_invalid';
