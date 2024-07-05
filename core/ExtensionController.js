@@ -2,7 +2,7 @@ import ObjectMultiplex from 'obj-multiplex';
 import { ExtensionMessages, ExtensionPermissions, ExtensionRpcMethods, ProviderEventNames, StreamName } from '@/constants';
 import pump from 'pump';
 import { sanitizeUrl } from '@braintree/sanitize-url';
-import { WalletController } from './WalletController';
+import { ExtensionWalletController } from './ExtensionWalletController';
 import { networkPropertiesToChainInfo } from '@/utils/network';
 
 const MAX_OPEN_POPUPS = 1;
@@ -16,11 +16,11 @@ export class ExtensionController {
             this.openPopupIds = this.openPopupIds.filter(popupId => popupId !== closedPopupId);
         });
 
-        WalletController.listenNetworkProperties((value) => {
+        ExtensionWalletController.listenNetworkProperties((value) => {
             const chainInfo = networkPropertiesToChainInfo(value);
             this._notifyProvider(ProviderEventNames.chainChanged, chainInfo);
         })
-        WalletController.listenCurrentAccount(() => {
+        ExtensionWalletController.listenCurrentAccount(() => {
             this._notifyProvider(ProviderEventNames.accountChanged);
         })
     }
@@ -114,7 +114,7 @@ export class ExtensionController {
         const payload = {
             transactionPayload
         };
-        await WalletController.addRequest(sender, method, payload);
+        await ExtensionWalletController.addActionRequest(sender, method, payload);
 
         this.openWalletPopup();
     }
@@ -126,7 +126,7 @@ export class ExtensionController {
             throw Error('Invalid permission');
         }
 
-        const isPermissionAlreadyGranted = await WalletController.hasPermission(sender.origin, permission);
+        const isPermissionAlreadyGranted = await ExtensionWalletController.hasPermission(sender.origin, permission);
 
         if (isPermissionAlreadyGranted) {
             return;
@@ -134,30 +134,30 @@ export class ExtensionController {
 
         const method = ExtensionRpcMethods.requestPermission;
         const payload = permission;
-        await WalletController.addRequest(sender, method, payload);
+        await ExtensionWalletController.addActionRequest(sender, method, payload);
 
         this.openWalletPopup();
     }
 
     getAccountInfo = async (sender) => {
-        const isPermissionGranted = await WalletController.hasPermission(sender.origin, ExtensionPermissions.accountInfo);
+        const isPermissionGranted = await ExtensionWalletController.hasPermission(sender.origin, ExtensionPermissions.accountInfo);
 
         if (!isPermissionGranted) {
             throw Error('No permission')
         }
 
-        return WalletController.getAccountInfo();
+        return ExtensionWalletController.getAccountInfo();
     }
 
     getPermissions = async (sender) => {
-        const allPermissions = await WalletController.getPermissions();
+        const allPermissions = await ExtensionWalletController.getPermissions();
         const originPermissions = allPermissions[sender.origin];
 
         return originPermissions || [];
     }
 
     getChainInfo = async () => {
-        const networkProperties = await WalletController.getNetworkProperties();
+        const networkProperties = await ExtensionWalletController.getNetworkProperties();
 
         return networkPropertiesToChainInfo(networkProperties);
     }
@@ -167,7 +167,7 @@ export class ExtensionController {
             return;
         }
 
-        const isAppLaunchAllowed = await WalletController.isExternalAppLaunchEnabled();
+        const isAppLaunchAllowed = await ExtensionWalletController.isAppLaunchEnabled();
 
         if (!isAppLaunchAllowed) {
             return;

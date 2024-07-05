@@ -1,17 +1,17 @@
 
 import { Card, DialogBox, DropdownModal, FormItem, Screen, TableView, TitleBar, useRouter } from '@/components/index';
 import { config } from '@/config';
-import { WalletController } from '@/core/WalletController';
+import { ExtensionWalletController } from '@/core/ExtensionWalletController';
 import { $t, getLanguages, initLocalization, setCurrentLanguage } from '@/localization';
 import { handleError } from '@/utils/helper';
 import { useAsyncState, useDataManager, usePasscode, useToggle } from '@/utils/hooks';
 import packageJSON from '../package.json';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 import { observer } from 'mobx-react-lite';
 
 export const Settings = observer(function Settings() {
     const router = useRouter();
-    const { userCurrency, networkIdentifier } = Controller;
+    const { userCurrency, networkIdentifier } = WalletController;
     const [isLogoutConfirmVisible, toggleLogoutConfirm] = useToggle(false);
     const [isNetworkSelectorVisible, toggleNetworkSelector] = useToggle(false);
     const [isLanguageSelectorVisible, toggleLanguageSelector] = useToggle(false);
@@ -94,23 +94,24 @@ export const Settings = observer(function Settings() {
     ];
 
     const [selectNetwork, isNetworkLoading] = useDataManager(
-        async () => {
-            await Controller.selectNetwork(networkIdentifier);
+        async (networkIdentifier) => {
+            await WalletController.selectNetwork(networkIdentifier);
+            WalletController.runConnectionJob();
             router.goBack();
         },
         null,
         handleError
     );
-    const [requestOption, setRequestOption] = useAsyncState(WalletController.getRequestAutoOpen,WalletController.setRequestAutoOpen);
+    const [requestOption, setRequestOption] = useAsyncState(ExtensionWalletController.getAppLaunchMode,ExtensionWalletController.setAppLaunchMode);
     const changeLanguage = (language) => {
         setCurrentLanguage(language);
         router.goToHome();
     };
     const changeUserCurrency = (userCurrency) => {
-        Controller.selectUserCurrency(userCurrency);
+        WalletController.selectUserCurrency(userCurrency);
     };
     const logoutConfirm = async () => {
-        Controller.logoutAndClearStorage();
+        WalletController.logoutAndClearStorage();
         initLocalization();
     };
     const [Passcode, showLogoutPasscode] = usePasscode(logoutConfirm);

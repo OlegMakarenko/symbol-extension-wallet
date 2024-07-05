@@ -6,11 +6,11 @@ import { Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import { useValidation } from '@/utils/hooks';
 import { validateRequired, validateUnresolvedAddress } from '@/utils/validators';
 import { observer } from 'mobx-react-lite';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 
 export const InputAddress = observer(function InputAddress(props) {
     const { title, value, onChange, onValidityChange } = props;
-    const { addressBookWhiteList = [], accounts, networkIdentifier } = Controller;
+    const { addressBookWhiteList = [], accounts, networkIdentifier } = WalletController;
     const errorMessage = useValidation(value, [validateRequired(), validateUnresolvedAddress()], $t);
 
     const networkAccounts = accounts[networkIdentifier];

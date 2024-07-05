@@ -10,8 +10,8 @@ import { usePasscode } from '@/utils/hooks';
 import { Router, useRouter } from '@/components/Router';
 import { processRequestAction } from '@/utils/helper';
 import { ConnectionStatus, GlobalStoreHandler } from '@/components/index';
-import { WalletController } from '@/core/WalletController';
-import Controller from '@/core/Controller';
+import { ExtensionWalletController } from '@/core/ExtensionWalletController';
+import WalletController from '@/core/WalletController';
 
 
 export default function Main({isReady}) {
@@ -22,12 +22,12 @@ export default function Main({isReady}) {
     const isWelcomeFlowRendered = !isMainFlowRendered && !isWalletStored;
 
     const load = async (password) => {
-        await Controller.loadCache(password);
+        await WalletController.loadCache(password);
         setIsWalletLoaded(true);
-        Controller.runConnectionJob();
-        Controller.fetchMarketData();
+        WalletController.runConnectionJob();
+        WalletController.fetchMarketData();
 
-        if (await WalletController.isRequestAutoOpenEnabled()) {
+        if (await ExtensionWalletController.isAppLaunchWithConfirmEnabled()) {
             const [requestAction] = await PersistentStorage.getRequestQueue();
             processRequestAction(requestAction, router);
         }
@@ -38,7 +38,7 @@ export default function Main({isReady}) {
         await StorageMigration.migrate();
         await initLocalization();
 
-        const isWalletStored = await Controller.isWalletCreated();
+        const isWalletStored = await WalletController.isWalletCreated();
         setIsWalletStored(isWalletStored);
         if (isWalletStored) requestPasscode();
     };
@@ -51,14 +51,12 @@ export default function Main({isReady}) {
         // Initialize wallet and load data from cache
         init();
 
-        Controller.on(ControllerEventName.LOGIN, onWalletLoginChange);
-        Controller.on(ControllerEventName.LOGOUT, onWalletLoginChange);
-        Controller.on(ControllerEventName.NETWORK_CHANGE, Controller.runConnectionJob)
+        WalletController.on(ControllerEventName.LOGIN, onWalletLoginChange);
+        WalletController.on(ControllerEventName.LOGOUT, onWalletLoginChange);
 
         return () => {
-            Controller.removeListener(ControllerEventName.LOGIN, onWalletLoginChange);
-            Controller.removeListener(ControllerEventName.LOGOUT, onWalletLoginChange);
-            Controller.removeListener(ControllerEventName.NETWORK_CHANGE, Controller.runConnectionJob)
+            WalletController.removeListener(ControllerEventName.LOGIN, onWalletLoginChange);
+            WalletController.removeListener(ControllerEventName.LOGOUT, onWalletLoginChange);
         }
     }, []);
 

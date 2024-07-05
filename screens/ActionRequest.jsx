@@ -3,7 +3,7 @@ import { usePasscode } from '@/utils/hooks';
 import { useLocation } from 'react-router-dom';
 import { Button, Screen, FormItem, TitleBar, useRouter, Card } from '@/components/index';
 import { $t } from '@/localization';
-import { WalletController } from '@/core/WalletController';
+import { ExtensionWalletController } from '@/core/ExtensionWalletController';
 import { ExtensionRpcMethods } from '@/constants';
 
 export const ActionRequest = () => {
@@ -16,7 +16,7 @@ export const ActionRequest = () => {
     const handleAction = async () => {
         switch (state.method) {
             case ExtensionRpcMethods.requestPermission:
-                await WalletController.addPermission(state.sender.origin, state.payload)
+                await ExtensionWalletController.addPermission(state.sender.origin, state.payload)
         }
 
         clearAndLeave();
@@ -24,7 +24,7 @@ export const ActionRequest = () => {
     const [Passcode, confirmAction] = usePasscode(handleAction);
 
     const clearAndLeave = async () => {
-        await WalletController.removeRequests([state.id]);
+        await ExtensionWalletController.removeActionRequests([state.id]);
         router.goToHome();
     }
 
@@ -47,7 +47,7 @@ export const ActionRequest = () => {
                 <p>{description}</p>
             </FormItem>
             <div className="flex-1 flex flex-col items-center justify-around">
-                <div className="flex flex-col items-center text-center mb-4">
+                <div className="w-full flex flex-col items-center text-center mb-4">
                     <img src={state.sender.icon} className="bg-white h-32 mx-auto mb-4 rounded-full" />
                     <p className="font-mono leading-tight w-3/4 truncate ...">{state.sender.title}</p>
                     <p className="font-mono opacity-70 leading-tight w-3/4 truncate ...">{state.sender.origin}</p>

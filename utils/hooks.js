@@ -79,7 +79,7 @@ export const usePromises = (initialPromiseMap, errorHandler) => {
     return [promiseMap, setPromiseMap];
 };
 
-export const useDataManager = (callback, defaultData, onError, resetKey) => {
+export const useDataManager = (callback, defaultData, onError) => {
     const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState(defaultData);
 
@@ -100,7 +100,11 @@ export const useDataManager = (callback, defaultData, onError, resetKey) => {
 
     useEffect(() => {
         setData(defaultData);
-    }, [defaultData]);
+    }, []);
+
+    // useEffect(() => {
+    //     setData(defaultData);
+    // }, [defaultData]);
 
     return [call, isLoading, data];
 };

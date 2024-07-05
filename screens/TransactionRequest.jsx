@@ -10,7 +10,7 @@ import { transactionFromSymbol } from '@/utils/transaction-from-symbol';
 import { Button, Screen, FormItem, TableView, Alert, DialogBox, TitleBar, FeeSelector, useRouter, TransactionGraphic } from '@/components/index';
 import { $t } from '@/localization';
 import { networkIdentifierToNetworkType } from '@/utils/network';
-import { WalletController } from '@/core/WalletController';
+import { ExtensionWalletController } from '@/core/ExtensionWalletController';
 import { observer } from 'mobx-react-lite';
 
 export const TransactionRequest = observer(function TransactionRequest(props) {
@@ -116,7 +116,7 @@ export const TransactionRequest = observer(function TransactionRequest(props) {
     }, isWalletReady, [state, currentAccount]);
 
     const clearAndLeave = async () => {
-        await WalletController.removeRequests([state.id]);
+        await ExtensionWalletController.removeActionRequests([state.id]);
         router.goToHome();
     }
 

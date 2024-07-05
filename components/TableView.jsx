@@ -2,10 +2,9 @@ import { isSymbolAddress } from '@/utils/account';
 import { AccountAvatar } from './AccountAvatar';
 import { ButtonCopy } from './ButtonCopy';
 import { $t } from '@/localization';
-import { connect } from 'react-redux';
 import { getAddressName } from '@/utils/helper';
 import { FormItem } from './FormItem';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 import { observer } from 'mobx-react-lite';
 
 const renderTypeMap = {
@@ -77,7 +76,7 @@ const getMosaicStyle = (index) => `flex flex-row items-center ${index > 0 && 'mt
 
 export const TableView = observer(function TableView(props) {
     const { data, showEmptyArrays, rawAddresses } = props;
-    const { currentAccount, accounts: walletAccounts, networkIdentifier, addressBook, ticker} = Controller;
+    const { currentAccount, accounts: walletAccounts, networkIdentifier, addressBook, ticker} = WalletController;
     const accounts = walletAccounts[networkIdentifier];
 
     if (!data || typeof data !== 'object') {

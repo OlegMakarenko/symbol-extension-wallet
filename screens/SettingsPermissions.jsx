@@ -1,6 +1,6 @@
 
 import { Button, Card, FormItem, Screen, TitleBar } from '@/components/index';
-import { WalletController } from '@/core/WalletController';
+import { ExtensionWalletController } from '@/core/ExtensionWalletController';
 import { $t } from '@/localization';
 import { handleError } from '@/utils/helper';
 import { useDataManager } from '@/utils/hooks';
@@ -8,9 +8,9 @@ import { Accordion, AccordionItem } from '@nextui-org/react';
 import { useEffect } from 'react';
 
 export const SettingsPermissions = () => {
-    const [loadState, isLoading, permissions] = useDataManager(
-        async () => WalletController.getPermissions(),
-        [],
+    const [loadState, , permissions] = useDataManager(
+        ExtensionWalletController.getPermissions,
+        {},
         handleError
     );
     useEffect(() => {
@@ -18,10 +18,12 @@ export const SettingsPermissions = () => {
     }, []);
 
     const removePermission = async (origin, permission) => {
-        await WalletController.removePermission(origin, permission);
+        await ExtensionWalletController.removePermission(origin, permission);
         loadState();
     }
 
+    console.log('component permissions1', permissions)
+    console.log('component permissions2', Object.keys(permissions || []))
     return (
         <Screen titleBar={<TitleBar hasBackButton />}>
             <FormItem>

@@ -2,7 +2,7 @@ import { ExtensionMessages } from '@/constants';
 import PortStream from 'extension-port-stream'
 import browser from 'webextension-polyfill';
 import { ExtensionController } from './ExtensionController';
-import { WalletController } from './WalletController';
+import { ExtensionWalletController } from './ExtensionWalletController';
 
 let controller;
 
@@ -28,9 +28,9 @@ const connectRemote = (remotePort) => {
 const initialize = () => {
     controller = new ExtensionController({ browser });
     setInterval(async () => {
-        const requests = await WalletController.getRequests();
+        const requests = await ExtensionWalletController.getActionRequests();
         controller.updateBadge(requests.length);
-        WalletController.removeExpiredRequests();
+        ExtensionWalletController.removeExpiredActionRequests();
     }, 1000);
 
     browser.runtime.onConnect.addListener(connectRemote);

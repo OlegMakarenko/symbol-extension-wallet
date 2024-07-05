@@ -6,9 +6,8 @@ import { useMemo, useState } from 'react';
 import { config } from '@/config';
 import { ScrollShadow, Spacer } from '@nextui-org/react';
 import { PersistentStorage } from '@/storage';
-import { WalletController } from '@/core/WalletController';
-
-import Controller from '@/core/Controller';
+import { ExtensionWalletController } from '@/core/ExtensionWalletController';
+import WalletController from '@/core/WalletController';
 import { observer } from 'mobx-react-lite';
 import { ControllerEventName } from '@/constants';
 
@@ -20,21 +19,21 @@ export const Home = observer(function Home() {
         networkIdentifier,
         ticker,
         price,
-    } = Controller;
+    } = WalletController;
     const router = useRouter();
     const defaultUnconfirmedTransactions = useMemo(() => [], []);
     const [fetchConfirmedTransactions, isConfirmedTransactionsLoading, confirmedTransactions] = useDataManager(
         async () => {
-            const transactions = await Controller.fetchAccountTransactions(currentAccount.publicKey);
+            const transactions = await WalletController.fetchAccountTransactions(currentAccount.publicKey);
             return transactions.data;
         },
-        Controller.currentAccountLatestTransactions,
+        WalletController.currentAccountLatestTransactions,
         handleError,
         currentAccount
     );
     const [fetchUnconfirmedTransactions, isUnconfirmedTransactionsLoading, unconfirmedTransactions] = useDataManager(
         async () => {
-            const transactions = await Controller.fetchAccountTransactions(currentAccount.publicKey, { group: 'unconfirmed' });
+            const transactions = await WalletController.fetchAccountTransactions(currentAccount.publicKey, { group: 'unconfirmed' });
             return transactions.data;
         },
         defaultUnconfirmedTransactions,
@@ -42,7 +41,7 @@ export const Home = observer(function Home() {
         currentAccount
     );
     const [renameAccount] = useDataManager(
-        (password, name) => Controller.renameAccount({
+        (password, name) => WalletController.renameAccount({
             publicKey: currentAccount.publicKey,
             name,
             networkIdentifier
@@ -65,7 +64,7 @@ export const Home = observer(function Home() {
         setRequests(requests);
     }
     const declineActionRequest = async (request) => {
-        await WalletController.removeRequests([request.id]);
+        await ExtensionWalletController.removeActionRequests([request.id]);
         refreshActionRequests();
     }
     const handleActionRequest = (request) => {
@@ -78,10 +77,10 @@ export const Home = observer(function Home() {
     useInit(() => {
         refreshActionRequests();
         refreshTransactions();
-        Controller.on(ControllerEventName.NEW_TRANSACTION_CONFIRMED, refreshTransactions);
+        WalletController.on(ControllerEventName.NEW_TRANSACTION_CONFIRMED, refreshTransactions);
 
         return () => {
-            Controller.removeListener(ControllerEventName.NEW_TRANSACTION_CONFIRMED, refreshTransactions);
+            WalletController.removeListener(ControllerEventName.NEW_TRANSACTION_CONFIRMED, refreshTransactions);
         };
     }, isWalletReady, [currentAccount]);
 

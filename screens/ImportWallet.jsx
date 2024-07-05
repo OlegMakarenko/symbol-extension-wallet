@@ -11,7 +11,7 @@ import { ButtonClose } from '@/components/ButtonClose';
 import { handleError } from '@/utils/helper';
 import { useRouter } from '@/components/Router';
 import { Button } from '@/components/index';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 
 export const ImportWallet = () => {
     const router = useRouter();
@@ -49,7 +49,7 @@ export const ImportWallet = () => {
     );
     const [saveMnemonic] = useDataManager(
         async (password, optInPrivateKey) => {
-            await Controller.saveMnemonicAndGenerateAccounts({
+            await WalletController.saveMnemonicAndGenerateAccounts({
                 mnemonic: mnemonic.trim(),
                 name,
                 optInPrivateKey
@@ -67,7 +67,7 @@ export const ImportWallet = () => {
         setTimeout(() => checkOptInAccounts(password), 1500);
     };
     const completeLoading = async () => {
-        Controller.notifyLoginCompleted();
+        WalletController.notifyLoginCompleted();
     };
     const [Passcode, createPasscode] = usePasscode(startLoading);
 

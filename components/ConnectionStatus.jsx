@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite';
 import { $t } from '@/localization';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 
 export const ConnectionStatus = observer(function ConnectionStatus() {
-    const { networkStatus, isStateReady } = Controller;
+    const { networkStatus, isStateReady } = WalletController;
     const heightExpanded = 'h-4';
     const heightCollapsed = 'h-0';
 

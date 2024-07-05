@@ -7,12 +7,12 @@ import { useEffect } from 'react';
 import { config } from '@/config';
 import { Tab, Tabs } from '@nextui-org/react';
 import { $t } from '@/localization';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 import { observer } from 'mobx-react-lite';
 import { NetworkIdentifier } from '@/constants';
 
 export const AccountSelector = observer(function AccountSelector() {
-    const { isNetworkConnectionReady, isStateReady, currentAccount, accounts, accountInfos, networkIdentifier, ticker } = Controller;
+    const { isNetworkConnectionReady, isStateReady, currentAccount, accounts, accountInfos, networkIdentifier, ticker } = WalletController;
     const [isListOpen, toggleList] = useToggle(false);
     const selectedPublicKey = currentAccount?.publicKey || null;
     const networkAccounts = accounts[networkIdentifier];
@@ -31,10 +31,11 @@ export const AccountSelector = observer(function AccountSelector() {
     const [selectAccount, isSelectAccountLoading] = useDataManager(
         async (account, selectedNetworkIdentifier) => {
             if (selectedNetworkIdentifier !== networkIdentifier) {
-                await Controller.selectNetwork(selectedNetworkIdentifier);
+                await WalletController.selectNetwork(selectedNetworkIdentifier);
+                WalletController.runConnectionJob();
             }
             if (currentAccount.publicKey !== account.publicKey) {
-                await Controller.selectAccount(account.publicKey);
+                await WalletController.selectAccount(account.publicKey);
             }
             toggleList();
         },
@@ -47,7 +48,7 @@ export const AccountSelector = observer(function AccountSelector() {
     const fetchBalances = async () => {
         for (const account of networkAccounts) {
             if (!accountInfos[networkIdentifier][account.publicKey]) {
-                Controller.fetchAccountInfo(account.publicKey);
+                WalletController.fetchAccountInfo(account.publicKey);
             }
         }
     };

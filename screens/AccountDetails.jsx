@@ -4,13 +4,13 @@ import { Screen } from '@/components/Screen';
 import { TableView } from '@/components/TableView';
 import { TitleBar } from '@/components/TitleBar';
 import { config } from '@/config';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 import { $t } from '@/localization';
 import { Button } from '@nextui-org/react';
 import { observer } from 'mobx-react-lite';
 
 export const AccountDetails = observer(function AccountDetails() {
-    const { currentAccount, currentAccountInfo, networkIdentifier } = Controller;
+    const { currentAccount, currentAccountInfo, networkIdentifier } = WalletController;
     const { multisigAddresses } = currentAccountInfo;
     const { index, ...restAccountInfo } = currentAccount;
     const tableData = {

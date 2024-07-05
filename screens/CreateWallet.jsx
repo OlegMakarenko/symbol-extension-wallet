@@ -13,7 +13,7 @@ import { ButtonClose } from '@/components/ButtonClose';
 import { handleError } from '@/utils/helper';
 import { useRouter } from '@/components/Router';
 import { Button } from '@/components/index';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 
 
 export const CreateWallet = () => {
@@ -43,11 +43,11 @@ export const CreateWallet = () => {
         setTimeout(() => saveMnemonic(password), 1500);
     };
     const completeLoading = async () => {
-        Controller.notifyLoginCompleted();
+        WalletController.notifyLoginCompleted();
     };
     const [saveMnemonic] = useDataManager(
         async (password) => {
-            await Controller.saveMnemonicAndGenerateAccounts({ mnemonic, name }, password);
+            await WalletController.saveMnemonicAndGenerateAccounts({ mnemonic, name }, password);
             setLoadingStep(4);
             setTimeout(completeLoading, 500);
         },

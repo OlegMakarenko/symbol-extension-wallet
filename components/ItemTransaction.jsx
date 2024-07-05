@@ -1,7 +1,7 @@
 
 import { AccountAvatar, Card } from '@/components/index';
 import { TransactionType } from '@/constants';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 import { $t } from '@/localization';
 import { formatDate, getAddressName, trunc } from '@/utils/helper';
 import { isAggregateTransaction, isHarvestingServiceTransaction, isIncomingTransaction, isOutgoingTransaction } from '@/utils/transaction';
@@ -15,7 +15,7 @@ export const ItemTransaction = observer(function ItemTransaction(props) {
         networkIdentifier,
         addressBook = [],
         ticker,
-    } = Controller;
+    } = WalletController;
     const accounts = walletAccounts[networkIdentifier];
     const { type, timestamp, amount, signerAddress, recipientAddress } = transaction;
     const isConfirmed = group === 'confirmed'

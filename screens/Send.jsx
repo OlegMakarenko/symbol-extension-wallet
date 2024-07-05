@@ -25,7 +25,7 @@ import { useLocation } from 'react-router-dom';
 import { TransactionType } from '@/constants';
 import { Checkbox } from '@nextui-org/react';
 import { observer } from 'mobx-react-lite';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 
 export const Send = observer(function Send() {
     const {
@@ -41,7 +41,7 @@ export const Send = observer(function Send() {
         ticker,
         chainHeight,
         price,
-    } = Controller;
+    } = WalletController;
     const router = useRouter();
     const { state } = useLocation();
     const walletAccounts = accounts[networkIdentifier];
@@ -127,7 +127,7 @@ export const Send = observer(function Send() {
     );
     const [send, isSending] = useDataManager(
         async (password) => {
-            await Controller.sendTransferTransaction(transaction, password);
+            await WalletController.sendTransferTransaction(transaction, password);
             toggleSuccessAlert();
         },
         null,

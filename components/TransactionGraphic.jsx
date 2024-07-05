@@ -6,11 +6,11 @@ import { TableView } from './TableView';
 import { TransactionType } from '@/constants';
 import { $t } from '@/localization';
 import { filterCustomMosaics, getNativeMosaicAmount } from '@/utils/mosaic';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 
 export const TransactionGraphic = (props) => {
     const { transaction } = props;
-    const { ticker, addressBook, currentAccount, networkIdentifier, networkProperties, walletAccounts } = Controller;
+    const { ticker, addressBook, currentAccount, networkIdentifier, networkProperties, walletAccounts } = WalletController;
     const accounts = walletAccounts[networkIdentifier];
     const signerName = getAddressName(transaction.signerAddress, currentAccount, accounts, addressBook);
     const signerNameColorStyle = {

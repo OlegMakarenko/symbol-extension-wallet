@@ -15,7 +15,7 @@ export class PersistentStorage {
     static ACCOUNT_INFOS_KEY = 'ACCOUNT_INFOS';
     static USER_CURRENCY_KEY = 'USER_CURRENCY';
     static REQUEST_LIST_KEY = 'REQUEST_LIST';
-    static REQUEST_AUTO_OPEN_KEY = 'REQUEST_AUTO_OPEN';
+    static APP_LAUNCH_MODE_KEY = 'APP_LAUNCH_MODE';
     static PERMISSIONS_KEY = 'PERMISSIONS';
     static NETWORK_PROPERTIES_KEY = 'NETWORK_PROPERTIES';
 
@@ -79,69 +79,69 @@ export class PersistentStorage {
         return this.set(this.SELECTED_LANGUAGE_KEY, payload);
     };
 
-        // Seed Addresses
-        static async getSeedAddresses() {
-            const addresses = await this.get(this.SEED_ADDRESSES_KEY);
-            const defaultAccounts = createNetworkMap(() => []);
+    // Seed Addresses
+    static async getSeedAddresses() {
+        const addresses = await this.get(this.SEED_ADDRESSES_KEY);
+        const defaultAccounts = createNetworkMap(() => []);
 
-            try {
-                return JSON.parse(addresses) || defaultAccounts;
-            } catch {
-                return defaultAccounts;
-            }
+        try {
+            return JSON.parse(addresses) || defaultAccounts;
+        } catch {
+            return defaultAccounts;
         }
+    }
 
-        static async setSeedAddresses(payload) {
-            return this.set(this.SEED_ADDRESSES_KEY, JSON.stringify(payload));
+    static async setSeedAddresses(payload) {
+        return this.set(this.SEED_ADDRESSES_KEY, JSON.stringify(payload));
+    }
+
+    // Transactions
+    static async getLatestTransactions() {
+        const latestTransactions = await this.get(this.LATEST_TRANSACTIONS_KEY);
+        const defaultLatestTransactions = createNetworkMap(() => ({}));
+
+        try {
+            return JSON.parse(latestTransactions) || defaultLatestTransactions;
+        } catch {
+            return defaultLatestTransactions;
         }
+    }
 
-        // Transactions
-        static async getLatestTransactions() {
-            const latestTransactions = await this.get(this.LATEST_TRANSACTIONS_KEY);
-            const defaultLatestTransactions = createNetworkMap(() => ({}));
+    static async setLatestTransactions(payload) {
+        return this.set(this.LATEST_TRANSACTIONS_KEY, JSON.stringify(payload));
+    }
 
-            try {
-                return JSON.parse(latestTransactions) || defaultLatestTransactions;
-            } catch {
-                return defaultLatestTransactions;
-            }
+    // Mosaic Infos
+    static async getMosaicInfos() {
+        const mosaicInfos = await this.get(this.MOSAIC_INFOS_KEY);
+        const defaultMosaicInfos = createNetworkMap(() => ({}));
+
+        try {
+            return JSON.parse(mosaicInfos) || defaultMosaicInfos;
+        } catch {
+            return defaultMosaicInfos;
         }
+    }
 
-        static async setLatestTransactions(payload) {
-            return this.set(this.LATEST_TRANSACTIONS_KEY, JSON.stringify(payload));
+    static async setMosaicInfos(payload) {
+        return this.set(this.MOSAIC_INFOS_KEY, JSON.stringify(payload));
+    }
+
+    // Account Infos
+    static async getAccountInfos() {
+        const accountInfos = await this.get(this.ACCOUNT_INFOS_KEY);
+        const defaultAccountInfos = createNetworkMap(() => ({}));
+
+        try {
+            return JSON.parse(accountInfos) || defaultAccountInfos;
+        } catch {
+            return defaultAccountInfos;
         }
+    }
 
-        // Mosaic Infos
-        static async getMosaicInfos() {
-            const mosaicInfos = await this.get(this.MOSAIC_INFOS_KEY);
-            const defaultMosaicInfos = createNetworkMap(() => ({}));
-
-            try {
-                return JSON.parse(mosaicInfos) || defaultMosaicInfos;
-            } catch {
-                return defaultMosaicInfos;
-            }
-        }
-
-        static async setMosaicInfos(payload) {
-            return this.set(this.MOSAIC_INFOS_KEY, JSON.stringify(payload));
-        }
-
-        // Account Infos
-        static async getAccountInfos() {
-            const accountInfos = await this.get(this.ACCOUNT_INFOS_KEY);
-            const defaultAccountInfos = createNetworkMap(() => ({}));
-
-            try {
-                return JSON.parse(accountInfos) || defaultAccountInfos;
-            } catch {
-                return defaultAccountInfos;
-            }
-        }
-
-        static async setAccountInfos(payload) {
-            return this.set(this.ACCOUNT_INFOS_KEY, JSON.stringify(payload));
-        }
+    static async setAccountInfos(payload) {
+        return this.set(this.ACCOUNT_INFOS_KEY, JSON.stringify(payload));
+    }
 
     // User Currency
     static async getUserCurrency() {
@@ -172,16 +172,16 @@ export class PersistentStorage {
         return this.set(this.REQUEST_LIST_KEY, JSON.stringify(payload));
     }
 
-    // Request Auto Open
-    static getRequestAutoOpen = async () => {
+    // App Launch Mode
+    static getAppLaunchMode = async () => {
         const defaultValue = 'confirm';
-        const value = await this.get(this.REQUEST_AUTO_OPEN_KEY);
+        const value = await this.get(this.APP_LAUNCH_MODE_KEY);
 
         return value || defaultValue;
     };
 
-    static setRequestAutoOpen = (payload) => {
-        return this.set(this.REQUEST_AUTO_OPEN_KEY, payload);
+    static setAppLaunchMode = (payload) => {
+        return this.set(this.APP_LAUNCH_MODE_KEY, payload);
     };
 
     // Permissions

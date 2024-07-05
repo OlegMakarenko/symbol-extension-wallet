@@ -13,7 +13,7 @@ import { transactionToSymbol } from '@/utils/transaction-to-symbol';
 import { createTransactionURI, symbolTransactionToPayload } from '@/utils/transaction';
 import { TransactionType } from '@/constants';
 import { observer } from 'mobx-react-lite';
-import Controller from '@/core/Controller';
+import WalletController from '@/core/WalletController';
 
 
 export const Receive = observer(function Receive() {
@@ -23,7 +23,7 @@ export const Receive = observer(function Receive() {
         networkProperties,
         networkIdentifier,
         price
-    } = Controller;
+    } = WalletController;
     const [tableData, setTableData] = useState({});
     const [amount, setAmount] = useState('0');
     const [isAmountValid, setAmountValid] = useState(false);
