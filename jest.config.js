@@ -13,9 +13,9 @@ const createJestConfig = nextJest({
 const config = {
   workerThreads: true,
   testPathIgnorePatterns: ['<rootDir>/__tests__/test-utils'],
+  coveragePathIgnorePatterns: ['/test-utils/'],
   clearMocks: true,
-  collectCoverage: true,
-  coverageDirectory: 'coverage',
+  coverageProvider: 'babel',
   moduleNameMapper: {
     '^@/api/(.*)$': '<rootDir>/api/$1',
     '^@/components/(.*)$': '<rootDir>/components/$1',
@@ -25,8 +25,10 @@ const config = {
     '^@/pages/(.*)$': '<rootDir>/pages/$1',
     '^@/public/(.*)$': '<rootDir>/public/$1',
     '^@/screens/(.*)$': '<rootDir>/screens/$1',
+    '^@/services/(.*)$': '<rootDir>/services/$1',
     '^@/services': '<rootDir>/services/index.js',
     '^@/styles/(.*)$': '<rootDir>/styles/$1',
+    '^@/storage/(.*)$': '<rootDir>/storage/$1',
     '^@/storage': '<rootDir>/storage/index.js',
     '^@/utils/(.*)$': '<rootDir>/utils/$1',
   },
@@ -34,14 +36,14 @@ const config = {
   transformIgnorePatterns: [
     '/node_modules/(?!(symbol-sdk)/)',
   ],
-  setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
-  testEnvironment: 'jest-environment-jsdom',
-  extensionsToTreatAsEsm: ['.jsx'],
-	coverageProvider: 'v8'
+  resetMocks: true,
+	restoreMocks: true,
+	testEnvironment: 'jsdom',
+	testTimeout: 2500,
+	extensionsToTreatAsEsm: ['.jsx'],
+	setupFilesAfterEnv: ['<rootDir>/setupTests.js']
 };
 
-
-//module.exports = createJestConfig(config)
 module.exports = async () => ({
   ...(await createJestConfig(config)()),
   transformIgnorePatterns: [
