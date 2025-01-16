@@ -114,6 +114,9 @@ export class NamespaceService {
         const endpoint = `${networkProperties.nodeUrl}/statements/resolutions/address?height=${height}&pageSize=100`;
         const { data } = await makeRequest(endpoint);
         const statement = data.find((statement) => namespaceIdFromRaw(statement.statement.unresolved) === namespaceId);
+        if (!statement) {
+            throw Error('error_failed_resolve_address');
+        }
         const { resolved } = statement.statement.resolutionEntries[0];
 
         return addressFromRaw(resolved);
