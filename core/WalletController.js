@@ -1,4 +1,4 @@
-import { cloneDeep, uniqBy } from 'lodash';
+import { cloneDeep } from 'lodash';
 import SafeEventEmitter from '@metamask/safe-event-emitter';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { config } from '@/config';
@@ -74,12 +74,13 @@ const defaultState = {
     },
 }
 
-class WalletController {
-    constructor() {
+export class WalletController {
+    constructor(config) {
         this._notificationChannel = new SafeEventEmitter();
         this._state = cloneDeep(defaultState);
 
-        makeAutoObservable(this);
+        if (config.isObservable)
+            makeAutoObservable(this);
     }
 
     // all user accounts in the wallet. Grouped by network
@@ -305,6 +306,7 @@ class WalletController {
 
         if (!currentAccount) {
             this._throwError('error_wallet_selected_account_missing');
+            return;
         }
 
         runInAction(() => {
@@ -681,4 +683,6 @@ class WalletController {
     }
 }
 
-export default new WalletController();
+export default new WalletController({
+    isObservable: true
+});
